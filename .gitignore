@@ -3,3 +3,8 @@
 /lazy-lock.json
 /.mason
 plugin/packer_compiled.lua
+*.swp
+*.log
+/lazy-lock.json
+/.mason
+plugin/packer_compiled.lua

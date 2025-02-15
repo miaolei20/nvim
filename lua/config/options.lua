@@ -38,7 +38,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end
 })
 
--- 配置剪贴板使用 win32yank-wsl
 vim.g.clipboard = {
   name = "win32yank-wsl",
   copy = {

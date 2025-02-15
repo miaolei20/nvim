@@ -31,6 +31,7 @@ require("lazy").setup({
         { import = "plugins/bufferline" }, -- 标签栏
         { import = "plugins/nvimtree" }, -- 文件树
         { import = "plugins/telescope" }, -- 模糊搜索
+        { import = "plugins/notify"},
         { import = "plugins/which-key" }, -- 快捷键提示
         { import = "plugins/mason" },  -- 包管理
         { import = "plugins/lsp" },    -- 语言服务器协议 (LSP)
@@ -44,6 +45,7 @@ require("lazy").setup({
         { import = "plugins/startime" },
         { import = "plugins/treesitter" },
         { import = "plugins/treesitter-context" },
+        { import = "plugins.codeium" }, -- 加载 Codeium 配置模块
         -- 其他模块...
     },
     performance = {

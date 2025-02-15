@@ -41,6 +41,7 @@ return {
       }),
       sources = cmp.config.sources({
         { name = "nvim_lsp" },  -- LSP 补全源
+        { name = "codeium" },
         { name = "luasnip" },  -- LuaSnip 补全源
         { name = "buffer" },  -- 缓冲区补全源
         { name = "path" }  -- 文件路径补全源
