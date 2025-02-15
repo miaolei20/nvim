@@ -45,7 +45,9 @@ require("lazy").setup({
         { import = "plugins/startime" },
         { import = "plugins/treesitter" },
         { import = "plugins/treesitter-context" },
-        { import = "plugins.codeium" }, -- 加载 Codeium 配置模块
+        { import = "plugins/codeium" }, -- 加载 Codeium 配置模块
+        { import = "plugins/mason-dap" },  -- 必须先于 dap 加载
+        { import = "plugins/dap" },
         -- 其他模块...
     },
     performance = {

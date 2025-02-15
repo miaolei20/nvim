@@ -1,4 +1,5 @@
 return {
+  event = "InsertEnter",
   "hrsh7th/nvim-cmp",  -- 主插件
   dependencies = {
     "hrsh7th/cmp-buffer",  -- 缓冲区补全源

@@ -2,7 +2,7 @@
 return {
   {
     "folke/which-key.nvim",  -- 主插件
-    event = "VeryLazy",  -- 延迟加载插件
+    event = "VeryLazy",  -- 在 VeryLazy 事件时加载
     config = function()
       local colors = require("onedark.palette").dark  -- 获取配色方案
       require("which-key").setup({})  -- 配置 which-key 插件

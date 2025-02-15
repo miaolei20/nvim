@@ -3,6 +3,14 @@ return {
   {
     "nvim-telescope/telescope.nvim",  -- 主插件
     version = false, -- 使用最新版本
+    cmd = "Telescope",  -- 命令名称
+    keys = {  -- 快捷键
+      "<leader>ff",  -- 查找文件
+      "<leader>fg",  -- 搜索文本
+      "<leader>fb",  -- 查找缓冲区
+      "<leader>fh",  -- 查找帮助标签
+      "<leader>fr"  -- 查找最近文件
+    },
     dependencies = {
       "nvim-lua/plenary.nvim",  -- 必要依赖
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" }, -- 性能优化

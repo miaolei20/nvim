@@ -1,5 +1,6 @@
 return {
   "Exafunction/codeium.nvim",
+  event = "InsertEnter",
   dependencies = { "nvim-cmp" }, -- 添加依赖声明（可选，但推荐）
   build = ":Codeium Auth",
   opts = {

@@ -1,6 +1,8 @@
 return {
   {
     "nvim-tree/nvim-tree.lua",  -- 主插件
+    cmd = { "NvimTreeToggle", "NvimTreeOpen" },  -- 命令名称
+    keys = { "<F3>" },  -- 快捷键
     dependencies = {
       "nvim-tree/nvim-web-devicons",  -- 图标插件
     },
