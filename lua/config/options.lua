@@ -51,7 +51,7 @@ vim.g.clipboard = {
   cache_enable = 0,
 }
 
--- 一键运行
+-- 一键运行（优化光标插入模式）
 -- 定义一个编译并运行当前 C/C++ 文件的函数
 local function compile_and_run()
   -- 获取当前文件名、无后缀文件名和文件扩展名
@@ -72,11 +72,27 @@ local function compile_and_run()
     return
   end
 
-  -- 在下方拆分窗口打开终端，并运行命令
-  vim.cmd("botright split | resize 10 | terminal " .. cmd)
+  -- 创建下方终端窗口
+  vim.cmd("botright split | resize 10")  -- 向下分割并调整高度
+  
+  -- 创建新缓冲区并关联到窗口
+  local buf = vim.api.nvim_create_buf(false, true)  -- 创建无列表的临时缓冲区
+  local win = vim.api.nvim_get_current_win()
+  vim.api.nvim_win_set_buf(win, buf)
+  
+  -- 在缓冲区中运行终端命令
+  vim.fn.termopen(cmd, {
+    on_exit = function(job_id, exit_code, event)
+      -- 可选：程序退出时的处理逻辑
+      -- 例如自动关闭窗口：vim.api.nvim_win_close(win, true)
+    end
+  })
+  
+  -- 自动进入插入模式（重要改进！）
+  vim.cmd("startinsert")
 end
 
--- 创建一个用户命令 RunCode 调用上面的函数
+-- 创建用户命令 RunCode 调用上面的函数
 vim.api.nvim_create_user_command("RunCode", compile_and_run, {})
 
 -- 绑定快捷键 F5 运行代码
