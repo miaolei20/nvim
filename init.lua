@@ -48,6 +48,7 @@ require("lazy").setup({
         { import = "plugins/codeium" }, -- 加载 Codeium 配置模块
         { import = "plugins/mason-dap" },  -- 必须先于 dap 加载
         { import = "plugins/dap" },
+        { import = "plugins/codesnap" },
         -- 其他模块...
     },
     performance = {
