@@ -1,86 +1,86 @@
 return {
-    "neovim/nvim-lspconfig",  -- 主插件
+    "neovim/nvim-lspconfig",                 -- 主插件
     dependencies = {
-        "williamboman/mason-lspconfig.nvim",  -- LSP 安装管理插件
-        "hrsh7th/cmp-nvim-lsp",  -- 提供 LSP 补全能力
+        "williamboman/mason-lspconfig.nvim", -- LSP 安装管理插件
+        "hrsh7th/cmp-nvim-lsp",              -- 提供 LSP 补全能力
         -- 添加导航相关依赖
-    {
-      "SmiteshP/nvim-navic",
-      lazy = true,
-      init = function()
-        vim.g.navic_silence = true
-        vim.api.nvim_create_autocmd("LspAttach", {
-          callback = function(args)
-            local client = vim.lsp.get_client_by_id(args.data.client_id)
-            local bufnr = args.buf
-            if client.supports_method("textDocument/documentSymbol") then
-              require("nvim-navic").attach(client, bufnr)
-            end
-          end,
-        })
-      end,
-      opts = {
-        separator = "  ",
-        highlight = true,
-        depth_limit = 5,
-        icons = {
-          File = " ",
-          Module = " ",
-          Namespace = " ",
-          Package = " ",
-          Class = " ",
-          Method = " ",
-          Property = " ",
-          Field = " ",
-          Constructor = " ",
-          Enum = "練",
-          Interface = "練",
-          Function = " ",
-          Variable = " ",
-          Constant = " ",
-          String = " ",
-          Number = " ",
-          Boolean = "◩ ",
-          Array = " ",
-          Object = " ",
-          Key = " ",
-          Null = "󰟢 ",
-          EnumMember = " ",
-          Struct = " ",
-          Event = " ",
-          Operator = " ",
-          TypeParameter = " ",
+        {
+            "SmiteshP/nvim-navic",
+            lazy = true,
+            init = function()
+                vim.g.navic_silence = true
+                vim.api.nvim_create_autocmd("LspAttach", {
+                    callback = function(args)
+                        local client = vim.lsp.get_client_by_id(args.data.client_id)
+                        local bufnr = args.buf
+                        if client.supports_method("textDocument/documentSymbol") then
+                            require("nvim-navic").attach(client, bufnr)
+                        end
+                    end,
+                })
+            end,
+            opts = {
+                separator = "  ",
+                highlight = true,
+                depth_limit = 5,
+                icons = {
+                    File = " ",
+                    Module = " ",
+                    Namespace = " ",
+                    Package = " ",
+                    Class = " ",
+                    Method = " ",
+                    Property = " ",
+                    Field = " ",
+                    Constructor = " ",
+                    Enum = "練",
+                    Interface = "練",
+                    Function = " ",
+                    Variable = " ",
+                    Constant = " ",
+                    String = " ",
+                    Number = " ",
+                    Boolean = "◩ ",
+                    Array = " ",
+                    Object = " ",
+                    Key = " ",
+                    Null = "󰟢 ",
+                    EnumMember = " ",
+                    Struct = " ",
+                    Event = " ",
+                    Operator = " ",
+                    TypeParameter = " ",
+                },
+                lazy_update_context = true,
+            }
         },
-        lazy_update_context = true,
-      }
-    },
-    {
-      "SmiteshP/nvim-navbuddy",
-      dependencies = {
-        "MunifTanjim/nui.nvim",
-        "SmiteshP/nvim-navic"
-      },
-      keys = {
-        { "<leader>cn", "<cmd>Navbuddy<cr>", desc = "Code Navigation" }
-      },
-      opts = {
-        window = {
-          border = "rounded",
-          size = "60%",
-          position = "50%",
-          sections = {
-            left = { size = "20%", border = "right" },
-            mid = { size = "30%" },
-            right = { size = "50%" }
-          }
+        {
+            "SmiteshP/nvim-navbuddy",
+            dependencies = {
+                "MunifTanjim/nui.nvim",
+                "SmiteshP/nvim-navic"
+            },
+            keys = {
+                { "<leader>cn", "<cmd>Navbuddy<cr>", desc = "Code Navigation" }
+            },
+            opts = {
+                window = {
+                    border = "rounded",
+                    size = "60%",
+                    position = "50%",
+                    sections = {
+                        left = { size = "20%", border = "right" },
+                        mid = { size = "30%" },
+                        right = { size = "50%" }
+                    }
+                }
+            }
         }
-      }
-    }
     },
-    event = {"BufReadPre", "BufNewFile"},  -- 在读取缓冲区或新建文件时加载插件
+    event = { "BufReadPre", "BufNewFile" }, -- 在读取缓冲区或新建文件时加载插件
     config = function()
         local lspconfig = require("lspconfig")
-        
+
         -- 定义格式化函数，过滤掉 tsserver
         local lsp_format = function(bufnr)
             vim.lsp.buf.format({
@@ -101,7 +101,7 @@ return {
                 desc = "Format current buffer with LSP"
             })
         end
-        
+
         -- 各语言独立配置
         local servers = {
             lua_ls = {
@@ -117,12 +117,12 @@ return {
                 }
             },
             clangd = {
-                cmd = {"clangd", "--offset-encoding=utf-16", "--clang-tidy", "--header-insertion=never",
-                       "--query-driver=/usr/bin/clang"},
+                cmd = { "clangd", "--offset-encoding=utf-16", "--clang-tidy", "--header-insertion=never",
+                    "--query-driver=/usr/bin/clang" },
                 settings = {
                     format = {
                         style = "LLVM",
-                        indentWidth = 4,
+                        indentWidth = 2,
                         UseTab = "Never"
                     }
                 }
