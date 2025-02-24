@@ -54,9 +54,7 @@ require("lazy").setup({
     { import = "plugins/spectre"},
     { import = "plugins/scrollbar"},
     { import = "plugins/file-browser"},
-    { import = "plugins/ufo"},
-    { import = "plugins/toggleterm"},
-    { import = "plugins/todo-comments"},
+    { import =  "plugins/ufo"},
     -- 其他模块...
   },
   performance = {

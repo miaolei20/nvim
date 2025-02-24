@@ -1,38 +1,16 @@
 return {
-    "neovim/nvim-lspconfig",
+    "neovim/nvim-lspconfig",  -- 主插件
     dependencies = {
-        "williamboman/mason-lspconfig.nvim",
-        "hrsh7th/cmp-nvim-lsp",
-        "glepnir/lspsaga.nvim",  -- 新增 lspsaga.nvim 插件
-        "ray-x/lsp_signature.nvim"  -- 新增 lsp_signature.nvim 插件
+        "williamboman/mason-lspconfig.nvim",  -- LSP 安装管理插件
+        "hrsh7th/cmp-nvim-lsp",  -- 提供 LSP 补全能力
+        "glepnir/lspsaga.nvim",  -- lspsaga 插件
+        "ray-x/lsp_signature.nvim",  -- lsp_signature 插件
     },
-    event = {"BufReadPre", "BufNewFile"},
+    event = {"BufReadPre", "BufNewFile"},  -- 在读取缓冲区或新建文件时加载插件
     config = function()
         local lspconfig = require("lspconfig")
         local saga = require("lspsaga")
         local lsp_signature = require("lsp_signature")
-
-        -- 初始化 lspsaga
-        saga.setup({})
-
-        -- 配置 lsp_signature
-        lsp_signature.setup({
-            bind = true,  -- 这是推荐配置， bind为true表示自动绑定
-            doc_lines = 2,  -- 显示的文档行数，可在 hovering中查看
-            floating_window = true,  -- 是否使用浮动窗口显示签名信息
-            fix_pos = false,  -- 浮动窗口是否固定位置
-            hint_enable = true,  -- 显示参数提示
-            hint_prefix = "🐼 ",  -- 提示信息前缀
-            hi_parameter = "LspSignatureActiveParameter",  -- 高亮当前参数
-            max_height = 12,
-            max_width = 80,  -- 浮动窗口最大宽度
-            handler_opts = {
-                border = "single"  -- 边框类型：single, double, shadow, none
-            },
-            extra_trigger_chars = {},  -- 除了函数调用的"()”字符外的触发字符
-            zindex = 200,
-            padding = '', -- 如果你发现浮动窗口文本边界没有缩进可以设置这个
-        })
 
         -- 定义格式化函数，过滤掉 tsserver
         local lsp_format = function(bufnr)
@@ -53,17 +31,27 @@ return {
             end, {
                 desc = "Format current buffer with LSP"
             })
-            -- LspSaga 快捷键绑定
-            local map = function(keys, func, desc)
-                vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
-            end
-            
-            map("gd", "<cmd>Lspsaga peek_definition<CR>", "Peek Definition")
 
-            -- 启用 lspsaga 和 lsp_signature
-            lsp_signature.on_attach({}, bufnr)
+            -- 启动 lsp_signature
+            lsp_signature.on_attach({
+                bind = true,  -- This is mandatory, otherwise border config won't get registered.
+                handler_opts = {
+                    border = "rounded"  -- 可调整边框样式
+                },
+                hint_enable = true,
+            })
+
+            -- 配置 lspsaga
+            saga.init_lsp_saga({
+                -- 自定义配置
+                error_sign = "✖",
+                warn_sign = "⚠",
+                hint_sign = "💡",
+                infor_sign = "ℹ",
+                action_fix = "⚙️"
+            })
         end
-
+        
         -- 各语言独立配置
         local servers = {
             lua_ls = {

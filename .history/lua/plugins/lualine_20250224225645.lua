@@ -5,7 +5,16 @@ return {
     event = "VeryLazy",  -- 延迟加载插件
      dependencies = {
       "nvim-web-devicons",
+      "SmiteshP/nvim-navic",    -- 显式声明依赖
     },
+    init = function()
+      vim.g.lualine_laststatus = vim.o.laststatus  -- 保存当前状态栏状态
+      if vim.fn.argc(-1) > 0 then
+        vim.o.statusline = " "  -- 如果有参数，设置空状态栏
+      else
+        vim.o.laststatus = 0  -- 否则隐藏状态栏
+      end
+    end,
     config = function()
       local colors = require("onedark.palette").dark  -- 获取配色方案
       local icons = {
@@ -21,6 +30,18 @@ return {
           removed  = " ",  -- 删除图标
         }
       }
+      -- 新增导航组件模块
+      local navigation = {
+  navic = {
+    function() return require("nvim-navic").get_location() end,
+    cond = function() return require("nvim-navic").is_available() end,
+    color = {
+      fg = colors.cyan,         -- 前景色与主题一致
+      bg = colors.bg_statusline -- 背景色与 lualine 全局背景一致（需确认你的主题色变量名）
+    },
+    padding = { left = 0, right = 1 }
+  }
+}
       -- 新增模式颜色映射表
       local mode_colors = {
         n = { bg = colors.cyan, fg = colors.black },    -- Normal
@@ -49,7 +70,7 @@ return {
           section_separators = { left = "", right = "" },  -- 区域分隔符
           globalstatus = true,  -- 全局状态栏
           disabled_filetypes = {
-            statusline = { "dashboard", "alpha", "ministarter", "TelescopePrompt","NvimTree" }  -- 禁用状态栏的文件类型
+            statusline = { "dashboard", "alpha", "ministarter", "TelescopePrompt" }  -- 禁用状态栏的文件类型
           },
           refresh = { statusline = 150 }  -- 刷新间隔
         },
@@ -77,6 +98,17 @@ return {
           },
           lualine_c = {
             {
+              "filename",
+              path = 1,
+              symbols = {
+                modified = "● ",
+                readonly = "",
+                unnamed = "[未命名]"
+              },
+              color = { fg = colors.purple }
+            },
+             navigation.navic,  -- 新增导航路径
+            {
               "diagnostics",
               symbols = icons.diagnostics,
               colored = true,
@@ -89,7 +121,6 @@ return {
             function()
               return require("noice").api.status.command.get()
             end,
-
             function()
               return require("noice").api.status.mode.get()
             end,
@@ -130,6 +161,12 @@ return {
           },
           lualine_y = {
             {
+              "filetype",
+              icon_only = true,
+              colored = true,
+              padding = { left = 1 }
+            },
+            {
               "encoding",
               fmt = function(str)
                 return " " .. str:upper()  -- 添加编码图标
@@ -168,8 +205,7 @@ return {
           "neo-tree", 
           "toggleterm",
           "lazy",
-          "fzf",
-          "nvim-tree",
+          "fzf"
         }
       })
 

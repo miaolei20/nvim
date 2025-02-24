@@ -1,37 +1,43 @@
--- file: plugins/02-dashboard.lua
+-- file: plugins/dashboard.lua
 return {
   {
     "glepnir/dashboard-nvim",
-    event = "VimEnter",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    event = "VimEnter",                               -- 在 Neovim 启动时自动加载
+    dependencies = { "nvim-tree/nvim-web-devicons" }, -- 图标支持
     config = function()
-      local colors = require("onedark.palette").dark
+      vim.g.original_laststatus = vim.o.laststatus  -- 保存当前状态栏状态
+      local colors = require("onedark.palette").dark  -- 获取主题颜色
       local dashboard = require("dashboard")
 
-      -- 主题适配
+      -- ==================== 主题适配 ====================
       vim.api.nvim_set_hl(0, "DashboardHeader", { fg = colors.cyan, bold = true })
       vim.api.nvim_set_hl(0, "DashboardDesc", { fg = colors.green })
       vim.api.nvim_set_hl(0, "DashboardKey", { fg = colors.orange })
       vim.api.nvim_set_hl(0, "DashboardIcon", { fg = colors.purple })
       vim.api.nvim_set_hl(0, "DashboardFooter", { fg = colors.comment, italic = true })
 
-      -- 核心配置
+      -- ==================== 核心配置 ====================
       dashboard.setup({
-        theme = 'hyper',
+        theme = 'hyper',                   -- 内置主题风格
         config = {
-          week_header = { enable = true },
+          week_header = { enable = true }, -- 显示周数
           shortcut = {
             { desc = '󰈞  Find File', group = 'DashboardDesc', action = 'Telescope find_files', key = 'SPC f f' },
             { desc = '󰊯  Recent Files', group = 'DashboardDesc', action = 'Telescope oldfiles', key = 'SPC f r' },
             { desc = '󰍉  Live Grep', group = 'DashboardDesc', action = 'Telescope live_grep', key = 'SPC f g' },
             { desc = '󰒓  Config', group = 'DashboardIcon', action = 'edit ~/.config/nvim/init.lua', key = 'SPC c' },
-            { desc = '󰗼  Quit', group = 'DashboardFooter', action = function() vim.cmd("qa!") end, key = 'q' },
+            { desc = '󰗼  Quit', group = 'DashboardFooter', action = function() vim.cmd("qa!") end, key = 'q' }, },
+          packages = { enable = true }, -- 显示插件数量
+          footer = { "󰘃 Neovim 配置 - 已加载 " .. #vim.tbl_keys(require("lazy").plugins()) .. " 个插件" }, -- 动态统计插件数
+          project = {
+            enable = true,
+            limit = 8, -- 显示最近项目数量
+            icon = ' ',
+            label = '最近项目:',
+            action = 'Telescope find_files cwd='
           },
-          packages = { enable = true },
-          footer = { "󰘃 Neovim 配置 - 已加载 " .. #vim.tbl_keys(require("lazy").plugins()) .. " 个插件" },
-          project = { enable = true, limit = 8, icon = ' ', label = '最近项目:', action = 'Telescope find_files cwd=' },
-          mru = { limit = 5 },
-          header = {
+          mru = { limit = 5 }, -- 最近文件数量
+          header = {           -- ASCII 艺术字生成工具：https://patorjk.com/software/taag/
             [[                                                                       ]],
             [[  ██████╗ ██████╗ ██████╗ ██╗   ██╗██╗███╗   ██╗███████╗██╗   ██╗███████╗ ]],
             [[ ██╔════╝██╔═══██╗██╔══██╗██║   ██║██║████╗  ██║██╔════╝██║   ██║██╔════╝ ]],
@@ -43,28 +49,20 @@ return {
           }
         }
       })
-
-      -- 精准控制标签栏显示逻辑
-      vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
-        pattern = "*",
+      -- 新增：Dashboard 加载后恢复状态栏
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "DashboardReady",
         callback = function()
-          if vim.bo.filetype == "dashboard" then
-            vim.opt_local.showtabline = 0  -- 仅对 Dashboard 窗口隐藏
-          else
-            vim.opt.showtabline = 2       -- 其他窗口强制显示
-          end
+          vim.schedule(function()
+            vim.o.laststatus = vim.g.original_laststatus  -- 恢复原始状态栏设置
+            vim.o.showmode = true                        -- 确保模式提示开启
+            vim.o.ruler = true                           -- 确保标尺显示
+          end)
         end
       })
 
-      -- 离开 Dashboard 后恢复标签栏
-      vim.api.nvim_create_autocmd("BufLeave", {
-        pattern = "dashboard",
-        callback = function()
-          vim.opt.showtabline = 2
-        end
-      })
-
-      -- 兼容 NvimTree 自动关闭
+      -- ==================== 高级功能 ====================
+      -- 自动关闭 NvimTree 等插件后再显示 Dashboard
       vim.api.nvim_create_autocmd("User", {
         pattern = "DashboardReady",
         callback = function()
@@ -73,6 +71,11 @@ return {
           end
         end
       })
+
+      -- 自定义命令快速访问
+      vim.api.nvim_create_user_command("DB", function()
+        require("dashboard").instance:refresh()
+      end, { desc = "刷新 Dashboard 界面" })
     end
   }
 }

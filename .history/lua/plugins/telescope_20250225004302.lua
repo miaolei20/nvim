@@ -11,6 +11,7 @@ return {
     { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Find Buffers" },
     { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help Tags" },
     { "<leader>fr", function() require("telescope.builtin").oldfiles() end, desc = "Recent Files" },
+    { "<leader>fc", function() require("telescope.builtin").git_commits() end, desc = "Git Commits" },
     { "<leader>fs", function() require("telescope.builtin").lsp_document_symbols() end, desc = "Document Symbols" },
     { "<leader>fd", function() require("telescope.builtin").diagnostics() end, desc = "Workspace Diagnostics" },
     { "<leader>fw", function() require("telescope.builtin").grep_string() end, desc = "Word Under Cursor" }

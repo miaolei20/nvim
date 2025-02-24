@@ -53,7 +53,7 @@ require("lazy").setup({
     { import = "plugins/undotree"},
     { import = "plugins/spectre"},
     { import = "plugins/scrollbar"},
-    { import = "plugins/file-browser"},
+    --{ import = "plugins/file-browser"},
     { import = "plugins/ufo"},
     { import = "plugins/toggleterm"},
     { import = "plugins/todo-comments"},

@@ -168,8 +168,7 @@ return {
           "neo-tree", 
           "toggleterm",
           "lazy",
-          "fzf",
-          "nvim-tree",
+          "fzf"
         }
       })
 

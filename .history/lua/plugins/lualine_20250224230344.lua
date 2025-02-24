@@ -6,6 +6,14 @@ return {
      dependencies = {
       "nvim-web-devicons",
     },
+    init = function()
+      vim.g.lualine_laststatus = vim.o.laststatus  -- 保存当前状态栏状态
+      if vim.fn.argc(-1) > 0 then
+        vim.o.statusline = " "  -- 如果有参数，设置空状态栏
+      else
+        vim.o.laststatus = 0  -- 否则隐藏状态栏
+      end
+    end,
     config = function()
       local colors = require("onedark.palette").dark  -- 获取配色方案
       local icons = {
@@ -49,7 +57,7 @@ return {
           section_separators = { left = "", right = "" },  -- 区域分隔符
           globalstatus = true,  -- 全局状态栏
           disabled_filetypes = {
-            statusline = { "dashboard", "alpha", "ministarter", "TelescopePrompt","NvimTree" }  -- 禁用状态栏的文件类型
+            statusline = { "dashboard", "alpha", "ministarter", "TelescopePrompt" }  -- 禁用状态栏的文件类型
           },
           refresh = { statusline = 150 }  -- 刷新间隔
         },
@@ -168,8 +176,7 @@ return {
           "neo-tree", 
           "toggleterm",
           "lazy",
-          "fzf",
-          "nvim-tree",
+          "fzf"
         }
       })
 

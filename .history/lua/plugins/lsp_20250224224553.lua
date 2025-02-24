@@ -58,8 +58,14 @@ return {
                 vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
             end
             
+            map("gh", "<cmd>Lspsaga lsp_finder<CR>", "LSP Finder")
+            map("K", "<cmd>Lspsaga hover_doc<CR>", "Hover Doc")
             map("gd", "<cmd>Lspsaga peek_definition<CR>", "Peek Definition")
-
+            map("<leader>cd", "<cmd>Lspsaga show_line_diagnostics<CR>", "Line Diagnostics")
+            map("[d", "<cmd>Lspsaga diagnostic_jump_prev<CR>", "Prev Diagnostic")
+            map("]d", "<cmd>Lspsaga diagnostic_jump_next<CR>", "Next Diagnostic")
+            map("<leader>ca", "<cmd>Lspsaga code_action<CR>", "Code Action")
+            
             -- 启用 lspsaga 和 lsp_signature
             lsp_signature.on_attach({}, bufnr)
         end

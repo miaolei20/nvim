@@ -27,7 +27,7 @@ require("lazy").setup({
     { import = "plugins/onedark" },         -- 主题优先加载
     { import = "plugins/icons" },           -- 图标配置
     { import = "plugins/navigation" },      -- 导航
-    { import = "plugins/lualine" },         -- 状态栏
+    --{ import = "plugins/lualine" },         -- 状态栏
     { import = "plugins/bufferline" },      -- 标签栏
     { import = "plugins/nvimtree" },        -- 文件树
     { import = "plugins/telescope" },       -- 模糊搜索
@@ -46,6 +46,8 @@ require("lazy").setup({
     { import = "plugins/treesitter" },
     { import = "plugins/treesitter-context" },
     { import = "plugins/codeium" },       -- 加载 Codeium 配置模块
+    { import = "plugins/mason-dap" },     -- 必须先于 dap 加载
+    { import = "plugins/dap" },
     { import = "plugins/codesnap" },
     { import = "plugins/dashboard" },
     { import = "plugins/gitsigns" },
@@ -54,9 +56,7 @@ require("lazy").setup({
     { import = "plugins/spectre"},
     { import = "plugins/scrollbar"},
     { import = "plugins/file-browser"},
-    { import = "plugins/ufo"},
-    { import = "plugins/toggleterm"},
-    { import = "plugins/todo-comments"},
+    { import =  "plugins/ufo"},
     -- 其他模块...
   },
   performance = {

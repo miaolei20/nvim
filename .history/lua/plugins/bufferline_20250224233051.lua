@@ -1,4 +1,4 @@
--- file: plugins/01-bufferline.lua
+-- file: plugins/bufferline.lua
 return {
   {
     "akinsho/bufferline.nvim",
@@ -9,11 +9,9 @@ return {
       { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next Buffer" },
     },
     config = function()
-      -- 强制全局启用标签栏
       vim.opt.termguicolors = true
-      vim.opt.showtabline = 2  -- 始终显示标签栏（Dashboard 会局部覆盖）
+      vim.opt.showtabline = 2  -- 强制全局显示标签栏（Dashboard 会局部覆盖）
 
-      -- 核心配置
       require("bufferline").setup({
         options = {
           mode = "buffers",

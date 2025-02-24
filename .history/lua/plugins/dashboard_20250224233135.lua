@@ -1,4 +1,4 @@
--- file: plugins/02-dashboard.lua
+-- file: plugins/dashboard.lua
 return {
   {
     "glepnir/dashboard-nvim",
@@ -45,22 +45,17 @@ return {
       })
 
       -- 精准控制标签栏显示逻辑
-      vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
-        pattern = "*",
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "dashboard",
         callback = function()
-          if vim.bo.filetype == "dashboard" then
-            vim.opt_local.showtabline = 0  -- 仅对 Dashboard 窗口隐藏
-          else
-            vim.opt.showtabline = 2       -- 其他窗口强制显示
-          end
+          vim.opt_local.showtabline = 0  -- 仅对 Dashboard 窗口隐藏标签栏
         end
       })
 
-      -- 离开 Dashboard 后恢复标签栏
       vim.api.nvim_create_autocmd("BufLeave", {
         pattern = "dashboard",
         callback = function()
-          vim.opt.showtabline = 2
+          vim.opt.showtabline = 2  -- 离开 Dashboard 后强制恢复标签栏
         end
       })
 

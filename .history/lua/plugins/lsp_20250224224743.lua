@@ -58,6 +58,7 @@ return {
                 vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
             end
             
+            map("K", "<cmd>Lspsaga hover_doc<CR>", "Hover Doc")
             map("gd", "<cmd>Lspsaga peek_definition<CR>", "Peek Definition")
 
             -- 启用 lspsaga 和 lsp_signature

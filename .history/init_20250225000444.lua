@@ -56,7 +56,6 @@ require("lazy").setup({
     { import = "plugins/file-browser"},
     { import = "plugins/ufo"},
     { import = "plugins/toggleterm"},
-    { import = "plugins/todo-comments"},
     -- 其他模块...
   },
   performance = {

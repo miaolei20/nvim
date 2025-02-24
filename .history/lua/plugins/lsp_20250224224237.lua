@@ -53,12 +53,6 @@ return {
             end, {
                 desc = "Format current buffer with LSP"
             })
-            -- LspSaga 快捷键绑定
-            local map = function(keys, func, desc)
-                vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
-            end
-            
-            map("gd", "<cmd>Lspsaga peek_definition<CR>", "Peek Definition")
 
             -- 启用 lspsaga 和 lsp_signature
             lsp_signature.on_attach({}, bufnr)

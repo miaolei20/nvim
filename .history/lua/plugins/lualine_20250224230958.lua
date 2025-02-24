@@ -49,7 +49,7 @@ return {
           section_separators = { left = "", right = "" },  -- 区域分隔符
           globalstatus = true,  -- 全局状态栏
           disabled_filetypes = {
-            statusline = { "dashboard", "alpha", "ministarter", "TelescopePrompt","NvimTree" }  -- 禁用状态栏的文件类型
+            statusline = { "dashboard", "alpha", "ministarter", "TelescopePrompt" }  -- 禁用状态栏的文件类型
           },
           refresh = { statusline = 150 }  -- 刷新间隔
         },
@@ -168,8 +168,7 @@ return {
           "neo-tree", 
           "toggleterm",
           "lazy",
-          "fzf",
-          "nvim-tree",
+          "fzf"
         }
       })
 
