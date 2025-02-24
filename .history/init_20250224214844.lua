@@ -56,7 +56,7 @@ require("lazy").setup({
     { import = "plugins/spectre"},
     { import = "plugins/scrollbar"},
     { import = "plugins/file-browser"},
-    { import =  "plugins/ufo"},
+    { import = "plugins/lsp-help"},
     -- 其他模块...
   },
   performance = {
