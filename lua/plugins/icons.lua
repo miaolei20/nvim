@@ -22,8 +22,7 @@ return {
           css = { icon = "", color = colors.blue, name = "CSS" },  -- CSS 文件图标
           json = { icon = "", color = colors.yellow, name = "JSON" },  -- JSON 文件图标
           lock = { icon = "", color = colors.red },  -- 锁文件图标
-          yaml = { icon = "", color = colors.gray },  -- YAML 文件图标
-          txt = { icon = "", color = colors.green }  -- 文本文件图标
+          txt = { icon = "", color = colors.green }  -- 文本文件图标
         },
         default = false  -- 禁用默认图标颜色
       })

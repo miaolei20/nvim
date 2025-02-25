@@ -46,5 +46,3 @@ local opts = { noremap = true, silent = true }
 
 -- LSP相关快捷键映射
 map("n", "<leader>lf", "<cmd>Format<cr>", opts)  -- Leader+lf 格式化代码
-map("n", "gd", vim.lsp.buf.definition, opts)  -- gd 跳转到定义
-map("n", "K", vim.lsp.buf.hover, opts)  -- K 显示悬停信息

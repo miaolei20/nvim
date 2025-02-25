@@ -56,6 +56,7 @@ require("lazy").setup({
     { import = "plugins/ufo"},
     { import = "plugins/toggleterm"},
     { import = "plugins/todo-comments"},
+    { import = "plugins/noice"},
     -- 其他模块...
   },
   performance = {
