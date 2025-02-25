@@ -1,8 +1,8 @@
 -- file: plugins/gitsigns.lua
 return {
   {
-    "lewis6991/gitsigns.nvim",
-    event = "BufRead",
+    "lewis6991/gitsigns.nvim", -- 插件名称
+    event = "BufRead", -- 在读取缓冲区时加载插件
     config = function()
       local set_hl = vim.api.nvim_set_hl
       -- 定义与 VSCode 类似的颜色，高亮组需要分别定义

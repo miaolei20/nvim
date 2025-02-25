@@ -38,6 +38,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end
 })
 
+-- 配置剪贴板集成，使用 win32yank 进行复制和粘贴
 vim.g.clipboard = {
   name = "win32yank-wsl",
   copy = {
@@ -51,9 +52,9 @@ vim.g.clipboard = {
   cache_enable = 0,
 }
 
--- 一键运行（优化版：自动保存 + 编译文件存放至build目录）
+-- 一键运行（优化版：自动保存 + 编译文件存放至 build 目录）
 local function compile_and_run()
-  -- 新增：检查并保存未保存的修改 ----------------------
+  -- 新增：检查并保存未保存的修改
   if vim.api.nvim_buf_get_option(0, 'modified') then
     local save_success, save_err = pcall(vim.cmd.write)     -- 安全保存
     if not save_success then

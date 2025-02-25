@@ -3,7 +3,7 @@ return {
   {
     "nvim-lualine/lualine.nvim", -- 主插件
     event = "VeryLazy",          -- 延迟加载插件
-    dependencies = { "nvim-web-devicons" },
+    dependencies = { "nvim-web-devicons" }, -- 依赖的插件
     config = function()
       local onedark = require("onedark.palette").dark
 

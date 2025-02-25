@@ -1,7 +1,7 @@
 return {
   {
-    "mg979/vim-visual-multi",
-    event = "VeryLazy",
+    "mg979/vim-visual-multi", -- 插件名称
+    event = "VeryLazy", -- 懒加载插件
     init = function()
       -- 多光标插件配置
       vim.g.VM_theme = "purple" -- 主题颜色

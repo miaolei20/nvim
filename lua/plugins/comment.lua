@@ -1,13 +1,13 @@
 return {
-  "numToStr/Comment.nvim",                -- 主插件  -- 主插件
-  event = { "BufReadPre", "BufNewFile" }, -- 在读取缓冲区或新建文件时加载插件  -- 在读取缓冲区或新建文件时加载插件
+  "numToStr/Comment.nvim",                -- 主插件
+  event = { "BufReadPre", "BufNewFile" }, -- 在读取缓冲区或新建文件时加载插件
   config = function()
     -- 先加载上下文注释插件（重要!）
     require('ts_context_commentstring').setup({})
 
     -- 主插件配置
     require('Comment').setup({
-      pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(), -- 设置预处理钩子  -- 设置预处理钩子
+      pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(), -- 设置预处理钩子
 
       toggler = {
         line = '<C-_>',      -- 常规模式 Ctrl+/ 单行注释
@@ -41,7 +41,7 @@ return {
     end, { desc = "Toggle visual comment" })
   end,
   dependencies = {
-    "JoosepAlviste/nvim-ts-context-commentstring", -- 上下文注释插件  -- 上下文注释插件
+    "JoosepAlviste/nvim-ts-context-commentstring", -- 上下文注释插件
   }
 }
 

@@ -1,12 +1,12 @@
 -- file: plugins/indent.lua
 return {
   {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    event = "BufReadPost",
+    "lukas-reineke/indent-blankline.nvim", -- 插件名称
+    main = "ibl", -- 主模块
+    event = "BufReadPost", -- 在读取缓冲区后加载插件
     dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "HiPhish/rainbow-delimiters.nvim"
+      "nvim-treesitter/nvim-treesitter", -- 依赖的插件
+      "HiPhish/rainbow-delimiters.nvim" -- 依赖的插件
     },
     config = function()
       -- 安全加载检查
@@ -37,16 +37,16 @@ return {
       -- 核心配置（严格遵循官方最新API）
       ibl.setup({
         indent = {
-          char = "▏",
-          highlight = { "IblIndent" },
-          repeat_linebreak = true
+          char = "▏", -- 缩进字符
+          highlight = { "IblIndent" }, -- 缩进高亮组
+          repeat_linebreak = true -- 重复换行符
         },
         scope = {
-          enabled = true,
-          show_start = false,
-          show_end = false,
-          highlight = "IblScope",
-          injected_languages = true,
+          enabled = true, -- 启用范围
+          show_start = false, -- 不显示范围开始
+          show_end = false, -- 不显示范围结束
+          highlight = "IblScope", -- 范围高亮组
+          injected_languages = true, -- 启用注入语言
           include = {
             node_type = {
               lua = { "function", "if_statement", "for_statement" },
