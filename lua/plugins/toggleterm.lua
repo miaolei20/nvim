@@ -10,11 +10,11 @@ return {
     },
     config = function()
       local Terminal = require("toggleterm.terminal").Terminal
-      
+
       -- 基础配置
       require("toggleterm").setup({
         size = function(term)
-          return (term.direction == "horizontal") and 15 
+          return (term.direction == "horizontal") and 15
               or (term.direction == "vertical") and vim.o.columns * 0.4
         end,
         direction = "horizontal", -- 默认水平分割
@@ -25,8 +25,8 @@ return {
         persist_mode = false,
         shell = vim.o.shell,
         float_opts = {
-          border = "double",  -- 更清晰的边框样式
-          winblend = 15,      -- 增强透明度效果
+          border = "double", -- 更清晰的边框样式
+          winblend = 15,     -- 增强透明度效果
           width = function() return math.floor(vim.o.columns * 0.8) end,
           height = function() return math.floor(vim.o.lines * 0.8) end,
         },

@@ -11,8 +11,8 @@ return {
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
       "onsails/lspkind.nvim",
-      "petertriho/cmp-git",       -- 新增 Git 补全
-      "zbirenbaum/copilot-cmp"    -- 新增 Copilot 集成
+      "petertriho/cmp-git",    -- 新增 Git 补全
+      "zbirenbaum/copilot-cmp" -- 新增 Copilot 集成
     },
     config = function()
       local cmp = require("cmp")
@@ -25,8 +25,8 @@ return {
         { name = "luasnip",  priority = 900 },
         { name = "copilot",  priority = 850 },
         { name = "buffer",   priority = 500 },
-        { name = "path",    priority = 250 },
-        { name = "git",     priority = 200 }
+        { name = "path",     priority = 250 },
+        { name = "git",      priority = 200 }
       }
 
       cmp.setup({
@@ -117,3 +117,4 @@ return {
     end
   }
 }
+

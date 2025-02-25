@@ -5,11 +5,11 @@ return {
     "nvim-treesitter/nvim-treesitter",
     version = false,
     build = ":TSUpdate",
-    event = "VeryLazy" ,
+    event = "VeryLazy",
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     keys = {
       { "<c-space>", desc = "Increment Selection" },
-      { "<bs>", desc = "Decrement Selection", mode = "x" },
+      { "<bs>",      desc = "Decrement Selection", mode = "x" },
     },
     opts = {
       highlight = {
@@ -24,7 +24,7 @@ return {
       ensure_installed = {
         "bash", "c", "lua", "vim", "vimdoc", "python",
         "javascript", "typescript", "tsx", "html", "css",
-        "markdown", "markdown_inline", "json", "yaml","cpp",
+        "markdown", "markdown_inline", "json", "yaml", "cpp",
       },
       incremental_selection = {
         enable = true,
@@ -48,22 +48,22 @@ return {
           swap_previous = { ["<leader>A"] = "@parameter.inner" },
         },
         textobjects = {
-  select = {
-    enable = true,
-    keymaps = {
-      ["af"] = "@function.outer",
-      ["if"] = "@function.inner",
-      ["ac"] = "@class.outer",
-    },
-  },
-}
+          select = {
+            enable = true,
+            keymaps = {
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+            },
+          },
+        }
       },
       -- 主题颜色覆盖
       matchup = {
         enable = true,
         highlight = {
-          bg = colors.bg2,      -- 使用主题的二级背景色
-          fg = colors.yellow,   -- 使用主题的黄色
+          bg = colors.bg2,    -- 使用主题的二级背景色
+          fg = colors.yellow, -- 使用主题的黄色
         },
       },
     },

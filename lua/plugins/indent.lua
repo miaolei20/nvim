@@ -70,8 +70,8 @@ return {
             "terminal", "nofile", "quickfix", "prompt"
           }
         },
-        debounce = 150,  -- 官方推荐的防抖时间
-        enabled = true   -- 默认启用
+        debounce = 150, -- 官方推荐的防抖时间
+        enabled = true  -- 默认启用
       })
 
       -- 彩虹括号集成（可选配置）
@@ -108,3 +108,4 @@ return {
     end
   }
 }
+

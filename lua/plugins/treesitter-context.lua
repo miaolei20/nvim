@@ -15,16 +15,16 @@ local M = {
         -- 增强快捷键系统
         vim.keymap.set("n", "<leader>ut", function()
           require("treesitter-context").toggle()
-        end, { 
-          desc = "Toggle Context Window", 
+        end, {
+          desc = "Toggle Context Window",
           buffer = bufnr,
           silent = true
         })
 
         vim.keymap.set("n", "[c", function()
           require("treesitter-context").go_to_context()
-        end, { 
-          desc = "Jump to Context", 
+        end, {
+          desc = "Jump to Context",
           buffer = bufnr,
           silent = true
         })
@@ -100,3 +100,4 @@ local M = {
 }
 
 return M
+

@@ -25,7 +25,7 @@ return {
 
           -- 创建高亮组
           for level, color in pairs(rainbow_colors) do
-            local hlgroup = "RainbowDelimiter" .. level:sub(1,1):upper() .. level:sub(2)
+            local hlgroup = "RainbowDelimiter" .. level:sub(1, 1):upper() .. level:sub(2)
             vim.api.nvim_set_hl(0, hlgroup, {
               fg = color,
               bold = level == "red",
@@ -59,3 +59,4 @@ return {
     end
   }
 }
+

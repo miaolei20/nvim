@@ -31,10 +31,10 @@ vim.opt.updatetime = 300
 
 -- 创建自动命令，在文本复制后高亮显示
 vim.api.nvim_create_autocmd("TextYankPost", {
-  desc = "Highlight yanked text", -- 添加描述（最佳实践）
+  desc = "Highlight yanked text",                                         -- 添加描述（最佳实践）
   group = vim.api.nvim_create_augroup("YankHighlight", { clear = true }), -- 创建独立组
   callback = function()
-    vim.highlight.on_yank { timeout = 300 } -- 高亮显示复制的文本，持续 300 毫秒
+    vim.highlight.on_yank { timeout = 300 }                               -- 高亮显示复制的文本，持续 300 毫秒
   end
 })
 
@@ -51,68 +51,79 @@ vim.g.clipboard = {
   cache_enable = 0,
 }
 
--- 一键运行（优化版：编译文件存放至build目录）
+-- 一键运行（优化版：自动保存 + 编译文件存放至build目录）
 local function compile_and_run()
-    -- 获取文件信息（带路径处理）
-    local file_name = vim.fn.expand('%:t')           -- 带后缀的文件名
-    local file_name_no_ext = vim.fn.expand('%:t:r')  -- 无后缀文件名
-    local ext = vim.fn.expand('%:e'):lower()         -- 扩展名（强制小写）
-    local current_dir = vim.fn.expand('%:p:h')       -- 当前文件绝对路径目录
-    local build_dir = current_dir .. '/build'        -- 构建目录路径
-    
-    -- 仅支持 C/C++ 文件
-    if ext ~= 'c' and ext ~= 'cpp' then
-        print('[Error] Not a C/C++ file: ' .. file_name)
-        return
+  -- 新增：检查并保存未保存的修改 ----------------------
+  if vim.api.nvim_buf_get_option(0, 'modified') then
+    local save_success, save_err = pcall(vim.cmd.write)     -- 安全保存
+    if not save_success then
+      print('[Error] 保存失败:', save_err)
+      return
     end
+    print('[Info] 已自动保存文件')
+  end
 
-    -- 创建构建目录（如果不存在）
-    if vim.fn.isdirectory(build_dir) == 0 then
-        local success = vim.fn.mkdir(build_dir, 'p')
-        if success == 0 then
-            print('[Error] Failed to create build directory: ' .. build_dir)
-            return
-        end
+  -- 获取文件信息（带路径处理）
+  local file_name = vim.fn.expand('%:t')            -- 带后缀的文件名
+  local file_name_no_ext = vim.fn.expand('%:t:r')   -- 无后缀文件名
+  local ext = vim.fn.expand('%:e'):lower()          -- 扩展名（强制小写）
+  local current_dir = vim.fn.expand('%:p:h')        -- 当前文件绝对路径目录
+  local build_dir = current_dir .. '/build'         -- 构建目录路径
+
+  -- 仅支持 C/C++ 文件
+  if ext ~= 'c' and ext ~= 'cpp' then
+    print('[Error] 非 C/C++ 文件: ' .. file_name)
+    return
+  end
+
+  -- 创建构建目录（如果不存在）
+  if vim.fn.isdirectory(build_dir) == 0 then
+    local success = vim.fn.mkdir(build_dir, 'p')
+    if success == 0 then
+      print('[Error] 创建构建目录失败: ' .. build_dir)
+      return
     end
+  end
 
-    -- 动态选择编译器
-    local compiler = (ext == 'c') and 'gcc' or 'g++'
-    local output_path = 'build/' .. file_name_no_ext  -- 相对路径写法更安全
+  -- 动态选择编译器
+  local compiler = (ext == 'c') and 'gcc' or 'g++'
+  local output_path = 'build/' .. file_name_no_ext   -- 相对路径写法更安全
 
-    -- 构建完整编译命令（带错误检测）
-    local compile_cmd = string.format(
-        'cd "%s" && %s "%s" -o "%s" && ./"%s"',      -- 引号包裹防空格路径
-        current_dir, compiler, file_name, output_path, output_path
-    )
+  -- 构建完整编译命令（带错误检测）
+  local compile_cmd = string.format(
+    'cd "%s" && %s "%s" -o "%s" && ./"%s"',     -- 引号包裹防空格路径
+    current_dir, compiler, file_name, output_path, output_path
+  )
 
-    -- 创建浮动终端（更现代的风格）
-    local buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_open_win(buf, true, {
-        relative = 'editor',
-        width = 85,
-        height = 15,
-        col = (vim.o.columns - 85) / 2,              -- 居中显示
-        row = (vim.o.lines - 15) / 2,
-        style = 'minimal',
-        border = 'rounded'
-    })
+  -- 创建浮动终端（更现代的风格）
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_open_win(buf, true, {
+    relative = 'editor',
+    width = 85,
+    height = 15,
+    col = (vim.o.columns - 85) / 2,     -- 居中显示
+    row = (vim.o.lines - 15) / 2,
+    style = 'minimal',
+    border = 'rounded'
+  })
 
-    -- 异步运行并实时显示输出
-    vim.fn.termopen(compile_cmd, {
-        on_exit = function(_, code, _)
-            if code ~= 0 then
-                vim.api.nvim_buf_set_lines(buf, -1, -1, true,
-                    {'[Exit Code] '..code..' | 编译失败，请检查错误信息！'})
-            end
-        end
-    })
+  -- 异步运行并实时显示输出
+  vim.fn.termopen(compile_cmd, {
+    on_exit = function(_, code, _)
+      if code ~= 0 then
+        vim.api.nvim_buf_set_lines(buf, -1, -1, true,
+          { '[Exit Code] ' .. code .. ' | 编译失败，请检查错误信息！' })
+      end
+    end
+  })
 
-    -- 自动进入终端模式（支持 Neovim 0.9+ 的改进方式）
-    vim.schedule(function()
-        vim.cmd.startinsert({ bang = true })
-    end)
+  -- 自动进入终端模式
+  vim.schedule(function()
+    vim.cmd.startinsert({ bang = true })
+  end)
 end
 
--- 注册命令和快捷键
+-- 注册命令和快捷键（保持不变）
 vim.api.nvim_create_user_command('RunCode', compile_and_run, { desc = '编译运行当前C/C++文件' })
 vim.keymap.set('n', '<F5>', ':RunCode<CR>', { noremap = true, silent = true, desc = '运行代码' })
+

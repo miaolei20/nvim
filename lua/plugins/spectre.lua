@@ -18,7 +18,7 @@ return {
 
       spectre.setup({
         color_devicons = true,
-        live_update = true,  -- 启用实时更新
+        live_update = true, -- 启用实时更新
         line_sep_start = "▔", -- 自定义分隔符
         results_padding = "│ ",
         highlight = {
@@ -34,8 +34,8 @@ return {
           ["replace_cmd"] = { map = "<leader>c", desc = "Edit replace command" }
         },
         replace_engine = {
-          default = "sed",  -- 设置默认引擎
-          sed = { cmd = "sed", args = { "-i", "-E" } },  -- 增强 sed 参数
+          default = "sed",                              -- 设置默认引擎
+          sed = { cmd = "sed", args = { "-i", "-E" } }, -- 增强 sed 参数
           perl = { cmd = "perl", args = { "-pi -e" } }
         },
         theme = {
@@ -49,7 +49,7 @@ return {
             fg = get_hl_color("DiffDelete", "fg#"),
             bg = get_hl_color("Normal", "bg#")
           },
-          preview = {  -- 新增预览区样式
+          preview = { -- 新增预览区样式
             fg = get_hl_color("Comment", "fg#"),
             bg = get_hl_color("CursorLine", "bg#")
           }
@@ -73,3 +73,4 @@ return {
     end
   }
 }
+

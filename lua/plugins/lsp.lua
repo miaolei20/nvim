@@ -69,15 +69,15 @@ return {
           hide_keyword = true,
           color_mode = true,
           file_formatter = function(path)
-            local sep = package.config:sub(1,1)
+            local sep = package.config:sub(1, 1)
             local parts = vim.split(path, sep)
-            return #parts > 2 
-              and table.concat({"...", parts[#parts-1], parts[#parts]}, sep)
-              or path
+            return #parts > 2
+                and table.concat({ "...", parts[#parts - 1], parts[#parts] }, sep)
+                or path
           end
         },
         lightbulb = {
-          enable = true,
+          enable = false,
           sign = icons.code_action,
           virtual_text = false,
           sign_priority = 20
@@ -159,7 +159,14 @@ return {
         map("n", "K", "<cmd>Lspsaga hover_doc<CR>", "Hover Documentation")
         map("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", "Code Action")
         map("n", "<leader>rn", "<cmd>Lspsaga rename<CR>", "Rename Symbol")
-        map("n", "<leader>lf", function() lsp_format(bufnr) end, "Format buffer")
+        map("n", "<leader>lf", function()
+          lsp_format(bufnr)
+          vim.defer_fn(function()
+            if vim.api.nvim_buf_get_option(bufnr, 'modified') then
+              vim.cmd('silent w')
+            end
+          end, 500) -- 延迟 500ms 确保格式化完成
+        end, "Format buffer and save")
 
         -- 诊断导航
         map("n", "[d", "<cmd>Lspsaga diagnostic_jump_prev<CR>", "Prev Diagnostic")
@@ -185,30 +192,30 @@ return {
               lineFoldingOnly = true
             }
           },
-           -- 新增 LSP 对折叠的支持
-    experimental = {
-      foldingRange = true,
-      foldingUp = true,
-      foldingDown = true
-    }
+          -- 新增 LSP 对折叠的支持
+          experimental = {
+            foldingRange = true,
+            foldingUp = true,
+            foldingDown = true
+          }
         }
       )
 
       -- 公共on_attach配置
       local common_on_attach = function(client, bufnr)
         create_keymap(client, bufnr)
-         -- 初始化折叠
-  if client.supports_method("textDocument/foldingRange") then
-    require("ufo").attach(bufnr)
-  end
-        -- 自动格式化配置
-        if client.supports_method("textDocument/formatting") then
-          vim.api.nvim_create_autocmd("BufWritePre", {
-            group = vim.api.nvim_create_augroup("LspFormat", { clear = true }),
-            buffer = bufnr,
-            callback = function() lsp_format(bufnr) end
-          })
+        -- 初始化折叠
+        if client.supports_method("textDocument/foldingRange") then
+          require("ufo").attach(bufnr)
         end
+        -- 自动格式化配置
+        --  if client.supports_method("textDocument/formatting") then
+        --    vim.api.nvim_create_autocmd("BufWritePre", {
+        --`      group = vim.api.nvim_create_augroup("LspFormat", { clear = true }),
+        --      buffer = bufnr,
+        --      callback = function() lsp_format(bufnr) end
+        --    })
+        --  end
       end
 
       -- Neovim开发配置
@@ -222,12 +229,12 @@ return {
       -- Mason LSP配置
       modules.mason_lsp.setup({
         ensure_installed = {
-          "lua_ls",       -- Lua
-          "clangd",       -- C/C++
-          "pyright",      -- Python
-          "bashls",       -- Bash
-          "jsonls",       -- JSON
-          "yamlls"        -- YAML
+          "lua_ls",  -- Lua
+          "clangd",  -- C/C++
+          "pyright", -- Python
+          "bashls",  -- Bash
+          "jsonls",  -- JSON
+          "yamlls"   -- YAML
         },
         automatic_installation = true
       })

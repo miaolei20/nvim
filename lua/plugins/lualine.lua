@@ -41,14 +41,14 @@ return {
 
       require("lualine").setup({
         options = {
-          theme = "onedark",
+          theme                = "onedark",
           component_separators = { left = "", right = "" },
           section_separators   = { left = "", right = "" },
           globalstatus         = true,
           disabled_filetypes   = {
             statusline = { "dashboard", "alpha", "ministarter", "TelescopePrompt", "NvimTree" },
           },
-          refresh = { statusline = 150 },
+          refresh              = { statusline = 150 },
         },
         sections = {
           lualine_a = {
@@ -99,9 +99,9 @@ return {
               end,
               colored = false,
               diff_color = {
-                added    = { fg = onedark.green,  bg = nil },
+                added    = { fg = onedark.green, bg = nil },
                 modified = { fg = onedark.yellow, bg = nil },
-                removed  = { fg = onedark.red,    bg = nil },
+                removed  = { fg = onedark.red, bg = nil },
               },
               padding = { left = 1, right = 1 },
             },

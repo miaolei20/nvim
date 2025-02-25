@@ -1,4 +1,4 @@
--- file: plugins/navigation.lua 
+-- file: plugins/navigation.lua
 return {
   {
     "SmiteshP/nvim-navic",
@@ -18,7 +18,7 @@ return {
     opts = function()
       local icons = require("plugins.icons").kinds
       return {
-        separator = " \\ ",  -- Fixed escape sequence
+        separator = " \\ ", -- Fixed escape sequence
         highlight = false,
         depth_limit = 5,
         icons = icons,

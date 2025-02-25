@@ -49,7 +49,7 @@ return {
         pattern = "*",
         callback = function()
           if vim.bo.filetype == "dashboard" then
-            vim.opt_local.showtabline = 0  -- 仅对 Dashboard 窗口隐藏
+            vim.opt_local.showtabline = 0 -- 仅对 Dashboard 窗口隐藏
           else
             vim.opt.showtabline = 2       -- 其他窗口强制显示
           end
@@ -76,3 +76,4 @@ return {
     end
   }
 }
+

@@ -45,7 +45,7 @@ return {
           local sufWidth = vim.fn.strdisplaywidth(suffix)
           local targetWidth = width - sufWidth
           local curWidth = 0
-          
+
           for _, chunk in ipairs(virtText) do
             local chunkText = chunk[1]
             local chunkWidth = vim.fn.strdisplaywidth(chunkText)
@@ -54,7 +54,7 @@ return {
             else
               chunkText = truncate(chunkText, targetWidth - curWidth)
               if chunkText ~= "" then
-                table.insert(newVirtText, {chunkText, chunk[2]})
+                table.insert(newVirtText, { chunkText, chunk[2] })
               end
               break
             end
@@ -78,3 +78,4 @@ return {
     end
   }
 }
+
