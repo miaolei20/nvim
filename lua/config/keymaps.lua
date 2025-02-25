@@ -44,5 +44,3 @@ vim.keymap.set("n", "<M-k>", function() dynamic_resize("k") end)  -- Alt+k 向�
 local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
--- LSP相关快捷键映射
-map("n", "<leader>lf", "<cmd>Format<cr>", opts)  -- Leader+lf 格式化代码

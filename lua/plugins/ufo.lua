@@ -66,10 +66,11 @@ return {
       })
 
       -- 基础快捷键
-      vim.keymap.set("n", "zR", ufo.openAllFolds, { desc = "Open all folds" })
-      vim.keymap.set("n", "zM", ufo.closeAllFolds, { desc = "Close all folds" })
-      vim.keymap.set("n", "zp", ufo.peekFoldedLinesUnderCursor, { desc = "Peek fold" })
-
+      vim.keymap.set("n", "zR", ufo.openAllFolds, { desc = "展开所有折叠" })
+      vim.keymap.set("n", "zM", ufo.closeAllFolds, { desc = "折叠所有层级" })
+      vim.keymap.set("n", "zp", ufo.peekFoldedLinesUnderCursor, { desc = "预览折叠内容" })
+      vim.keymap.set("n", "zm", ufo.closeFoldsWith, { desc = "逐步折叠代码" })
+      vim.keymap.set("n", "zr", ufo.openFoldsExceptKinds, { desc = "逐步展开代码" })
       -- 确保 treesitter 解析器已安装
       vim.defer_fn(function()
         require("nvim-treesitter.install").update({ with_sync = true })

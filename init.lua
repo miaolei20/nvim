@@ -54,9 +54,11 @@ require("lazy").setup({
     { import = "plugins/scrollbar"},
     { import = "plugins/file-browser"},
     { import = "plugins/ufo"},
+    { import = "plugins/editor"},
     { import = "plugins/toggleterm"},
     { import = "plugins/todo-comments"},
     { import = "plugins/noice"},
+    { import = "plugins/cool"},
     -- 其他模块...
   },
   performance = {

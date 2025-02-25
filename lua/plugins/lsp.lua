@@ -1,4 +1,3 @@
--- file: plugins/lsp.lua
 return {
   {
     "neovim/nvim-lspconfig",
@@ -61,7 +60,7 @@ return {
         }
       }
 
-      -- LSP Saga 配置（含路径显示）
+      -- LSP Saga 配置
       modules.saga.setup({
         symbol_in_winbar = {
           enable = true,
@@ -70,7 +69,7 @@ return {
           hide_keyword = true,
           color_mode = true,
           file_formatter = function(path)
-            local sep = package.config:sub(1,1) -- 自动检测系统分隔符
+            local sep = package.config:sub(1,1)
             local parts = vim.split(path, sep)
             return #parts > 2 
               and table.concat({"...", parts[#parts-1], parts[#parts]}, sep)
@@ -127,14 +126,23 @@ return {
         transparency = 10
       })
 
-      -- 智能格式化
+      -- 智能格式化函数
       local lsp_format = function(bufnr)
         vim.lsp.buf.format({
           filter = function(client)
+            local filetype = vim.bo[bufnr].filetype
+            if filetype == "python" then
+              return client.name == "pyright"
+            elseif filetype == "lua" then
+              return client.name == "lua_ls"
+            elseif filetype:match("^c%a*") then
+              return client.name == "clangd"
+            end
             return client.name ~= "tsserver"
           end,
           bufnr = bufnr,
-          async = true
+          async = true,
+          timeout_ms = 3000
         })
       end
 
@@ -144,19 +152,20 @@ return {
           vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc })
         end
 
-        -- 导航增强
-        map("n", "gd", "<cmd>Lspsaga peek_definition<CR>", "󰈬 Peek Definition")
-        map("n", "gD", vim.lsp.buf.declaration, "󰈬 Goto Declaration")
-        map("n", "gr", "<cmd>Lspsaga finder<CR>", "󰍉 Find References")
-        map("n", "K", "<cmd>Lspsaga hover_doc<CR>", "󰋖 Hover Documentation")
-        map("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", "󰌵 Code Action")
-        map("n", "<leader>rn", "<cmd>Lspsaga rename<CR>", "󰏖 Rename Symbol")
+        -- 核心功能映射
+        map("n", "gd", "<cmd>Lspsaga peek_definition<CR>", "Peek Definition")
+        map("n", "gD", vim.lsp.buf.declaration, "Goto Declaration")
+        map("n", "gr", "<cmd>Lspsaga finder<CR>", "Find References")
+        map("n", "K", "<cmd>Lspsaga hover_doc<CR>", "Hover Documentation")
+        map("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", "Code Action")
+        map("n", "<leader>rn", "<cmd>Lspsaga rename<CR>", "Rename Symbol")
+        map("n", "<leader>lf", function() lsp_format(bufnr) end, "Format buffer")
 
         -- 诊断导航
-        map("n", "[d", "<cmd>Lspsaga diagnostic_jump_prev<CR>", " Prev Diagnostic")
-        map("n", "]d", "<cmd>Lspsaga diagnostic_jump_next<CR>", " Next Diagnostic")
+        map("n", "[d", "<cmd>Lspsaga diagnostic_jump_prev<CR>", "Prev Diagnostic")
+        map("n", "]d", "<cmd>Lspsaga diagnostic_jump_next<CR>", "Next Diagnostic")
 
-        -- 动态路径显示开关
+        -- 动态路径显示
         map("n", "<leader>wp", function()
           local current = modules.saga.config.symbol_in_winbar.show_file
           modules.saga.setup({ symbol_in_winbar = { show_file = not current } })
@@ -167,6 +176,7 @@ return {
       -- 能力配置
       local capabilities = vim.tbl_deep_extend(
         "force",
+        vim.lsp.protocol.make_client_capabilities(),
         modules.cmp_nvim_lsp.default_capabilities(),
         {
           textDocument = {
@@ -174,9 +184,53 @@ return {
               dynamicRegistration = false,
               lineFoldingOnly = true
             }
-          }
+          },
+           -- 新增 LSP 对折叠的支持
+    experimental = {
+      foldingRange = true,
+      foldingUp = true,
+      foldingDown = true
+    }
         }
       )
+
+      -- 公共on_attach配置
+      local common_on_attach = function(client, bufnr)
+        create_keymap(client, bufnr)
+         -- 初始化折叠
+  if client.supports_method("textDocument/foldingRange") then
+    require("ufo").attach(bufnr)
+  end
+        -- 自动格式化配置
+        if client.supports_method("textDocument/formatting") then
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            group = vim.api.nvim_create_augroup("LspFormat", { clear = true }),
+            buffer = bufnr,
+            callback = function() lsp_format(bufnr) end
+          })
+        end
+      end
+
+      -- Neovim开发配置
+      modules.dev.setup({
+        library = {
+          plugins = { "nvim-dap-ui" },
+          types = true
+        }
+      })
+
+      -- Mason LSP配置
+      modules.mason_lsp.setup({
+        ensure_installed = {
+          "lua_ls",       -- Lua
+          "clangd",       -- C/C++
+          "pyright",      -- Python
+          "bashls",       -- Bash
+          "jsonls",       -- JSON
+          "yamlls"        -- YAML
+        },
+        automatic_installation = true
+      })
 
       -- 语言服务器配置
       local servers = {
@@ -189,16 +243,34 @@ return {
                 library = vim.api.nvim_get_runtime_file("", true),
                 checkThirdParty = false
               },
-              telemetry = { enable = false }
+              telemetry = { enable = false },
+              format = {
+                enable = true,
+                defaultConfig = {
+                  indent_style = "space",
+                  indent_size = "2",
+                  quote_style = "auto"
+                }
+              }
             }
           }
         },
         clangd = {
           cmd = {
             "clangd",
-            "--offset-encoding=utf-16",
+            "--background-index",
             "--clang-tidy",
-            "--header-insertion=never"
+            "--header-insertion=never",
+            "--completion-style=detailed"
+          },
+          filetypes = { "c", "cpp", "objc", "objcpp" },
+          capabilities = {
+            offsetEncoding = "utf-8",
+            textDocument = {
+              completion = {
+                editsNearCursor = true
+              }
+            }
           }
         },
         pyright = {
@@ -207,61 +279,49 @@ return {
               analysis = {
                 typeCheckingMode = "basic",
                 autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
                 diagnosticMode = "workspace"
+              },
+              formatting = {
+                provider = "black",
+                args = { "--line-length", "120", "--quiet" }
               }
             }
           }
         }
       }
 
-      -- Mason 自动化配置
-      modules.mason_lsp.setup({
-        ensure_installed = vim.tbl_keys(servers),
-        automatic_installation = true,
-        handlers = {
-          function(server)
-            lspconfig[server].setup({
-              on_attach = create_keymap,
-              capabilities = capabilities,
-              settings = servers[server]
-            })
-          end
-        }
-      })
-
-      -- 诊断符号配置
-      for type, icon in pairs(icons.diagnostics) do
-        local hl = "DiagnosticSign" .. type
-        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+      -- 应用服务器配置
+      for server, config in pairs(servers) do
+        lspconfig[server].setup(vim.tbl_deep_extend("force", {
+          on_attach = common_on_attach,
+          capabilities = capabilities,
+          flags = {
+            debounce_text_changes = 150
+          }
+        }, config))
       end
 
-      -- 全局诊断样式
-      vim.diagnostic.config({
-        virtual_text = {
-          prefix = "●",
-          spacing = 4,
-          source = "if_many"
-        },
-        float = {
-          border = "rounded",
-          header = { " Diagnostics:", "Normal" },
-          prefix = function(diag)
-            return icons.diagnostics[diag.severity] .. " "
-          end
-        },
-        severity_sort = true,
-        update_in_insert = false
+      -- 文件类型特定配置
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "c", "cpp" },
+        callback = function()
+          vim.bo.tabstop = 4
+          vim.bo.shiftwidth = 4
+          vim.bo.softtabstop = 4
+          vim.bo.expandtab = true
+        end
       })
 
-      -- 延迟加载 Neovim 开发配置
-      vim.defer_fn(function()
-        modules.dev.setup({
-          library = {
-            plugins = { "nvim-dap-ui" },
-            types = true
-          }
-        })
-      end, 1000)
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "python",
+        callback = function()
+          vim.bo.tabstop = 4
+          vim.bo.shiftwidth = 4
+          vim.bo.softtabstop = 4
+          vim.bo.expandtab = true
+        end
+      })
     end
   }
 }
