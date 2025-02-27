@@ -59,6 +59,8 @@ require("lazy").setup({
     { import = "plugins/todo-comments" },
     { import = "plugins/noice" },
     { import = "plugins/cool" },
+    { import = "plugins/impatient"},
+    { import = "plugins/fugitive"},
     -- 其他模块...
   },
   performance = {
