@@ -36,8 +36,11 @@ require("lazy").setup({
     { import = "plugins/bufferline" }, -- 标签栏
     { import = "plugins/nvimtree" },   -- 文件树
     { import = "plugins/dashboard" },  -- 启动页
+    { import = "plugins/smoothcursor" }, -- 光标平滑移动
+    { import = "plugins/project" },    -- 项目管理
     { import = "plugins/scrollbar" },  -- 滚动条
-    { import = "plugins/indent" },     -- 缩进线
+    --{ import = "plugins/indent" },     -- 缩进线
+    { import = "plugins/hlchunk"},
     { import = "plugins/rainbow" },    -- 彩虹括号
 
     -- 导航与搜索
@@ -52,6 +55,7 @@ require("lazy").setup({
     { import = "plugins/cmp" },                -- 自动补全
     { import = "plugins/comment" },            -- 注释
     { import = "plugins/editor" },             -- 编辑器增强
+    { import = "plugins/search"},
 
     -- LSP与代码工具
     { import = "plugins/mason" },    -- LSP包管理
