@@ -54,7 +54,7 @@ require("lazy").setup({
     { import = "plugins/autopairs" },          -- 自动括号
     { import = "plugins/cmp" },                -- 自动补全
     { import = "plugins/comment" },            -- 注释
-    { import = "plugins/editor" },             -- 编辑器增强
+    -- { import = "plugins/editor" },             -- 编辑器增强
     { import = "plugins/search"},
 
     -- LSP与代码工具

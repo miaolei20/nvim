@@ -2,7 +2,7 @@
 return {
   {
     "akinsho/bufferline.nvim",               -- 插件名称
-    event = "VeryLazy",                      -- 懒加载事件
+    event = { "UIEnter", "BufAdd" }, -- 双重触发保障
     dependencies = { "nvim-web-devicons" },  -- 依赖的插件
     keys = {
       { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev Buffer" }, -- Shift+h 切换到上一个缓冲区
