@@ -1,3 +1,5 @@
+vim.g.loaded_man = 1
+vim.g.loaded_man_plugin = 1
 -- 显示行号
 vim.opt.number = true
 -- 显示相对行号
