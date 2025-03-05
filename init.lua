@@ -65,7 +65,7 @@ require("lazy").setup({
 
     -- 版本控制
     { import = "plugins.git.gitsigns" }, -- Git 状态显示
-    { import = "plugins.git.fugitive" }, -- Git 操作
+    -- { import = "plugins.git.fugitive" }, -- Git 操作
 
     -- 调试与工具
     { import = "plugins.tools.undotree" },   -- 撤销历史
