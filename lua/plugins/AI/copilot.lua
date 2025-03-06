@@ -1,39 +1,54 @@
 return {
   {
     "zbirenbaum/copilot.lua",
-    event = "VeryLazy",
-    priority = 100, -- 高优先级加载
-    config = function()
-      require("copilot").setup({
-        suggestion = {
-          enabled = false, -- 禁用独立悬浮窗
-          auto_trigger = true
-        },
-        panel = { enabled = false },
-        filetypes = {
-          ["*"] = function()
-            return true -- 全局启用但由 cmp 接管
-          end
-        }
-      })
-    end,
+    event = "InsertEnter",  -- 更精确的触发时机
+    priority = 100,
     dependencies = {
       "zbirenbaum/copilot-cmp",
       "nvim-lua/plenary.nvim"
-    }
+    },
+    config = function()
+      require("copilot").setup({
+        suggestion = {
+          enabled = false,
+          auto_trigger = true,
+          debounce = 120,  -- 增加防抖减少请求频率
+        },
+        panel = { enabled = false },
+        filetypes = {
+          python = true,    -- 明确指定需要支持的语言
+          lua = true,
+          cpp = true,
+          c = true,
+          -- 其他需要支持的语言...
+          ["*"] = false     -- 默认禁用，提升启动性能
+        },
+        server_opts_overrides = {
+          trace = "off",    -- 关闭调试跟踪
+          settings = {
+            advanced = {
+              listCount = 5,         -- 减少建议数量
+              inlineSuggestCount = 3 -- 限制行内建议数量
+            }
+          }
+        }
+      })
+    end
   },
   {
     "zbirenbaum/copilot-cmp",
-    after = "copilot.lua", -- 确保在 copilot 之后加载
+    event = "InsertEnter",  -- 延迟加载
     config = function()
       require("copilot_cmp").setup({
+        method = "getCompletionsCycling", -- 使用缓存策略
         formatters = {
           insert_text = function(text)
-            return text:gsub("\n", " ") -- 防止换行符干扰
-          end
+            -- 使用更高效的字符串处理
+            return text:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
+          end,
+          preview = function() return {} end  -- 禁用预览减少计算
         }
       })
     end
   }
 }
-
