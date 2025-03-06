@@ -5,11 +5,13 @@ return {
     "nvim-treesitter/nvim-treesitter",
     version = false,
     build = ":TSUpdate",
-    event = "VeryLazy",
-    cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
+    event = { "BufReadPost", "BufNewFile" }, -- 延迟加载
+    cmd = { "TSInstall", "TSUpdate" }, -- 按需加载命令
     keys = {
-      { "<c-space>", desc = "Increment Selection" },
-      { "<bs>",      desc = "Decrement Selection", mode = "x" },
+      init_selection = "<C-space>",
+      node_incremental = "<C-space>",
+      scope_incremental = false, -- 禁用范围选择提升性能
+      node_decremental = "<bs>",
     },
     opts = {
       highlight = {
@@ -20,7 +22,7 @@ return {
           ["keyword.function"] = "Function",
         },
       },
-      indent = { enable = true },
+      indent = { enable = false, },
       ensure_installed = {
         "bash", "c", "lua", "vim", "vimdoc", "python",
         "javascript", "typescript", "tsx", "html", "css",

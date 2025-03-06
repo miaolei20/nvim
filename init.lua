@@ -52,7 +52,6 @@ require("lazy").setup({
     { import = "plugins.UI.nvimtree" },   -- 文件树
     { import = "plugins.UI.dashboard" },  -- 启动页
     { import = "plugins.UI.smoothcursor" }, -- 光标平滑移动
-    { import = "plugins.UI.project" },    -- 项目管理
     { import = "plugins.UI.scrollbar" },  -- 滚动条
     { import = "plugins.UI.hlchunk" },    -- 代码块高亮
     { import = "plugins.UI.rainbow" },    -- 彩虹括号
@@ -65,7 +64,6 @@ require("lazy").setup({
 
     -- 版本控制
     { import = "plugins.git.gitsigns" }, -- Git 状态显示
-    -- { import = "plugins.git.fugitive" }, -- Git 操作
 
     -- 调试与工具
     { import = "plugins.tools.undotree" },   -- 撤销历史

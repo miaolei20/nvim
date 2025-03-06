@@ -4,15 +4,16 @@ return {
     version = false,
     cmd = "Telescope",
     keys = function()
+      local builtin = require("telescope.builtin")
       return {
-        { "<leader>ff", function() require("telescope.builtin").find_files() end,           desc = "Find Files" },
-        { "<leader>fg", function() require("telescope.builtin").live_grep() end,            desc = "Live Grep" },
-        { "<leader>fb", function() require("telescope.builtin").buffers() end,              desc = "Find Buffers" },
-        { "<leader>fh", function() require("telescope.builtin").help_tags() end,            desc = "Help Tags" },
-        { "<leader>fr", function() require("telescope.builtin").oldfiles() end,             desc = "Recent Files" },
-        { "<leader>fs", function() require("telescope.builtin").lsp_document_symbols() end, desc = "Document Symbols" },
-        { "<leader>fd", function() require("telescope.builtin").diagnostics() end,          desc = "Workspace Diagnostics" },
-        { "<leader>fw", function() require("telescope.builtin").grep_string() end,          desc = "Word Under Cursor" }
+        { "<leader>ff", builtin.find_files,           desc = "Find Files" },
+        { "<leader>fg", builtin.live_grep,            desc = "Live Grep" },
+        { "<leader>fb", builtin.buffers,              desc = "Find Buffers" },
+        { "<leader>fh", builtin.help_tags,            desc = "Help Tags" },
+        { "<leader>fr", builtin.oldfiles,             desc = "Recent Files" },
+        { "<leader>fs", builtin.lsp_document_symbols, desc = "Document Symbols" },
+        { "<leader>fd", builtin.diagnostics,          desc = "Workspace Diagnostics" },
+        { "<leader>fw", builtin.grep_string,          desc = "Word Under Cursor" },
       }
     end,
     dependencies = {
@@ -23,46 +24,44 @@ return {
       "debugloop/telescope-undo.nvim",
     },
     config = function()
-      local colors = require("onedark.palette").dark
       local telescope = require("telescope")
       local actions = require("telescope.actions")
       local action_layout = require("telescope.actions.layout")
       local transform_mod = require("telescope.actions.mt").transform_mod
 
-      -- 深度主题适配
-      vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = colors.gray, bg = colors.bg0 })
-      vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = colors.cyan, bg = colors.bg1 })
-      vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { fg = colors.bg1, bg = colors.bg0 })
-      vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { link = "TelescopeResultsBorder" })
-      vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = colors.bg2, bold = true })
+      -- 使用 onedark 主题的调色板设置 Telescope 的边框和选择高亮
+      local palette = require("onedark.palette").dark
+      vim.api.nvim_set_hl(0, "TelescopeBorder",         { fg = palette.gray, bg = palette.bg0 })
+      vim.api.nvim_set_hl(0, "TelescopePromptBorder",   { fg = palette.cyan, bg = palette.bg1 })
+      vim.api.nvim_set_hl(0, "TelescopeResultsBorder",  { fg = palette.bg1, bg = palette.bg0 })
+      vim.api.nvim_set_hl(0, "TelescopePreviewBorder",  { link = "TelescopeResultsBorder" })
+      vim.api.nvim_set_hl(0, "TelescopeSelection",      { bg = palette.bg2, bold = true })
 
-      -- 增强型动作配置
+      -- 自定义操作：垂直分割和标签页打开，并自动调整窗口大小
       local custom_actions = transform_mod({
-        -- 在垂直分割窗口中打开文件
         vsplit_selected = function(prompt_bufnr)
           actions.select_vertical(prompt_bufnr)
-          vim.cmd("wincmd =") -- 自动调整窗口大小
+          vim.cmd("wincmd =")
         end,
-        -- 在标签页中打开文件
         tab_selected = function(prompt_bufnr)
           actions.select_tab(prompt_bufnr)
-          vim.cmd("tabdo wincmd =") -- 自动调整所有标签页窗口
+          vim.cmd("tabdo wincmd =")
         end,
       })
 
       telescope.setup({
         defaults = {
           dynamic_preview_title = true,
-          prompt_prefix = "   ",
-          selection_caret = "  ",
-          entry_prefix = "   ",
-          path_display = { "truncate" },
-          sorting_strategy = "ascending",
-          scroll_strategy = "cycle",
-          layout_strategy = "horizontal",
-          winblend = 10,
+          prompt_prefix         = "   ",
+          selection_caret       = "  ",
+          entry_prefix          = "   ",
+          path_display          = { "truncate" },
+          sorting_strategy      = "ascending",
+          scroll_strategy       = "cycle",
+          layout_strategy       = "horizontal",
+          winblend              = 10,
           borderchars = {
-            prompt = { "─", " ", " ", " ", "─", "─", " ", " " },
+            prompt  = { "─", " ", " ", " ", "─", "─", " ", " " },
             results = { " " },
             preview = { " " },
           },
@@ -78,8 +77,8 @@ return {
             },
             n = {
               ["<C-u>"] = action_layout.toggle_preview,
-              ["q"] = actions.close,
-            }
+              ["q"]     = actions.close,
+            },
           },
           file_ignore_patterns = {
             "%.git/.*", "node_modules/.*", "%.idea/.*",
@@ -99,65 +98,64 @@ return {
         },
         pickers = {
           find_files = {
-            hidden = true,
+            hidden       = true,
             find_command = { "fd", "--type=file", "--hidden", "--exclude=.git" },
-            theme = "dropdown",
+            theme        = "dropdown",
           },
           live_grep = {
-            theme = "ivy",
-            previewer = false,
-            layout_config = { height = 0.4 }
+            theme         = "ivy",
+            previewer     = false,
+            layout_config = { height = 0.4 },
           },
           buffers = {
             sort_lastused = true,
-            theme = "dropdown",
-            previewer = false,
-            mappings = {
-              i = { ["<C-d>"] = actions.delete_buffer }
-            }
+            theme         = "dropdown",
+            previewer     = false,
+            mappings      = {
+              i = { ["<C-d>"] = actions.delete_buffer },
+            },
           },
           git_commits = {
-            theme = "ivy",
-            layout_config = { width = 0.9 }
+            theme         = "ivy",
+            layout_config = { width = 0.9 },
           },
         },
         extensions = {
           fzf = {
-            fuzzy = true,
+            fuzzy                = true,
             override_generic_sorter = true,
             override_file_sorter = true,
-            case_mode = "smart_case",
+            case_mode          = "smart_case",
           },
           file_browser = {
-            theme = "dropdown",
-            hijack_netrw = true,
-            hidden = true,
+            theme            = "dropdown",
+            hijack_netrw     = true,
+            hidden           = true,
             respect_gitignore = false,
           },
           undo = {
-            use_delta = true,
-            side_by_side = true,
+            use_delta     = true,
+            side_by_side  = true,
             layout_strategy = "vertical",
             layout_config = { preview_height = 0.6 },
-          }
-        }
+          },
+        },
       })
 
-      -- 加载扩展
+      -- 加载扩展插件
       telescope.load_extension("fzf")
       telescope.load_extension("file_browser")
       telescope.load_extension("undo")
 
-      -- 增强快捷键
+      -- 设置额外快捷键：文件浏览器和撤销历史
       vim.keymap.set("n", "<leader>fe", function()
         telescope.extensions.file_browser.file_browser({
-          path = "%:p:h",
+          path    = "%:p:h",
           grouped = true,
         })
       end, { desc = "File Browser" })
 
       vim.keymap.set("n", "<leader>fu", "<cmd>Telescope undo<cr>", { desc = "Undo History" })
-    end
-  }
+    end,
+  },
 }
-
