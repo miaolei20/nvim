@@ -43,6 +43,16 @@ local function generate_modern_indent_styles(palette)
 end
 
 function M.setup()
+  -- 禁用 "no parser for xxx" 消息
+  vim.schedule(function()
+    vim.notify = function(msg, ...)
+      if msg:match("no parser for") then
+        return
+      end
+      return require("notify")(msg, ...)
+    end
+  end)
+
   local palette = get_palette()
   local opts = {
     indent = {
@@ -104,14 +114,6 @@ function M.setup()
   })
 end
 
--- 当颜色主题更换时重新加载 hlchunk 配置
-vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("ModernIndentReload", { clear = true }),
-  callback = function()
-    package.loaded["hlchunk"] = nil
-    vim.defer_fn(M.setup, 50)
-  end,
-})
 
 return {
   {

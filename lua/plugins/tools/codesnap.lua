@@ -1,6 +1,7 @@
 return {
   "mistricky/codesnap.nvim", -- 插件名称
   build = "make build_generator", -- 构建插件的命令
+  event = "VeryLazy", -- 触发插件的事件
   cmd = "CodeSnap", -- 触发插件的命令
   keys = {
     -- 正确映射 Visual 模式需要特殊处理选区范围 --
