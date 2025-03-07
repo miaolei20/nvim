@@ -56,6 +56,7 @@ require("lazy").setup({
     { import = "plugins.UI.hlchunk" },    -- 代码块高亮
     { import = "plugins.UI.rainbow" },    -- 彩虹括号
     { import = "plugins.UI.aerial" },   -- 代码大纲
+    { import = "plugins.UI.notify"},    -- 通知
     -- 导航与搜索
     { import = "plugins.UI.navigation" },   -- 窗口导航
     { import = "plugins.tools.telescope" },    -- 模糊搜索
@@ -67,7 +68,7 @@ require("lazy").setup({
     -- 调试与工具
     { import = "plugins.tools.undotree" },   -- 撤销历史
     { import = "plugins.tools.spectre" },    -- 搜索替换
-    { import = "plugins.tools.toggleterm" }, -- 内置终端
+    { import = "plugins.tools.lazygit" }, -- 内置终端
     { import = "plugins.AI.avante" },        -- 未知插件（按原顺序保留）
 
     -- 辅助功能
