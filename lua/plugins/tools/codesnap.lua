@@ -33,15 +33,6 @@ return {
         delay = 100,
         timeout = 1000
       },
-      -- prompt = "Enter a name for the snapshot: ",
-      -- file_path = "~/Desktop/",
-      -- file_name = nil,
-      -- highlight = "Visual",
-      -- highlight_group = "Visual",
-      -- highlight_file = nil,
-      -- highlight_format = "png",
-      -- highlight_options = {},
-      -- silent = false,
     }
   end,
 }

@@ -11,8 +11,8 @@ vim.keymap.set("n", "<C-j>", "<C-w>j", opt) -- Ctrl+j 切换到下方窗口
 vim.keymap.set("n", "<C-k>", "<C-w>k", opt) -- Ctrl+k 切换到上方窗口
 
 -- 分屏快捷键映射
-vim.keymap.set("n", "<Leader>v", "<C-w>v", opt) -- Leader+v 垂直分屏
-vim.keymap.set("n", "<Leader>s", "<C-w>s", opt) -- Leader+s 水平分屏
+vim.keymap.set("n", "<Leader>vv", "<C-w>v", opt) -- Leader+vv 垂直分屏
+vim.keymap.set("n", "<Leader>ss", "<C-w>s", opt) -- Leader+ss 水平分屏
 
 -- 跳转历史记录快捷键映射
 vim.keymap.set("n", "<Leader>[", "<C-o>", opt) -- Leader+[ 跳转到上一个位置

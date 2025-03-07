@@ -11,53 +11,54 @@ local M = {
       zindex = 45,
       trim_scope = "inner",
       on_attach = function(bufnr)
-        -- 增强快捷键系统
-        vim.keymap.set("n", "<leader>ut", function()
-          require("treesitter-context").toggle()
-        end, {
+        -- Enhanced key mappings
+        local keymap = vim.keymap.set
+        keymap("n", "<leader>ut", function() require("treesitter-context").toggle() end, {
           desc = "Toggle Context Window",
           buffer = bufnr,
-          silent = true
+          silent = true,
         })
-
-        vim.keymap.set("n", "[c", function()
-          require("treesitter-context").go_to_context()
-        end, {
+        keymap("n", "[c", function() require("treesitter-context").go_to_context() end, {
           desc = "Jump to Context",
           buffer = bufnr,
-          silent = true
+          silent = true,
         })
       end,
     },
     config = function(_, opts)
-      -- 安全加载检查
+      -- Safely load the treesitter context
       local ok, context = pcall(require, "treesitter-context")
       if not ok then
         vim.notify("treesitter-context not found!", vim.log.levels.ERROR)
         return
       end
 
-      -- 动态颜色适配
-      local get_hl = function(group, attr)
-        return vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.hlID(group)), attr)
+      -- Dynamic color compatibility
+      local function get_hl(group, attr)
+        return vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.hlID(group)), attr) or ""
       end
 
-      vim.api.nvim_set_hl(0, "TreesitterContext", {
-        bg = get_hl("Normal", "bg") ~= "" and get_hl("Normal", "bg") or "#282c34",
-        blend = 10
-      })
+      -- Setting highlights with fallback colors
+      local highlights = {
+        TreesitterContext = {
+          bg = get_hl("Normal", "bg") ~= "" and get_hl("Normal", "bg") or "#282c34",
+          blend = 10,
+        },
+        TreesitterContextLineNumber = {
+          fg = get_hl("LineNr", "fg") ~= "" and get_hl("LineNr", "fg") or "#5c6370",
+          italic = true,
+        },
+        TreesitterContextSeparator = {
+          fg = get_hl("Comment", "fg") ~= "" and get_hl("Comment", "fg") or "#5c6370",
+          bold = true,
+        },
+      }
 
-      vim.api.nvim_set_hl(0, "TreesitterContextLineNumber", {
-        fg = get_hl("LineNr", "fg") ~= "" and get_hl("LineNr", "fg") or "#5c6370",
-        italic = true
-      })
+      for group, opts in pairs(highlights) do
+        vim.api.nvim_set_hl(0, group, opts)
+      end
 
-      vim.api.nvim_set_hl(0, "TreesitterContextSeparator", {
-        fg = get_hl("Comment", "fg") ~= "" and get_hl("Comment", "fg") or "#5c6370",
-        bold = true
-      })
-
-      -- 核心配置（使用最新 API）
+      -- Core configuration using the latest API
       context.setup(vim.tbl_deep_extend("force", {
         patterns = {
           c = "function_definition",
@@ -70,33 +71,25 @@ local M = {
           typescript = "function_declaration",
           tsx = "function_declaration",
           ruby = "method_definition",
-          java = "method_declaration"
+          java = "method_declaration",
         },
         throttle = true,
         timeout = 80,
         scroll_speed = 50,
-        -- 修复的自动刷新逻辑
-        update_events = { "CursorMoved", "BufEnter" }
+        update_events = { "CursorMoved", "BufEnter" },  -- Refined automatic refresh logic
       }, opts))
 
-      -- 安全的自动命令配置
+      -- Safe autocmd configuration
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "markdown", "help", "NvimTree", "dashboard" },
         group = vim.api.nvim_create_augroup("TSContextDisable", {}),
-        callback = function()
-          context.disable()
-        end
+        callback = function() context.disable() end,
       })
 
-      -- 初始化后自动启用
-      vim.defer_fn(function()
-        if not context.enabled then
-          context.enable()
-        end
-      end, 500)
+      -- Automatically enable after initialization
+      vim.defer_fn(function() if not context.enabled then context.enable() end end, 500)
     end
   }
 }
 
 return M
-
