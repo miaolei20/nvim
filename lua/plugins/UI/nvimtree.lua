@@ -16,7 +16,6 @@ return {
           default = true,
           override = {
             txt = { icon = " ", color = "#428850", name = "Text" },  -- 更美观的文本图标
-            lock = { icon = "", color = "#e55f86" },  -- 新增锁文件图标
           }
         })
       end

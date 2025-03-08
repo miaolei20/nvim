@@ -50,7 +50,7 @@ require("lazy").setup({
     { import = "plugins.UI.lualine" },    -- 状态栏
     { import = "plugins.UI.bufferline" }, -- 标签栏
     { import = "plugins.UI.nvimtree" },   -- 文件树
-    { import = "plugins.UI.dashboard" },  -- 启动页
+    { import = "plugins.UI.alpha" },  -- 启动页
     { import = "plugins.UI.smoothcursor" }, -- 光标平滑移动
     { import = "plugins.UI.scrollbar" },  -- 滚动条
     { import = "plugins.UI.hlchunk" },    -- 代码块高亮
@@ -76,8 +76,6 @@ require("lazy").setup({
     { import = "plugins.tools.lastplace" },       -- 恢复上次位置
 
     { import = "plugins.tools.todo-comments" },   -- TODO 高亮
-    { import = "plugins.tools.startime" },        -- 未知插件（按原顺序保留）
-    { import = "plugins.tools.cool" },            -- 未知插件（按原顺序保留）
     { import = "plugins.tools.ufo" },             -- 折叠增强
   },
   performance = {  -- 此部分保持不变

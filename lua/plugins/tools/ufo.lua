@@ -7,29 +7,30 @@ return {
       "nvim-treesitter/nvim-treesitter",
     },
     opts = {
-      open_fold_hl_timeout = 150,
+      open_fold_hl_timeout = 100,
       preview = {
         win_config = {
           border = "rounded",
-          winblend = 30,
-          maxheight = 20,
+          winblend = 5, -- 轻微透明，增强现代感
+          maxheight = 15, -- 限制最大高度，防止溢出
         },
       },
       provider_selector = function(bufnr, filetype)
-        if vim.tbl_contains({ "fugitive", "gitcommit" }, filetype) then
+        local ignore_list = { "fugitive", "gitcommit", "alpha", "dashboard" }
+        if vim.tbl_contains(ignore_list, filetype) then
           return ""
         end
 
         local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
         if #clients > 0 then
-          return { "lsp", "treesitter" }  -- LSP 可用时，使用 LSP + Treesitter
+          return { "lsp", "treesitter" }
         else
-          return { "treesitter", "indent" }  -- 否则使用 Treesitter + Indent
+          return { "treesitter", "indent" }
         end
       end,
       fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
         local newVirtText = {}
-        local suffix = (" 󰁂 %d "):format(endLnum - lnum)
+        local suffix = ("  ⏵ %d "):format(endLnum - lnum) -- ⏵ 更符合现代风格
         local sufWidth = vim.fn.strdisplaywidth(suffix)
         local targetWidth = width - sufWidth
         local curWidth = 0
@@ -45,33 +46,33 @@ return {
           end
           curWidth = curWidth + chunkWidth
         end
-        table.insert(newVirtText, { suffix, "Comment" })
+        table.insert(newVirtText, { suffix, "Comment" }) -- 颜色统一
         return newVirtText
       end,
     },
     config = function(_, opts)
-      -- 安全加载检查
       local ok, ufo = pcall(require, "ufo")
       if not ok then
         vim.notify("nvim-ufo not found!", vim.log.levels.ERROR)
         return
       end
 
-      -- 启用折叠
-      vim.opt.foldcolumn = "1"
+      -- UI 设置
+      vim.opt.foldcolumn = "0" -- **完全去除左侧折叠列**
       vim.opt.foldlevel = 99
       vim.opt.foldenable = true
+      vim.opt.fillchars = [[fold: ,foldopen:⏷,foldclose:⏵]] -- **更优雅的折叠符号**
 
-      -- 加载配置
       ufo.setup(opts)
 
-      -- 绑定快捷键
+      -- 现代折叠快捷键
       local keymap_opts = { noremap = true, silent = true, desc = "Folding" }
       vim.api.nvim_set_keymap("n", "zR", "<cmd>lua require('ufo').openAllFolds()<CR>", keymap_opts)
       vim.api.nvim_set_keymap("n", "zM", "<cmd>lua require('ufo').closeAllFolds()<CR>", keymap_opts)
       vim.api.nvim_set_keymap("n", "zr", "<cmd>lua require('ufo').openFoldsExceptKinds()<CR>", keymap_opts)
       vim.api.nvim_set_keymap("n", "zm", "<cmd>lua require('ufo').closeFoldsWith()<CR>", keymap_opts)
       vim.api.nvim_set_keymap("n", "zp", "<cmd>lua require('ufo').peekFoldedLinesUnderCursor()<CR>", keymap_opts)
+
     end,
   },
 }

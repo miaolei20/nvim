@@ -32,7 +32,7 @@ local function get_palette()
   end
 end
 
--- 生成现代风格缩进样式：通过循环减少重复
+-- 生成现代风格缩进样式：利用不同透明度让缩进线更柔和
 local function generate_modern_indent_styles(palette)
   local blends = { 30, 25, 20, 15 }
   local styles = {}
@@ -43,7 +43,7 @@ local function generate_modern_indent_styles(palette)
 end
 
 function M.setup()
-  -- 禁用 "no parser for xxx" 消息
+  -- 禁用 "no parser for xxx" 消息，避免无关提示打扰
   vim.schedule(function()
     vim.notify = function(msg, ...)
       if msg:match("no parser for") then
@@ -78,15 +78,16 @@ function M.setup()
       end,
     },
     chunk = {
-      enable           = true,
-      style            = {
-        { fg = palette.base.cyan,  bg = palette.extended.bg2 },
-        { fg = palette.base.green, bg = palette.extended.bg3 },
-        { fg = palette.base.yellow, bg = palette.base.grey },
+      enable = true,
+      -- 统一背景设置为编辑器背景，避免突出显示
+      style  = {
+        { fg = palette.base.cyan,  bg = palette.base.bg },
+        { fg = palette.base.green, bg = palette.base.bg },
+        { fg = palette.base.yellow, bg = palette.base.bg },
       },
-      textobject       = "]]",
+      textobject        = "]]",
       support_filetypes = { "*" },
-      notify           = true,
+      notify            = true,
     },
     blank = {
       enable = false,
@@ -94,16 +95,16 @@ function M.setup()
       style  = { fg = palette.extended.grey2 },
     },
     ui = {
-      border      = "rounded",
-      winblend    = 20,
-      hl_normal   = "NormalFloat",
+      border       = "rounded",
+      winblend     = 30,         -- 增加透明度，让 UI 更柔和
+      hl_normal    = "NormalFloat",
       col_increase = 15,
     },
   }
 
   require("hlchunk").setup(opts)
 
-  -- 使用循环为每个缩进层级设置透明度，增强视觉效果
+  -- 通过自动命令更新每个缩进层级的透明度，确保显示柔和
   vim.api.nvim_create_autocmd("WinEnter", {
     callback = function()
       local blends = { 30, 25, 20, 15 }
@@ -113,7 +114,6 @@ function M.setup()
     end,
   })
 end
-
 
 return {
   {

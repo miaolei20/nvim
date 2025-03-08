@@ -3,15 +3,15 @@ return {
     "hrsh7th/nvim-cmp", -- 自动补全引擎
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
-      "hrsh7th/cmp-buffer",      -- 缓冲区补全
-      "hrsh7th/cmp-path",        -- 路径补全
-      "hrsh7th/cmp-nvim-lua",    -- Neovim Lua API 补全
-      "hrsh7th/cmp-cmdline",     -- 命令行补全
-      "L3MON4D3/LuaSnip",        -- 代码片段引擎
-      "saadparwaiz1/cmp_luasnip",-- LuaSnip 的补全源
-      "onsails/lspkind.nvim",    -- 美化补全菜单的图标支持
-      "petertriho/cmp-git",      -- Git 补全
-      "zbirenbaum/copilot-cmp",  -- Copilot 集成补全
+      "hrsh7th/cmp-buffer",       -- 缓冲区补全
+      "hrsh7th/cmp-path",         -- 路径补全
+      "hrsh7th/cmp-nvim-lua",     -- Neovim Lua API 补全
+      "hrsh7th/cmp-cmdline",      -- 命令行补全
+      "L3MON4D3/LuaSnip",         -- 代码片段引擎
+      "saadparwaiz1/cmp_luasnip", -- LuaSnip 的补全源
+      "onsails/lspkind.nvim",     -- 美化补全菜单图标支持
+      "petertriho/cmp-git",       -- Git 补全
+      "zbirenbaum/copilot-cmp",   -- Copilot 集成补全
     },
     config = function()
       local cmp = require("cmp")
@@ -69,22 +69,22 @@ return {
             mode = "symbol_text", -- 显示图标及文字
             preset = "codicons",
             menu = {
-              buffer    = "[BUF]",
-              nvim_lsp  = "[LSP]",
-              luasnip   = "[SNP]",
-              copilot   = "[COP]",
-              git       = "[GIT]",
-              path      = "[PATH]",
+              buffer   = "[BUF]",
+              nvim_lsp = "[LSP]",
+              luasnip  = "[SNP]",
+              copilot  = "[COP]",
+              git      = "[GIT]",
+              path     = "[PATH]",
             },
           }),
         },
+        -- 优化窗口设置：移除边框和额外颜色块，保证界面更加简洁
         window = {
           completion = {
-            border = "rounded",
-            winhighlight = "Normal:CmpPmenu,CursorLine:CmpSel,Search:None",
+            border = "none", -- 移除补全窗口边框
           },
           documentation = {
-            border = "rounded",
+            border = "none", -- 移除文档窗口边框
             max_width = 60,
             max_height = 15,
           },

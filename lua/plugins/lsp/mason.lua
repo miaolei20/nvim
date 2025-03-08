@@ -1,32 +1,57 @@
 return {
-  "williamboman/mason.nvim",                     -- 主插件
-  event = "VimEnter",                            -- 在 Vim 进入时加载
-  dependencies = {
-    "williamboman/mason-lspconfig.nvim",         -- LSP 配置插件
-    "WhoIsSethDaniel/mason-tool-installer.nvim", -- 工具安装插件
-  },
-  config = function()
-    require("mason").setup({
-      ui = {
-        icons = {
-          package_installed = "✓", -- 已安装包的图标
-          package_pending = "➜", -- 待安装包的图标
-          package_uninstalled = "✗" -- 未安装包的图标
-        },
-        border = "rounded" -- 界面边框样式
-      }
-    })
+  {
+    "williamboman/mason.nvim",
+    event = "VeryLazy", -- 延迟加载，优化启动性能
+    dependencies = {
+      "williamboman/mason-lspconfig.nvim",
+      "WhoIsSethDaniel/mason-tool-installer.nvim",
+    },
+    config = function()
+      local ok, mason = pcall(require, "mason")
+      if not ok then
+        vim.notify("mason.nvim not found!", vim.log.levels.ERROR)
+        return
+      end
 
-    require("mason-lspconfig").setup() -- 配置 mason-lspconfig 插件
-    require("mason-tool-installer").setup({
-      ensure_installed = {
-        "stylua",              -- 格式化工具
-        "clang-format",        -- LLVM格式支持
-        "lua-language-server", -- Lua 语言服务器
-        "pyright",             -- Python 语言服务器
-        "rust-analyzer",       -- Rust 语言服务器
-        "codelldb"
-      }
-    })
-  end
+      mason.setup({
+        ui = {
+          border = "rounded",
+          icons = {
+            package_installed = "󰄬", -- ✅ 更现代的 UI
+            package_pending = "󰁔",
+            package_uninstalled = "󰚌",
+          },
+        },
+        max_concurrent_installers = 4, -- 限制并发安装数，避免卡顿
+        log_level = vim.log.levels.INFO, -- 日志级别
+      })
+
+      -- mason-lspconfig 配置
+      local ok_lsp, mason_lspconfig = pcall(require, "mason-lspconfig")
+      if ok_lsp then
+        mason_lspconfig.setup()
+      else
+        vim.notify("mason-lspconfig.nvim not found!", vim.log.levels.WARN)
+      end
+
+      -- mason-tool-installer 配置
+      local ok_installer, mason_tool_installer = pcall(require, "mason-tool-installer")
+      if ok_installer then
+        mason_tool_installer.setup({
+          ensure_installed = {
+            "stylua",
+            "clang-format",
+            "lua-language-server",
+            "pyright",
+            "rust-analyzer",
+            "codelldb",
+          },
+          auto_update = true, -- 自动更新已安装的工具
+          run_on_start = false, -- 不在启动时运行，避免额外延迟
+        })
+      else
+        vim.notify("mason-tool-installer.nvim not found!", vim.log.levels.WARN)
+      end
+    end,
+  },
 }
