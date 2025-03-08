@@ -57,12 +57,6 @@ return {
           BufferLineBackground     = { bg = colors.extended.bg2 },
           BufferLineBufferSelected = { bg = colors.base.bg },
           TabLineSel               = { bg = colors.base.bg, fg = colors.base.blue },
-          -- Dashboard 适配
-          DashboardHeader = { fg = colors.base.blue, bold = true },
-          DashboardIcon   = { fg = colors.base.purple, bold = true },
-          DashboardDesc   = { fg = colors.base.yellow },
-          DashboardKey    = { fg = colors.base.red },
-          DashboardFooter = { fg = colors.base.grey, italic = true },
           -- 缩进线配置
           IblIndent1 = { fg = colors.extended.bg2 },
           IblIndent2 = { fg = colors.extended.bg3 },
