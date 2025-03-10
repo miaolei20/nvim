@@ -1,44 +1,42 @@
+-- lspsaga.lua 颜色优化版
 local lspsaga = require("lspsaga")
-local keymaps = require("config.lsp.keymaps")
+local keys = require("config.lsp.keymaps")
 
 lspsaga.setup({
   symbol_in_winbar = {
     enable = true,
     show_file = true,
-    separator = keymaps.icons.symbol.Separator,
-    hide_keyword = true,
-    color_mode = true,
-    file_formatter = function(path)
-      local sep = package.config:sub(1, 1)
-      local parts = vim.split(path, sep)
-      return #parts > 2 and table.concat({ "...", parts[#parts - 1], parts[#parts] }, sep) or path
-    end,
+    separator = keys.icons.symbols.Separator,
+    color_mode = true, -- 必须开启颜色模式
+    highlight_group = {
+      icon = "LspSagaWinbarSep", -- 自定义高亮组
+      name = "LspSagaWinbarFile"
+    }
   },
-  lightbulb = {
-    enable = false,
-    sign = keymaps.icons.code_action,
-    virtual_text = false,
-    sign_priority = 20,
-  },
-  diagnostic = {
-    show_code_action = true,
-    show_source = true,
-    jump_num_shortcut = true,
-    diagnostic_prefix = keymaps.icons.diagnostics,
+  ui = {
+    border = "single", -- 统一边框样式
+    devicon = true,
+    title = true,
+    expand = "",
+    collapse = "",
+    actionfix = "",
+    lines = { "┗", "┣", "┃", "━", "┏" },
+    kind = {},
+    button = { "│", "│" }, -- 优化按钮样式
+    imp_sign = "󰳛 "
   },
   finder = {
-    default = "def+ref+imp",
-    keys = {
-      shuttle = "<leader>sf",
-      toggle_or_open = "o",
-      vsplit = "v",
-      split = "s",
-      tabe = "t",
-      quit = "q",
-    },
     layout = "float",
-    title = " 🕵️ LSP Finder ",
-    force_max_height = true,
-    max_height = 0.6,
+    filter = { prefix = false }, -- 移除过滤前缀
+    default = "def+ref",
+    keys = { toggle_or_open = "<CR>" }
   },
+  hover = { open_link = "gl" } -- 维持现有配置
 })
+
+-- 重要！必须设置的衍生高亮组
+vim.api.nvim_set_hl(0, "LspSagaWinbarSep",  { link = "Comment" })
+vim.api.nvim_set_hl(0, "LspSagaWinbarFile", { link = "Directory" })
+vim.api.nvim_set_hl(0, "SagaBorder",        { fg = "#569CD6", bg = "NONE" })
+vim.api.nvim_set_hl(0, "SagaNormal",        { link = "NormalFloat" })
+vim.api.nvim_set_hl(0, "TitleString",       { fg = "#DCDCAA", bold = true })
