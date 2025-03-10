@@ -48,19 +48,17 @@ require("lazy").setup({
 
     -- 核心 UI 组件
     { import = "plugins.UI.lualine" },    -- 状态栏
-    { import = "plugins.UI.bufferline" }, -- 标签栏
+    { import = "plugins.UI.barbar" }, -- 标签栏
     { import = "plugins.UI.nvimtree" },   -- 文件树
-    { import = "plugins.UI.alpha" },  -- 启动页
-    { import = "plugins.UI.smoothcursor" }, -- 光标平滑移动
+    { import = "plugins.UI.cursorword" }, 
     { import = "plugins.UI.scrollbar" },  -- 滚动条
-    { import = "plugins.UI.hlchunk" },    -- 代码块高亮
+    { import = "plugins.UI.indent" },    -- 代码块高亮
     { import = "plugins.UI.rainbow" },    -- 彩虹括号
     { import = "plugins.UI.aerial" },   -- 代码大纲
     { import = "plugins.UI.notify"},    -- 通知
     -- 导航与搜索
     { import = "plugins.UI.navigation" },   -- 窗口导航
     { import = "plugins.tools.telescope" },    -- 模糊搜索
-    { import = "plugins.tools.file-browser" }, -- 文件浏览
 
     -- 版本控制
     { import = "plugins.git.gitsigns" }, -- Git 状态显示
@@ -74,8 +72,6 @@ require("lazy").setup({
     -- 辅助功能
     { import = "plugins.tools.which-key" },     -- 快捷键提示
     { import = "plugins.tools.lastplace" },       -- 恢复上次位置
-
-    { import = "plugins.tools.todo-comments" },   -- TODO 高亮
     { import = "plugins.tools.ufo" },             -- 折叠增强
   },
   performance = {  -- 此部分保持不变
