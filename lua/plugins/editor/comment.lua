@@ -26,4 +26,5 @@ return {
         textobject = "<C-_>",
       },
     })
+  end,
 }
