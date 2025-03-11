@@ -68,6 +68,7 @@ require("lazy").setup({
     { import = "plugins.tools.spectre" },    -- 搜索替换
     { import = "plugins.tools.lazygit" }, -- 内置终端
     { import = "plugins.AI.avante" },        -- 未知插件（按原顺序保留）
+    { import = "plugins.tools.leetcode" },   -- LeetCode 插件
 
     -- 辅助功能
     { import = "plugins.tools.which-key" },     -- 快捷键提示

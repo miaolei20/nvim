@@ -84,4 +84,49 @@ function M.setup()
   setup_servers()
 end
 
+-- 基础折叠配置 (类似 VSCode 风格)
+vim.opt.foldmethod = "syntax"   -- 基于语法分析折叠
+vim.opt.foldlevelstart = 99     -- 默认展开所有折叠
+vim.opt.foldnestmax = 5         -- 最大嵌套折叠层级
+vim.opt.fillchars:append({ fold = " " }) -- 折叠列留空（配合自定义样式）
+
+-- 自定义折叠文本显示 (美化样式)
+function _G.custom_fold_text()
+    local line_count = vim.v.foldend - vim.v.foldstart + 1
+    local first_line = vim.fn.getline(vim.v.foldstart):gsub("\t", "  "):sub(1, 60)
+    local icon = "󰘖 " -- 折叠图标 (需 Nerd Font)
+    
+    return string.format("%s %s  %d lines  %s ",
+        icon,
+        vim.bo.filetype,
+        line_count,
+        first_line
+    )
+end
+
+vim.opt.foldtext = "v:lua.custom_fold_text()"
+
+-- 高亮配置
+vim.api.nvim_set_hl(0, "Folded", { 
+    fg = "#569CD6", 
+    bg = "NONE", 
+    italic = true 
+})
+
+vim.api.nvim_set_hl(0, "FoldColumn", {
+    fg = "#808080",
+    bg = "NONE"
+})
+
+-- 为不同文件类型优化
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "lua", "python", "cpp" },
+    callback = function()
+        vim.opt_local.foldmethod = "syntax"
+        -- 当语法折叠失效时使用缩进折叠
+        if vim.fn.foldlevel(1) == 0 then
+            vim.opt_local.foldmethod = "indent"
+        end
+    end
+})
 return M

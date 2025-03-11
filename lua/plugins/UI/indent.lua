@@ -60,8 +60,8 @@ return {
         -- 排除文件类型
         exclude = {
           filetypes = {
-            "help", "dashboard", "NvimTree", "TelescopePrompt",
-            "lspinfo", "checkhealth", "man"
+            "help", "NvimTree", "TelescopePrompt",
+            "lspinfo", "checkhealth", "man","lazy", "dashboard", "alpha", "starter","leetcode"
           }
         }
       })
