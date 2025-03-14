@@ -12,12 +12,12 @@ return {
       },
       opts = {
         arg = "leetcode.nvim",
-        lang = "cpp",
+        lang = "c",
         cn = {
             enabled = true,             -- 开启 leetcode.cn 支持
             translator = true,         -- 根据需要启用或关闭翻译功能（建议关闭以优化性能）
             translate_problems = true, -- 同上
-          },          
+          },
         storage = {
           home = vim.fn.stdpath("data") .. "/leetcode",
           cache = vim.fn.stdpath("cache") .. "/leetcode",

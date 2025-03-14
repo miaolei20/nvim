@@ -2,7 +2,7 @@
 require("config.options")
 -- 加载键映射配置
 require("config.keymaps")
-
+require("config.indent")
 -- 定义 lazy.nvim 插件的路径
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
@@ -52,7 +52,6 @@ require("lazy").setup({
     { import = "plugins.UI.nvimtree" },   -- 文件树
     { import = "plugins.UI.cursorword" }, 
     { import = "plugins.UI.scrollbar" },  -- 滚动条
-    { import = "plugins.UI.indent" },    -- 代码块高亮
     { import = "plugins.UI.rainbow" },    -- 彩虹括号
     { import = "plugins.UI.aerial" },   -- 代码大纲
     { import = "plugins.UI.notify"},    -- 通知

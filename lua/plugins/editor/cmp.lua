@@ -1,118 +1,116 @@
 return {
   {
-    "hrsh7th/nvim-cmp", -- 自动补全引擎
+    "hrsh7th/nvim-cmp",
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
-      "hrsh7th/cmp-buffer",       -- 缓冲区补全
-      "hrsh7th/cmp-path",         -- 路径补全
-      "hrsh7th/cmp-nvim-lua",     -- Neovim Lua API 补全
-      "hrsh7th/cmp-cmdline",      -- 命令行补全
-      "L3MON4D3/LuaSnip",         -- 代码片段引擎
-      "saadparwaiz1/cmp_luasnip", -- LuaSnip 的补全源
-      "onsails/lspkind.nvim",     -- 美化补全菜单图标支持
-      "petertriho/cmp-git",       -- Git 补全
-      "zbirenbaum/copilot-cmp",   -- Copilot 集成补全
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "saadparwaiz1/cmp_luasnip", -- 新增专用片段集成插件[3]
+      "L3MON4D3/LuaSnip",
+      "onsails/lspkind.nvim",
+      "zbirenbaum/copilot-cmp"
     },
     config = function()
       local cmp = require("cmp")
       local luasnip = require("luasnip")
       local lspkind = require("lspkind")
 
-      -- 定义各补全源及其优先级
-      local cmp_sources = {
-        { name = "nvim_lsp", priority = 1000 },
-        { name = "luasnip",  priority = 900  },
-        { name = "copilot",  priority = 850  },
-        { name = "buffer",   priority = 500  },
-        { name = "path",     priority = 250  },
-        { name = "git",      priority = 200  },
-      }
+      -- 智能片段加载策略
+      require("luasnip.loaders.from_vscode").lazy_load({
+        paths = {
+          vim.fn.stdpath("config") .. "/snippets" -- 自定义片段目录
+        }
+      })
 
+      -- 冲突解决型快捷键配置
       cmp.setup({
+        mapping = cmp.mapping.preset.insert({
+          ["<Tab>"] = cmp.mapping(function(fallback)
+            if luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump() -- 优先处理片段跳转[3]
+            elseif cmp.visible() then
+              cmp.select_next_item()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+
+          ["<S-Tab>"] = cmp.mapping(function(fallback)
+            if luasnip.jumpable(-1) then
+              luasnip.jump(-1) -- 反向片段跳转优先[3]
+            elseif cmp.visible() then
+              cmp.select_prev_item()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+
+          ["<C-e>"] = cmp.mapping.abort(), -- 统一取消操作
+          ["<CR>"] = cmp.mapping.confirm({
+            select = true,
+            behavior = cmp.ConfirmBehavior.Replace
+          }),
+          
+          -- 增强型文档控制
+          ["<C-d>"] = cmp.mapping.scroll_docs(4),
+          ["<C-u>"] = cmp.mapping.scroll_docs(-4)
+        }),
+
+        -- 优先级排序的补全源
+        sources = cmp.config.sources({
+          { name = "copilot",  priority = 100 },
+          { name = "nvim_lsp", priority = 90 },
+          { name = "luasnip",   priority = 85 }, -- 独立片段源[3]
+          { name = "buffer",    priority = 70 },
+          { name = "path",     priority = 60 }
+        }),
+
+        -- 智能片段配置
         snippet = {
           expand = function(args)
-            luasnip.lsp_expand(args.body) -- 使用 LuaSnip 展开代码片段
-          end,
+            require("luasnip").lsp_expand(args.body) -- 安全展开片段[3]
+          end
         },
-        mapping = cmp.mapping.preset.insert({
-          ["<C-b>"] = cmp.mapping.scroll_docs(-4), -- 向上滚动文档
-          ["<C-f>"] = cmp.mapping.scroll_docs(4),  -- 向下滚动文档
-          ["<C-Space>"] = cmp.mapping.complete(),  -- 触发补全
-          ["<C-e>"] = cmp.mapping.abort(),         -- 取消补全
-          ["<C-J>"] = cmp.mapping.confirm({
-            behavior = cmp.ConfirmBehavior.Replace,
-            select = true,
-          }),
-          ["<CR>"] = nil, -- 禁用默认回车确认映射
-          ["<Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_next_item()
-            elseif require("copilot.suggestion").is_visible() then
-              require("copilot.suggestion").accept()
-            else
-              fallback()
-            end
-          end, { "i", "s" }),
-          ["<S-Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_prev_item()
-            elseif luasnip.jumpable(-1) then
-              luasnip.jump(-1)
-            else
-              fallback()
-            end
-          end, { "i", "s" }),
-        }),
-        sources = cmp.config.sources(cmp_sources),
-        formatting = {
-          format = lspkind.cmp_format({
-            mode = "symbol_text", -- 显示图标及文字
-            preset = "codicons",
-            menu = {
-              buffer   = "[BUF]",
-              nvim_lsp = "[LSP]",
-              luasnip  = "[SNP]",
-              copilot  = "[COP]",
-              git      = "[GIT]",
-              path     = "[PATH]",
-            },
-          }),
-        },
-        -- 优化窗口设置：移除边框和额外颜色块，保证界面更加简洁
+
+        -- 优化的窗口渲染
         window = {
           completion = {
-            border = "none", -- 移除补全窗口边框
+            border = "single",
+            scrolloff = 3, -- 滚动边界缓冲
+            col_offset = -1,
+            side_padding = 0
           },
           documentation = {
-            border = "none", -- 移除文档窗口边框
+            border = "rounded",
             max_width = 60,
-            max_height = 15,
-          },
+            max_height = 18
+          }
         },
-        experimental = {
-          ghost_text = { hl_group = "Comment" }, -- 幽灵文本（预览式补全）
-        },
-        performance = {
-          debounce = 80,         -- 防抖时间
-          throttle = 60,         -- 节流时间
-          fetching_timeout = 200,  -- 补全项获取超时设置
-        },
+
+        -- 类型标记增强
+        formatting = {
+          fields = { "kind", "abbr", "menu" },
+          format = lspkind.cmp_format({
+            mode = "symbol_text",
+            preset = "codicons",
+            symbol_map = {
+              Copilot = "",     -- 优化 AI 标识
+              Snippet = "",     -- 独立片段标识[3]
+              Method = "󰆧",
+              Field = "󰛨"
+            },
+            menu = {
+              luasnip = "[SNIP]", -- 明确片段来源[3]
+              nvim_lsp = "[LSP]",
+              copilot = "[AI]"
+            }
+          })
+        }
       })
 
-      -- 配置命令行模式下的补全（搜索/过滤）
-      cmp.setup.cmdline({ "/", "?" }, {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = { { name = "buffer" } },
-      })
-
-      -- 配置命令行模式下的路径与命令补全
-      cmp.setup.cmdline(":", {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = cmp.config.sources(
-          { { name = "path" } },
-          { { name = "cmdline" } }
-        ),
-      })
-    end,
-  },
+      -- 片段专用高亮配置
+      vim.api.nvim_set_hl(0, "LuaSnipSnippet",  { fg = "#78DBA8" })
+      vim.api.nvim_set_hl(0, "LuaSnipChoice",   { fg = "#FFB86C" })
+    end
+  }
 }

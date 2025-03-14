@@ -27,7 +27,7 @@ local icons = {
   unix = " ",
   windows = " ",
   mac = " ",
-  diagnostics = { Error = " ", Warn = " ", Info = " ", Hint = "󰛨 " },
+  diagnostics = { Error = " ", Warn = " ", Info = " " },
   git = { added = " ", modified = " ", removed = " " }
 }
 
