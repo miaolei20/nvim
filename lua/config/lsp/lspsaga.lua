@@ -13,6 +13,13 @@ lspsaga.setup({
       name = "LspSagaWinbarFile"
     }
   },
+  -- 新增禁用灯泡配置
+  lightbulb = {
+    enable = false,
+    sign = keys.icons.actions.code,
+    virtual_text = false,
+    sign_priority = 20
+  },
   ui = {
     border = "single", -- 统一边框样式
     devicon = true,
@@ -40,3 +47,4 @@ vim.api.nvim_set_hl(0, "LspSagaWinbarFile", { link = "Directory" })
 vim.api.nvim_set_hl(0, "SagaBorder",        { fg = "#569CD6", bg = "NONE" })
 vim.api.nvim_set_hl(0, "SagaNormal",        { link = "NormalFloat" })
 vim.api.nvim_set_hl(0, "TitleString",       { fg = "#DCDCAA", bold = true })
+
