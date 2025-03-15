@@ -10,26 +10,30 @@ return {
       "jvgrootveld/telescope-lazy-plugins.nvim",
       "nvim-telescope/telescope-file-browser.nvim",
       "debugloop/telescope-undo.nvim",
-      { "nvim-telescope/telescope-frecency.nvim", dependencies = "kkharji/sqlite.lua" },  -- 新增 frecency
+      { "nvim-telescope/telescope-frecency.nvim" }, -- 添加 frecency 依赖
     },
     keys = function()
       local builtin = require("telescope.builtin")
       return {
-        -- 核心快捷键
         { "<leader>ff", builtin.find_files, desc = "Find Files" },
         { "<leader>fg", builtin.live_grep,  desc = "Live Grep" },
-        { "<leader>fs", "<cmd>Telescope frecency<cr>", desc = "Frecency Files" },  -- 新增
-        
-        -- 增强型快捷键
+        { "<leader>fr", function()          -- 添加 frecency 的快捷键
+          require("telescope").extensions.frecency.frecency({
+            workspace = "CWD"  -- 默认使用当前工作目录
+          })
+        end, desc = "Frecency Files" },
         { "<leader>fe", function()
           require("telescope").extensions.file_browser.file_browser({
             path = "%:p:h",
             theme = "dropdown"
           })
         end, desc = "File Browser" },
-        
-        { "<leader>fu", "<cmd>Telescope undo<cr>", desc = "Undo History" },
-        { "<leader>fp", "<cmd>Telescope lazy_plugins<cr>", desc = "Lazy Plugins" }
+        { "<leader>fu", function()
+          require("telescope").extensions.undo.undo()
+        end, desc = "Undo History" },
+        { "<leader>fp", function()
+          require("telescope").extensions.lazy_plugins.lazy_plugins()
+        end, desc = "Lazy Plugins" }
       }
     end,
     config = function()
@@ -48,7 +52,6 @@ return {
         end
       end)
 
-      -- 统一配置
       telescope.setup({
         defaults = {
           dynamic_preview_title = true,
@@ -82,19 +85,23 @@ return {
           fzf = { fuzzy = true },
           lazy_plugins = {
             theme = "dropdown",
-            layout_config = { width = 0.4 }
+            layout_config = { width = 0.4 },
+            lazy_config = vim.fn.stdpath("config") .. "/init.lua"
           },
-          frecency = {  -- 新增 frecency 配置
-            show_scores = false,
-            workspaces = {
-              ["conf"] = vim.fn.expand("~/.config/nvim"),
-              ["code"] = vim.fn.expand("~/code")
+          frecency = {                        -- 添加 frecency 配置
+            db_safe_mode = false,             -- 关闭安全模式以提高性能
+            auto_validate = true,            -- 自动验证数据库条目
+            show_scores = true,              -- 显示文件分数
+            show_unindexed = true,           -- 显示未索引的文件
+            ignore_patterns = { "*.git/*" }, -- 忽略模式
+            workspaces = {                   -- 可选：定义工作空间
+              ["conf"] = vim.fn.stdpath("config"),
+              ["project"] = "~/projects"
             }
           }
         }
       })
-      
-      -- 智能扩展加载策略
+
       local load_ext = function(ext)
         return function()
           if not package.loaded["telescope._extensions."..ext] then
@@ -103,7 +110,6 @@ return {
         end
       end
 
-      -- 按需加载扩展
       vim.api.nvim_create_autocmd("User", {
         pattern = "TelescopePreviewerLoaded",
         callback = function()
@@ -111,7 +117,7 @@ return {
           load_ext("file_browser")()
           load_ext("undo")()
           load_ext("lazy_plugins")()
-          load_ext("frecency")()  -- 新增
+          load_ext("frecency")()           -- 添加 frecency 扩展加载
         end,
         once = true
       })

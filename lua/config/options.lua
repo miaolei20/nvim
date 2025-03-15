@@ -134,3 +134,28 @@ end
 vim.api.nvim_create_user_command('RunCode', compile_and_run, { desc = '编译运行当前C/C++文件' })
 vim.keymap.set('n', '<F5>', ':RunCode<CR>', { noremap = true, silent = true, desc = '运行代码' })
 
+-- 定义一个函数来打开 URL
+vim.api.nvim_create_user_command("OpenURL", function(opts)
+  -- 如果手动输入了 URL，则优先使用它
+  local url = opts.args
+  if url == "" then
+    -- 获取光标所在行的内容
+    local line = vim.api.nvim_get_current_line()
+    -- 获取光标位置的列号（从 0 开始）
+    local col = vim.api.nvim_win_get_cursor(0)[2]
+    -- 提取光标下的单词
+    local word = vim.fn.expand("<cWORD>") -- <cWORD> 获取光标下的完整 "单词"（包括 URL）
+
+    -- 简单的 URL 检测正则表达式
+    local url_pattern = "https?://[%w-_%.%?%#%=%&%/]+"
+    url = line:match(url_pattern) or word:match(url_pattern)
+
+    -- 如果没有找到 URL，使用默认值
+    if not url then
+      url = "https://www.google.com"
+    end
+  end
+
+  -- 使用 Edge 打开 URL
+  vim.fn.jobstart({"/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", url}, {detach = true})
+end, { nargs = "?" })
