@@ -6,9 +6,9 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 -- 将 Tab 转换为空格
 vim.opt.expandtab = true
--- Tab 显示为 4 空格
+-- Tab 显示为 2 空格
 vim.opt.tabstop = 2
--- 自动缩进时每级缩进 4 空格
+-- 自动缩进时每级缩进 2 空格
 vim.opt.shiftwidth = 2
 -- 智能缩进
 vim.opt.smartindent = true

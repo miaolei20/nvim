@@ -3,109 +3,118 @@ return {
     "nvim-telescope/telescope.nvim",
     version = false,
     cmd = "Telescope",
-    event = "VeryLazy",  -- 统一使用懒加载
+    event = "VeryLazy",
     dependencies = {
       "nvim-lua/plenary.nvim",
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+      "jvgrootveld/telescope-lazy-plugins.nvim",
       "nvim-telescope/telescope-file-browser.nvim",
-      "nvim-tree/nvim-web-devicons",
-      "debugloop/telescope-undo.nvim"
+      "debugloop/telescope-undo.nvim",
+      { "nvim-telescope/telescope-frecency.nvim", dependencies = "kkharji/sqlite.lua" },  -- 新增 frecency
     },
     keys = function()
       local builtin = require("telescope.builtin")
-      local extensions = require("telescope").extensions
       return {
         -- 核心快捷键
         { "<leader>ff", builtin.find_files, desc = "Find Files" },
         { "<leader>fg", builtin.live_grep,  desc = "Live Grep" },
-        { "<leader>fb", builtin.buffers,    desc = "Find Buffers" },
-        { "<leader>fh", builtin.help_tags,  desc = "Help Tags" },
-        { "<leader>fr", builtin.oldfiles,   desc = "Recent Files" },
+        { "<leader>fs", "<cmd>Telescope frecency<cr>", desc = "Frecency Files" },  -- 新增
         
         -- 增强型快捷键
         { "<leader>fe", function()
-          extensions.file_browser.file_browser({
+          require("telescope").extensions.file_browser.file_browser({
             path = "%:p:h",
-            grouped = true,
             theme = "dropdown"
           })
         end, desc = "File Browser" },
         
-        { "<leader>fu", "<cmd>Telescope undo<cr>", desc = "Undo History" }
+        { "<leader>fu", "<cmd>Telescope undo<cr>", desc = "Undo History" },
+        { "<leader>fp", "<cmd>Telescope lazy_plugins<cr>", desc = "Lazy Plugins" }
       }
     end,
     config = function()
       local telescope = require("telescope")
       local actions = require("telescope.actions")
-      local action_layout = require("telescope.actions.layout")
 
-      -- 异步颜色配置（性能优化）
+      -- 异步主题适配
       vim.schedule(function()
-        local ok, palette = pcall(require, "onedark.palette")
-        if ok then
-          palette = palette.dark
-          vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = palette.gray, bg = palette.bg0 })
-          vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = palette.cyan, bg = palette.bg1 })
+        local palette = require("onedark.palette").dark
+        for hl_group, hl_def in pairs({
+          TelescopeBorder       = { fg = palette.grey, bg = palette.bg0 },
+          TelescopePromptBorder = { fg = palette.cyan, bg = palette.bg1 },
+          TelescopeTitle        = { fg = palette.cyan, bold = true },
+        }) do
+          vim.api.nvim_set_hl(0, hl_group, hl_def)
         end
       end)
 
-      -- 统一配置项（合并上下文[<sup>1</sup>](https://www.msn.com/en-us/society-culture-and-history/general/the-sky-today-march-10-2025/ar-AA1AzBeM)[<sup>2</sup>](https://www.wincalendar.com/Calendar/Date/March-10-2025)的设置）
+      -- 统一配置
       telescope.setup({
         defaults = {
           dynamic_preview_title = true,
           prompt_prefix = "   ",
-          selection_caret = "  ",
           path_display = { "truncate" },
-          winblend = 10,
-          borderchars = {
-            prompt  = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-            results = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-            preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
-          },
+          borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
           mappings = {
             i = {
               ["<C-j>"] = actions.move_selection_next,
               ["<C-k>"] = actions.move_selection_previous,
-              ["<C-v>"] = actions.select_vertical,
-              ["<C-u>"] = action_layout.toggle_preview,
               ["<ESC>"] = actions.close
             }
           },
           file_ignore_patterns = {
-            "%.git/", "node_modules/", "%.idea/",
-            "__pycache__/", "%.class"
+            "^.git/", "^node_modules/", "^.idea/", "__pycache__/"
           },
           vimgrep_arguments = {
             "rg", "--color=never", "--no-heading",
             "--with-filename", "--line-number",
-            "--column", "--smart-case", "--hidden"
+            "--column", "--smart-case", "--hidden",
+            "--glob=!.git", "--glob=!node_modules"
           }
         },
         pickers = {
           find_files = {
             hidden = true,
-            find_command = { "fd", "--type=file", "--hidden" },
-            theme = "dropdown"
+            find_command = { "fd", "--type=file", "--hidden" }
           }
         },
         extensions = {
-          fzf = {
-            fuzzy = true,
-            case_mode = "smart_case"
+          fzf = { fuzzy = true },
+          lazy_plugins = {
+            theme = "dropdown",
+            layout_config = { width = 0.4 }
           },
-          file_browser = {
-            hijack_netrw = true,
-            theme = "dropdown"
+          frecency = {  -- 新增 frecency 配置
+            show_scores = false,
+            workspaces = {
+              ["conf"] = vim.fn.expand("~/.config/nvim"),
+              ["code"] = vim.fn.expand("~/code")
+            }
           }
         }
       })
+      
+      -- 智能扩展加载策略
+      local load_ext = function(ext)
+        return function()
+          if not package.loaded["telescope._extensions."..ext] then
+            telescope.load_extension(ext)
+          end
+        end
+      end
 
-      -- 延迟加载扩展（性能优化）
-      vim.defer_fn(function()
-        telescope.load_extension("fzf")
-        telescope.load_extension("file_browser")
-        telescope.load_extension("undo")
-      end, 100)
+      -- 按需加载扩展
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "TelescopePreviewerLoaded",
+        callback = function()
+          load_ext("fzf")()
+          load_ext("file_browser")()
+          load_ext("undo")()
+          load_ext("lazy_plugins")()
+          load_ext("frecency")()  -- 新增
+        end,
+        once = true
+      })
     end
   }
 }
