@@ -1,3 +1,4 @@
+vim.g.python3_host_prog = '/usr/bin/python3'
 -- 加载配置选项
 require("config.options")
 -- 加载键映射配置

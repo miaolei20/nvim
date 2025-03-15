@@ -22,6 +22,14 @@ return {
             package_uninstalled = "󰚌",
           },
         },
+        providers = {
+          composer = false,  -- 禁用 PHP
+          ruby = false,
+          php = false, 
+          java = false,
+          julia = false
+
+        },
         max_concurrent_installers = 4, -- 限制并发安装数，避免卡顿
         log_level = vim.log.levels.INFO, -- 日志级别
       })

@@ -7,7 +7,7 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim",
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
-      "jvgrootveld/telescope-lazy-plugins.nvim",
+      "polirritmico/telescope-lazy-plugins.nvim",
       "nvim-telescope/telescope-file-browser.nvim",
       "debugloop/telescope-undo.nvim",
       { "nvim-telescope/telescope-frecency.nvim" }, -- 添加 frecency 依赖
@@ -17,7 +17,7 @@ return {
       return {
         { "<leader>ff", builtin.find_files, desc = "Find Files" },
         { "<leader>fg", builtin.live_grep,  desc = "Live Grep" },
-        { "<leader>fr", function()          -- 添加 frecency 的快捷键
+        { "<leader>fs", function()          -- 添加 frecency 的快捷键
           require("telescope").extensions.frecency.frecency({
             workspace = "CWD"  -- 默认使用当前工作目录
           })
