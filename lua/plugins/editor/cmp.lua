@@ -5,7 +5,7 @@ return {
     dependencies = {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
-      "saadparwaiz1/cmp_luasnip", -- 新增专用片段集成插件[3]
+      "saadparwaiz1/cmp_luasnip",
       "L3MON4D3/LuaSnip",
       "onsails/lspkind.nvim",
       "zbirenbaum/copilot-cmp"
@@ -27,7 +27,7 @@ return {
         mapping = cmp.mapping.preset.insert({
           ["<Tab>"] = cmp.mapping(function(fallback)
             if luasnip.expand_or_jumpable() then
-              luasnip.expand_or_jump() -- 优先处理片段跳转[3]
+              luasnip.expand_or_jump()
             elseif cmp.visible() then
               cmp.select_next_item()
             else
@@ -37,7 +37,7 @@ return {
 
           ["<S-Tab>"] = cmp.mapping(function(fallback)
             if luasnip.jumpable(-1) then
-              luasnip.jump(-1) -- 反向片段跳转优先[3]
+              luasnip.jump(-1)
             elseif cmp.visible() then
               cmp.select_prev_item()
             else
@@ -45,7 +45,7 @@ return {
             end
           end, { "i", "s" }),
 
-          ["<C-e>"] = cmp.mapping.abort(), -- 统一取消操作
+          ["<C-e>"] = cmp.mapping.abort(),
           ["<CR>"] = cmp.mapping.confirm({
             select = true,
             behavior = cmp.ConfirmBehavior.Replace
@@ -60,15 +60,15 @@ return {
         sources = cmp.config.sources({
           { name = "copilot",  priority = 100 },
           { name = "nvim_lsp", priority = 90 },
-          { name = "luasnip",   priority = 85 }, -- 独立片段源[3]
-          { name = "buffer",    priority = 70 },
+          { name = "luasnip",  priority = 85 },
+          { name = "buffer",   priority = 70 },
           { name = "path",     priority = 60 }
         }),
 
         -- 智能片段配置
         snippet = {
           expand = function(args)
-            require("luasnip").lsp_expand(args.body) -- 安全展开片段[3]
+            require("luasnip").lsp_expand(args.body)
           end
         },
 
@@ -76,14 +76,16 @@ return {
         window = {
           completion = {
             border = "single",
-            scrolloff = 3, -- 滚动边界缓冲
-            col_offset = -1,
-            side_padding = 0
+            max_width = 50,    -- 限制最大宽度
+            max_height = 10,   -- 限制最大高度
+            scrolloff = 1,     -- 减少滚动条出现
+            col_offset = -1,   -- 调整显示位置
+            side_padding = 1   -- 增加内边距
           },
           documentation = {
             border = "rounded",
-            max_width = 60,
-            max_height = 18
+            max_width = 40,    -- 适中宽度
+            max_height = 15    -- 适中高度
           }
         },
 
@@ -94,13 +96,13 @@ return {
             mode = "symbol_text",
             preset = "codicons",
             symbol_map = {
-              Copilot = "",     -- 优化 AI 标识
-              Snippet = "",     -- 独立片段标识[3]
+              Copilot = "",
+              Snippet = "",
               Method = "󰆧",
               Field = "󰛨"
             },
             menu = {
-              luasnip = "[SNIP]", -- 明确片段来源[3]
+              luasnip = "[SNIP]",
               nvim_lsp = "[LSP]",
               copilot = "[AI]"
             }

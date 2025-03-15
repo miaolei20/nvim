@@ -40,6 +40,7 @@ return {
         excluded_filetypes = {
           "NvimTree", "TelescopePrompt", "alpha",
           "dashboard", "lazy",
+          "cmp_menu", "cmp_docs"  -- 新增补全和文档窗口
         },
         handlers = {
           diagnostic = true,
