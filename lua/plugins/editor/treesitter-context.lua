@@ -1,4 +1,4 @@
-local M = {
+return {
   {
     "nvim-treesitter/nvim-treesitter-context",
     event = { "BufReadPost", "BufNewFile" },
@@ -11,34 +11,23 @@ local M = {
       zindex = 45,
       trim_scope = "inner",
       on_attach = function(bufnr)
-        -- Enhanced key mappings
-        local keymap = vim.keymap.set
-        keymap("n", "<leader>ut", function() require("treesitter-context").toggle() end, {
-          desc = "Toggle Context Window",
-          buffer = bufnr,
-          silent = true,
-        })
-        keymap("n", "[c", function() require("treesitter-context").go_to_context() end, {
-          desc = "Jump to Context",
-          buffer = bufnr,
-          silent = true,
-        })
+        vim.keymap.set("n", "<leader>ut", function()
+          require("treesitter-context").toggle()
+        end, { desc = "Toggle Context Window", buffer = bufnr, silent = true })
+        vim.keymap.set("n", "[c", function()
+          require("treesitter-context").go_to_context()
+        end, { desc = "Jump to Context", buffer = bufnr, silent = true })
       end,
     },
     config = function(_, opts)
-      -- Safely load the treesitter context
-      local ok, context = pcall(require, "treesitter-context")
-      if not ok then
-        vim.notify("treesitter-context not found!", vim.log.levels.ERROR)
-        return
-      end
+      local context = require("treesitter-context")
 
-      -- Dynamic color compatibility
+      -- 动态获取高亮颜色
       local function get_hl(group, attr)
         return vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.hlID(group)), attr) or ""
       end
 
-      -- Setting highlights with fallback colors
+      -- 设置高亮
       local highlights = {
         TreesitterContext = {
           bg = get_hl("Normal", "bg") ~= "" and get_hl("Normal", "bg") or "#282c34",
@@ -54,11 +43,11 @@ local M = {
         },
       }
 
-      for group, opts in pairs(highlights) do
-        vim.api.nvim_set_hl(0, group, opts)
+      for group, hl in pairs(highlights) do
+        vim.api.nvim_set_hl(0, group, hl)
       end
 
-      -- Core configuration using the latest API
+      -- 配置 Treesitter Context
       context.setup(vim.tbl_deep_extend("force", {
         patterns = {
           c = "function_definition",
@@ -76,20 +65,24 @@ local M = {
         throttle = true,
         timeout = 80,
         scroll_speed = 50,
-        update_events = { "CursorMoved", "BufEnter" },  -- Refined automatic refresh logic
+        update_events = { "CursorMoved", "BufEnter" },
       }, opts))
 
-      -- Safe autocmd configuration
+      -- 禁用特定文件类型
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "markdown", "help", "NvimTree", "dashboard" },
         group = vim.api.nvim_create_augroup("TSContextDisable", {}),
-        callback = function() context.disable() end,
+        callback = function()
+          context.disable()
+        end,
       })
 
-      -- Automatically enable after initialization
-      vim.defer_fn(function() if not context.enabled then context.enable() end end, 500)
-    end
-  }
+      -- 延迟启用
+      vim.defer_fn(function()
+        if not context.enabled then
+          context.enable()
+        end
+      end, 500)
+    end,
+  },
 }
-
-return M

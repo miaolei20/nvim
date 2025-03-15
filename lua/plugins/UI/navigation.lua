@@ -7,13 +7,11 @@ return {
       vim.g.navic_silence = true
     end,
     opts = function()
-      local icons = require("plugins.UI.icons").kinds
       return {
         separator = "  ", -- 更现代的分隔符
         highlight = true,
         depth_limit = 5,
         lazy_update_context = true,
-        icons = icons,
       }
     end,
     config = function(_, opts)

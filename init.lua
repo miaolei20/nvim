@@ -29,7 +29,6 @@ require("lazy").setup({
 
     -- 主题与视觉基础
     { import = "plugins.UI.onedark" },   -- 主题必须最先加载
-    { import = "plugins.UI.icons" },     -- 图标紧随主题
 
     -- 编辑增强
     { import = "plugins.editor.treesitter" },         -- 语法高亮基础
@@ -48,7 +47,7 @@ require("lazy").setup({
 
     -- 核心 UI 组件
     { import = "plugins.UI.lualine" },    -- 状态栏
-    { import = "plugins.UI.barbar" }, -- 标签栏
+    { import = "plugins.UI.bufferline" }, -- 标签栏
     { import = "plugins.UI.nvimtree" },   -- 文件树
     { import = "plugins.UI.cursorword" }, 
     { import = "plugins.UI.scrollbar" },  -- 滚动条
