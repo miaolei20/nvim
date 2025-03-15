@@ -121,7 +121,7 @@ function M.setup()
   })
 
   -- 状态栏切换快捷键
-  vim.keymap.set("n", "<C-l>t", function()
+  vim.keymap.set("n", "<C-l>", function()
     vim.opt.laststatus = vim.opt.laststatus:get() == 3 and 0 or 3
     vim.notify("状态栏: " .. (vim.opt.laststatus:get() == 3 and "显示" or "隐藏"))
   end, { desc = "切换状态栏显示" })

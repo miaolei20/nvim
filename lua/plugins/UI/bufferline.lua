@@ -2,45 +2,52 @@ return {
   {
     "akinsho/bufferline.nvim",
     dependencies = {
-      "nvim-tree/nvim-web-devicons",  -- 可选：显示文件图标
+      "nvim-tree/nvim-web-devicons", -- 文件图标支持
     },
-    event = "BufWinEnter",  -- 延迟加载，降低启动时开销
+    event = { "BufReadPost", "BufNewFile" }, -- 更精确的加载时机
     config = function()
-      local ok, palette = pcall(require, "onedark.palette")
-      if not ok then return end
-      local dark = palette.dark
-      -- 缓存常用颜色，避免重复查找
-      local bg = dark.bg
-      local fg = dark.fg
-      local blue = dark.blue
+      -- 延迟加载配置，避免启动时阻塞
+      vim.defer_fn(function()
+        local status, palette = pcall(require, "onedark.palette")
+        if not status then return end
+        
+        local dark = palette.dark
+        -- 使用局部变量缓存颜色
+        local colors = {
+          bg = dark.bg,
+          fg = dark.fg,
+          blue = dark.blue,
+        }
 
-      require("bufferline").setup({
-        options = {
-          numbers = "ordinal",         -- 显示缓冲区数字
-          separator_style = "none",    -- 不使用分隔符，保持简约
-          diagnostics = false,         -- 关闭诊断（可按需开启）
-          offsets = {
-            {
-              filetype = "NvimTree",
-              text = "",
-              padding = 1,
+        require("bufferline").setup({
+          options = {
+            numbers = "ordinal",
+            separator_style = "none",
+            diagnostics = false,
+            show_close_icon = false,
+            show_buffer_icons = true,
+            always_show_bufferline = false, -- 改为 false，只在有多个 buffer 时显示
+            offsets = {
+              {
+                filetype = "NvimTree",
+                text = "",
+                padding = 1,
+                highlight = "Directory",
+              },
             },
           },
-          show_close_icon = false,
-          show_buffer_icons = true,
-          always_show_bufferline = true,
-        },
-        highlights = {
-          fill = { guifg = fg, guibg = bg },
-          background = { guifg = fg, guibg = bg },
-          buffer_selected = { guifg = fg, guibg = bg, gui = "bold" },
-          separator = { guifg = bg, guibg = bg },
-          separator_visible = { guifg = bg, guibg = bg },
-          separator_selected = { guifg = bg, guibg = bg },
-          indicator_selected = { guifg = blue, guibg = bg },
-          numbers = { guifg = fg, guibg = bg },
-        },
-      })
+          highlights = {
+            fill = { fg = colors.fg, bg = colors.bg },
+            background = { fg = colors.fg, bg = colors.bg },
+            buffer_selected = { fg = colors.fg, bg = colors.bg, bold = true },
+            separator = { fg = colors.bg, bg = colors.bg },
+            separator_visible = { fg = colors.bg, bg = colors.bg },
+            separator_selected = { fg = colors.bg, bg = colors.bg },
+            indicator_selected = { fg = colors.blue, bg = colors.bg },
+            numbers = { fg = colors.fg, bg = colors.bg },
+          },
+        })
+      end, 50) -- 延迟 50ms 加载
     end,
   },
 }

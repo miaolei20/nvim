@@ -47,6 +47,7 @@ require("lazy").setup({
     { import = "plugins.lsp.tiny-inline-diagnostic" }, -- 行内诊断
 
     -- 核心 UI 组件
+    { import = "plugins.UI.alpha" },      -- 启动界面
     { import = "plugins.UI.lualine" },    -- 状态栏
     { import = "plugins.UI.bufferline" }, -- 标签栏
     { import = "plugins.UI.nvimtree" },   -- 文件树
