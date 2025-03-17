@@ -14,6 +14,10 @@ return {
       end
 
       mason.setup({
+          github = {
+        -- 使用 ghproxy.com 镜像源
+        download_url_template = "https://ghproxy.com/https://github.com/%s/%s/archive/%s.tar.gz",
+        },
         ui = {
           border = "rounded",
           icons = {
