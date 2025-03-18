@@ -43,7 +43,6 @@ require("lazy").setup({
     { import = "plugins.lsp.mason" },    -- LSP 包管理
     { import = "plugins.lsp.lsp" },      -- LSP 核心
     { import = "plugins.AI.copilot" },   -- AI 代码补全
-    { import = "plugins.tools.codesnap" }, -- 代码截图
     { import = "plugins.lsp.tiny-inline-diagnostic" }, -- 行内诊断
 
     -- 核心 UI 组件
@@ -67,7 +66,6 @@ require("lazy").setup({
     { import = "plugins.tools.undotree" },   -- 撤销历史
     { import = "plugins.tools.spectre" },    -- 搜索替换
     { import = "plugins.tools.lazygit" }, -- 内置终端
-    { import = "plugins.AI.avante" },        -- 未知插件（按原顺序保留）
     { import = "plugins.tools.leetcode" },   -- LeetCode 插件
 
     -- 辅助功能
