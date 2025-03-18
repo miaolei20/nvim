@@ -128,7 +128,7 @@
 - **nvim-tree.lua**: File explorer.
 
 ### Additional Plugins
-- **copilot.lua**: GitHub Copilot integration.
+- **copilot.lua**: GitHub Copilot integration :Copilot auth .
 - **gitsigns.nvim**: Git status in the gutter.
 - **undotree**: Visualize undo history.
 - **which-key.nvim**: Keybinding helper.
