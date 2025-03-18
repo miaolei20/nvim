@@ -28,7 +28,7 @@
 
 4. **Clone this repository**:
    ```bash
-   git clone https://github.com/your-username/your-repo.git ~/.config/nvim
+   git clone https://github.com/miaolei20/nvim ~/.config/nvim
    ```
 
 ### Arch Linux
