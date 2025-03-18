@@ -54,6 +54,8 @@
 5. **Total**
 6. ```bash
    sudo pacman -S make clang llvm python gcc ripgrep unzip fd curl python-pip nodejs npm curl cargo rust lazygit
+   ```
+   ```bash
    curl -sLo/tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip  
    unzip -p /tmp/win32yank.zip win32yank.exe > /tmp/win32yank.exe  
    chmod +x /tmp/win32yank.exe  
