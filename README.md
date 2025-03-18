@@ -49,9 +49,16 @@
 
 4. **Clone this repository**:
    ```bash
-   git clone https://github.com/your-username/your-repo.git ~/.config/nvim
+   git clone https://github.com/miaolei20/nvim ~/.config/nvim
    ```
-
+5. **Total**
+6. ```bash
+   sudo pacman -S make clang llvm python gcc ripgrep unzip fd curl python-pip nodejs npm curl cargo rust lazygit
+   curl -sLo/tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip  
+   unzip -p /tmp/win32yank.zip win32yank.exe > /tmp/win32yank.exe  
+   chmod +x /tmp/win32yank.exe  
+   sudo mv /tmp/win32yank.exe /usr/local/bin/
+   ```
 ## Dependencies
 
 ### Required Packages
@@ -61,6 +68,7 @@
 - **Cargo**: Rust's package manager.
 - **Clang**: For C/C++ development.
 - **Python**: For Python development and some plugins.
+- **win32yank**: copy and paste
 
 ### Optional Packages
 - **ripgrep**: For faster searching with Telescope.
