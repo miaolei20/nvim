@@ -1,6 +1,6 @@
 -- keymaps.lua
 local M = {}
---
+
 -- 统一图标资源库
 M.icons = {
   diagnostics = {
@@ -16,7 +16,7 @@ M.icons = {
   }
 }
 
-function M.create_keymap(client, bufnr)
+function M.create_keymap(client, bufnr, lsp_format)
   local map = function(mode, lhs, rhs, desc)
     vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
   end
