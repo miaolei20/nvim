@@ -33,6 +33,16 @@ vim.opt.updatetime = 300
 vim.opt.undofile = true                -- 启用撤销文件
 vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"  -- 设置撤销文件存储目录
 vim.opt.confirm = true  -- 退出时如果有未保存的更改，会弹出确认对话框
+-- 自动保存配置：在插入模式退出、文本修改以及失去焦点时自动保存文件
+vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged", "FocusLost" }, {
+  pattern = "*",
+  callback = function()
+    -- 仅在 buffer 被修改过且文件可写时执行保存
+    if vim.bo.modified and vim.bo.modifiable then
+      vim.cmd("silent! write")
+    end
+  end,
+})
 
 
 -- 创建自动命令，在文本复制后高亮显示
