@@ -1,56 +1,63 @@
 return {
   {
     "zbirenbaum/copilot.lua",
-    event = "InsertEnter",
+    event = { "InsertEnter", "BufReadPost" },  -- 增加缓冲区读取后触发
     priority = 100,
     dependencies = {
       "zbirenbaum/copilot-cmp",
-      "nvim-lua/plenary.nvim"
+      "hrsh7th/nvim-cmp"  -- 明确依赖 cmp 框架
     },
     config = function()
-      -- 针对不同语言类型设置优化参数
+      -- 语言优化配置（新增 JavaScript 处理）
       local lang_config = {
-        c = { maxNodeSize = 64 },      -- 优化 C 语言的大文件处理
-        cpp = { maxNodeSize = 64 },    -- C++ 类结构优化
-        lua = { inlineSuggestCount = 4 },  -- Lua 需要更多行内建议
-        python = { debounce = 150 }    -- Python 需要更稳定的建议
+        c = { maxNodeSize = 64, debounce = 150 },
+        cpp = { maxNodeSize = 64, inlineSuggestCount = 3 },
+        lua = { inlineSuggestCount = 4, maxCompletions = 25 },
+        python = { debounce = 180, maxNodeSize = 80 },
+        javascript = { inlineSuggestCount = 3, maxCompletions = 20 }  -- 新增 JS 配置
       }
 
       require("copilot").setup({
         suggestion = {
-          enabled = false,
+          enabled = false,        -- 禁用原生建议窗口
           auto_trigger = true,
           debounce = 120,
           keymap = {
-            accept = "<M-CR>",  -- 使用更高效的热键组合
+            accept = "<M-CR>",
+            accept_word = "<M-w>",    -- 新增单词级接受
+            accept_line = "<M-l>",    -- 新增行级接受
             next = "<M-]>",
-            prev = "<M-[>"
+            prev = "<M-[>",
+            dismiss = "<C-]>"
           }
         },
-        panel = { enabled = false },
+        panel = { enabled = false },  -- 禁用原生面板
         filetypes = {
           c = true,
           cpp = true,
           lua = true,
           python = true,
-          ["*"] = false  -- 彻底禁用其他文件类型
+          javascript = true,      -- 启用 JS 支持
+          ["*"] = false
         },
         server_opts_overrides = {
-          trace = "off",
+          trace = "verbose",       -- 调试时改为 verbose
           settings = {
             advanced = {
-              listCount = 5,
-              inlineSuggestCount = 3,
-              -- 语言特定参数合并
               languageOverrides = lang_config,
-              -- 内存优化配置
-              cacheSize = 200,          -- 增大 C/C++ 缓存
-              maxCompletions = 30       -- 限制最大补全数量
+              cacheSize = 250,     -- 增大缓存
+              maxCompletions = 30,
+              -- 新增代码风格配置
+              style = {
+                parenthesis = "balance",  -- 括号平衡策略
+                indentation = "adaptive"
+              }
             },
-            -- C/C++ 头文件处理优化
-            cHeaderFileSuggestions = {
+            -- 新增头文件处理优化
+            headerSuggestions = {
               enable = true,
-              maxLines = 50
+              maxLines = 100,
+              fileTypes = { "c", "cpp", "h", "hpp" }
             }
           }
         }
@@ -59,15 +66,23 @@ return {
   },
   {
     "zbirenbaum/copilot-cmp",
-    event = "InsertEnter",
+    after = "nvim-cmp",           -- 明确加载顺序
     config = function()
-      -- 针对不同语言的格式化优化
+      -- 增强型格式化函数（新增 JS 处理）
       local lang_formatters = {
-        c = function(text) return text:gsub("%s*;%s*$", "") end,
-        cpp = function(text) return text:gsub("%s*;%s*$", "") end,
-        lua = function(text) return text:gsub("^%s+", ""):gsub("%s+$", "") end,
+        c = function(text)
+          return text:gsub("%s*;%s*$", ""):gsub("^%s+", "")
+        end,
+        lua = function(text)
+          return text:gsub("^%s+", ""):gsub("%s+$", ""):gsub("^end,?$", "")
+        end,
         python = function(text)
           return text:gsub(":$", ""):gsub("^%s+", ""):gsub("%s+$", "")
+                  :gsub(":$", "")
+        end,
+        javascript = function(text)  -- 新增 JS 格式化
+          return text:gsub("^%s+", ""):gsub("%s+$", "")
+                  :gsub(";$", ""):gsub("//.*$", "")
         end
       }
 
@@ -76,15 +91,23 @@ return {
         formatters = {
           insert_text = function(_, item)
             local ft = vim.bo.filetype
-            local formatter = lang_formatters[ft] or function(t) return t end
-            return formatter(item.insertText)
+            return (lang_formatters[ft] or function(t) return t end)(item.insertText)
           end,
           preview = function() return {} end
         },
-        -- 优化大文件处理
-        buffer = {
-          max_size = 1024 * 1024,  -- 1MB 文件限制
-          on_disk = false          -- 禁用磁盘缓存
+        -- 优化性能配置
+        performance = {
+          throttle = 300,
+          priority = {
+            python = 10,    -- Python 高优先级
+            cpp = 9,
+            lua = 8,
+            javascript = 7
+          }
+        },
+        experimental = {
+          smart_loading = true,  -- 启用智能加载
+          async_loading = true   -- 异步加载建议
         }
       })
     end
