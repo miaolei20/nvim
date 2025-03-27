@@ -71,6 +71,7 @@ require("lazy").setup({
     -- 辅助功能
     { import = "plugins.tools.which-key" },     -- 快捷键提示
     { import = "plugins.tools.lastplace" },       -- 恢复上次位置
+    { import = "plugins.AI.llm"}
   },
   performance = {  -- 此部分保持不变
     rtp = {
