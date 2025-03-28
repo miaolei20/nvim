@@ -64,7 +64,6 @@ require("lazy").setup({
 
     -- 调试与工具
     { import = "plugins.tools.undotree" },   -- 撤销历史
-    { import = "plugins.tools.spectre" },    -- 搜索替换
     { import = "plugins.tools.lazygit" }, -- 内置终端
     { import = "plugins.tools.leetcode" },   -- LeetCode 插件
 

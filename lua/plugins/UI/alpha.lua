@@ -7,70 +7,92 @@ return {
       local alpha = require("alpha")
       local dashboard = require("alpha.themes.dashboard")
 
-      -- 现代化的 ASCII 艺术 (NVIM)
+      -- Larger, modern ASCII logo
       local logo = {
-        "███╗   ██╗██╗   ██╗██╗███╗   ███╗",
-        "████╗  ██║██║   ██║██║████╗ ████║",
-        "██╔██╗ ██║██║   ██║██║██╔████╔██║",
-        "██║╚██╗██║╚██╗ ██╔╝██║██║╚██╔╝██║",
-        "██║ ╚████║ ╚████╔╝ ██║██║ ╚═╝ ██║",
-        "╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝",
+        "        ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣶⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀",
+        "        ⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀",
+        "        ⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀",
+        "        ⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⢿⣿⡿⠟⠉⠀⠀⠀⠀⠀⠀⠀",
       }
 
-      -- 设置 header
+      -- Header
       dashboard.section.header.val = logo
+      dashboard.section.header.opts.hl = "AlphaHeader"
 
-      -- 简洁现代化的按钮
+      -- Enhanced button layout with LeetCode added
       dashboard.section.buttons.val = {
-        dashboard.button("n", "  New File", ":ene | startinsert<CR>"),
-        dashboard.button("f", "  Find File", "<CMD>Telescope find_files<CR>"),
-        dashboard.button("r", "  Recent Files", "<CMD>Telescope frecency<CR>"),
-        dashboard.button("g", "  Live Grep", "<CMD>Telescope live_grep<CR>"),
-        dashboard.button("b", "  File Browser", "<CMD>Telescope file_browser<CR>"),
-        dashboard.button("p", "  Plugins", "<CMD>Telescope lazy_plugins<CR>"),
-        dashboard.button("q", "  Quit", ":qa<CR>"),
+        dashboard.button("n", "  New File", "<cmd>ene | startinsert<cr>"),
+        dashboard.button("f", "  Find Files", "<cmd>Telescope find_files<cr>"),
+        dashboard.button("r", "  Recent Files", "<cmd>Telescope frecency<cr>"),
+        dashboard.button("g", "  Live Grep", "<cmd>Telescope live_grep<cr>"),
+        dashboard.button("e", "  Explorer", "<cmd>Telescope file_browser<cr>"),
+        dashboard.button("l", "󰌵  LeetCode", "<cmd>Leet<cr>"), -- Added LeetCode button
+        dashboard.button("c", "  Config", "<cmd>e " .. vim.fn.stdpath("config") .. "/init.lua<cr>"),
+        dashboard.button("q", "  Quit", "<cmd>qa<cr>"),
       }
 
-      -- 现代化的高亮组
-      local function set_highlights()
-        vim.api.nvim_set_hl(0, "AlphaHeader", { fg = "#ff79c6", bold = true }) -- 霓虹紫，现代感
-        vim.api.nvim_set_hl(0, "AlphaButton", { fg = "#89b4fa", italic = true }) -- 柔和蓝，优雅
-        vim.api.nvim_set_hl(0, "AlphaShortcut", { fg = "#f9e2af", bold = true }) -- 明亮黄，醒目
-        vim.api.nvim_set_hl(0, "AlphaFooter", { fg = "#94e2d5", italic = true }) -- 青绿色，现代
+      -- Footer with dynamic info
+      dashboard.section.footer.val = { "" }
+      dashboard.section.footer.opts.hl = "AlphaFooter"
+
+      -- Full-screen, balanced layout
+      local function get_layout()
+        local win_height = vim.api.nvim_win_get_height(0)
+        local padding_top = math.max(3, math.floor(win_height * 0.15))
+        local padding_mid = math.max(2, math.floor(win_height * 0.1))
+        local padding_bottom = 2
+        return {
+          { type = "padding", val = padding_top },
+          dashboard.section.header,
+          { type = "padding", val = padding_mid },
+          dashboard.section.buttons,
+          { type = "padding", val = padding_bottom },
+          dashboard.section.footer,
+        }
       end
 
-      -- 简化的布局
-      dashboard.config.layout = {
-        { type = "padding", val = 4 },
-        dashboard.section.header,
-        { type = "padding", val = 2 },
-        dashboard.section.buttons,
-        { type = "padding", val = 1 },
-        dashboard.section.footer,
-      }
+      -- Modern, vibrant highlights
+      local function set_highlights()
+        vim.api.nvim_set_hl(0, "AlphaHeader", { fg = "#89b4fa", bold = true })
+        vim.api.nvim_set_hl(0, "AlphaButton", { fg = "#b4befe", italic = true })
+        vim.api.nvim_set_hl(0, "AlphaShortcut", { fg = "#f9e2af", bold = true })
+        vim.api.nvim_set_hl(0, "AlphaFooter", { fg = "#a6e3a1", italic = true })
+      end
 
-      -- 初始化
+      -- Setup
       set_highlights()
-      alpha.setup(dashboard.config)
+      alpha.setup({ layout = get_layout() })
 
-      -- 动态 footer（延迟加载）
+      -- Dynamic footer with system info and Lazy stats
       vim.api.nvim_create_autocmd("User", {
         pattern = "LazyVimStarted",
-        once = true,
         callback = function()
           local stats = require("lazy").stats()
           local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
-          dashboard.section.footer.val = " Loaded " .. stats.count .. " plugins in " .. ms .. "ms"
-          vim.schedule(function() pcall(vim.cmd.AlphaRedraw) end)
+          local version = vim.version()
+          local nvim_ver = string.format("NVIM v%d.%d.%d", version.major, version.minor, version.patch)
+          dashboard.section.footer.val = {
+            "⚡ " .. stats.count .. " plugins loaded in " .. ms .. "ms",
+            nvim_ver .. " | " .. vim.loop.os_uname().sysname,
+          }
+          pcall(vim.cmd.AlphaRedraw)
         end,
       })
 
-      -- 隐藏 bufferline（优化事件）
+      -- Tabline toggle
       vim.api.nvim_create_autocmd("User", {
         pattern = "AlphaReady",
         callback = function() vim.opt.showtabline = 0 end,
       })
-      vim.api.nvim_create_autocmd({ "BufUnload", "BufNewFile" }, {
+      vim.api.nvim_create_autocmd("BufUnload", {
+        buffer = 0,
         callback = function() vim.opt.showtabline = 2 end,
       })
     end,

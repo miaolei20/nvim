@@ -1,47 +1,61 @@
 local M = {}
 
--- 颜色定义（直接使用硬编码颜色，避免调色板依赖）
+-- Color definitions
 local colors = {
-  bg = "#282C34",
-  mode = {
-    n = "#61AFEF",  -- Normal
-    i = "#98C379",  -- Insert
-    v = "#E5C07B",  -- Visual
-    c = "#E06C75",  -- Command
-    V = "#E5C07B",  -- Visual Line
-    [""] = "#E5C07B" -- Visual Block
-  },
+  bg    = "#282C34",
+  black = "#000000",
   white = "#ABB2BF",
-  cyan = "#56B6C2",
-  blue = "#61AFEF",
+  cyan  = "#56B6C2",
+  blue  = "#61AFEF",
   green = "#98C379",
-  yellow = "#E5C07B",
-  red = "#E06C75"
+  yellow= "#E5C07B",
+  red   = "#E06C75",
+  mode  = {
+    n = "#61AFEF", -- Normal
+    i = "#98C379", -- Insert
+    v = "#E5C07B", -- Visual
+    c = "#E06C75", -- Command
+  },
 }
 
--- 图标定义
+-- Icon definitions
 local icons = {
-  mode = " ",
-  branch = " ",
-  file = " ",
-  clock = " ",
-  unix = " ",
-  windows = " ",
-  mac = " ",
-  diagnostics = { Error = " ", Warn = " ", Info = " " },
-  git = { added = " ", modified = " ", removed = " " }
+  mode        = "",
+  branch      = "",
+  clock       = "",
+  lsp         = "",
+  diagnostics = { Error = "", Warn = "", Info = "" },
+  git         = { added = "", modified = "", removed = "" },
 }
 
--- 组件生成辅助函数
+-- Component helper function
 local function component(name, opts)
   return vim.tbl_extend("force", {
     name,
-    padding = { left = 1, right = 1 },
-    colored = false
+    padding = { left = 1, right = 1 }
   }, opts or {})
 end
 
-function M.setup()
+-- LSP clients display (excluding null-ls)
+local function lsp_clients()
+  local clients = vim.lsp.get_active_clients({ bufnr = vim.api.nvim_get_current_buf() })
+  if not clients or vim.tbl_isempty(clients) then
+    return icons.lsp .. " No LSP"
+  end
+  
+  local names = {}
+  for _, client in ipairs(clients) do
+    if client.name ~= "null-ls" then
+      table.insert(names, client.name)
+    end
+  end
+  
+  return icons.lsp .. " " .. (next(names) and table.concat(names, ", ") or "No LSP")
+end
+
+-- Setup function
+M.setup = function()
+  -- Global statusline settings
   vim.opt.laststatus = 3
   vim.opt.showmode = false
 
@@ -51,10 +65,11 @@ function M.setup()
       globalstatus = true,
       component_separators = "",
       section_separators = "",
-      disabled_filetypes = { "alpha", "dashboard", "NvimTree", "neo-tree", "TelescopePrompt" },
-      refresh = { statusline = 200 } -- 优化刷新间隔
+      disabled_filetypes = {
+        statusline = { "alpha", "dashboard", "NvimTree", "neo-tree", "TelescopePrompt" }
+      },
+      refresh = { statusline = 200 },
     },
-
     sections = {
       lualine_a = {
         component("mode", {
@@ -62,84 +77,62 @@ function M.setup()
           color = function()
             local mode = vim.fn.mode()
             return { fg = colors.bg, bg = colors.mode[mode] or colors.mode.n, gui = "bold" }
-          end
-        })
+          end,
+        }),
       },
       lualine_b = {
         component("branch", {
           icon = icons.branch,
           color = { fg = colors.white }
-        })
+        }),
       },
       lualine_c = {
+        component("filename", {
+          path = 1,
+          color = { fg = colors.white }
+        }),
         component("diagnostics", {
           symbols = icons.diagnostics,
-          update_in_insert = false -- 减少插入模式刷新
-        })
+          update_in_insert = false,
+        }),
+        { lsp_clients, color = { fg = colors.blue } },
       },
       lualine_x = {
-        component(require("lazy.status").updates, {
-          cond = require("lazy.status").has_updates,
-          color = { fg = colors.cyan }
-        }),
         component("diff", {
           symbols = icons.git,
-          source = function()
-            return vim.b.gitsigns_status_dict or {}
-          end,
+          source = function() return vim.b.gitsigns_status_dict or {} end,
           diff_color = {
-            added = { fg = colors.green },
+            added    = { fg = colors.green },
             modified = { fg = colors.yellow },
-            removed = { fg = colors.red }
-          }
-        })
+            removed  = { fg = colors.red },
+          },
+        }),
       },
       lualine_y = {
-        component("encoding", {
-          fmt = function() return icons.file .. " " .. vim.bo.fenc:upper() end,
-          color = { fg = colors.blue }
-        }),
-        component("fileformat", {
-          symbols = { unix = icons.unix, dos = icons.windows, mac = icons.mac },
-          color = { fg = colors.blue }
-        }),
         component("progress", {
           fmt = function() return " %p%%" end,
           color = { fg = colors.cyan }
         }),
-        component("location", { padding = { right = 1 } })
       },
       lualine_z = {
         component("datetime", {
-          fmt = function() return icons.clock .. os.date("%H:%M") end,
-          color = { fg = colors.black }
-        })
-      }
+          fmt = function() return icons.clock .. " " .. os.date("%H:%M") end,
+          color = { fg = colors.black },
+        }),
+      },
     },
-
-    extensions = { "neo-tree", "toggleterm" }
-  })
-
-  -- 状态栏切换快捷键
-  vim.keymap.set("n", "<C-l>", function()
-    vim.opt.laststatus = vim.opt.laststatus:get() == 3 and 0 or 3
-    vim.notify("状态栏: " .. (vim.opt.laststatus:get() == 3 and "显示" or "隐藏"))
-  end, { desc = "切换状态栏显示" })
-
-  -- 自动命令优化
-  vim.api.nvim_create_autocmd({ "WinNew", "BufEnter" }, {
-    callback = function()
-      vim.opt.laststatus = 3
-      vim.cmd.redrawstatus()
-    end
+    extensions = { "nvim-tree", "toggleterm" }, -- Fixed extension name
   })
 end
 
+-- Plugin configuration
 return {
   {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
-    dependencies = { "nvim-web-devicons" },
-    config = M.setup
+    dependencies = { "nvim-tree/nvim-web-devicons" }, -- Updated dependency name
+    config = function()
+      M.setup()
+    end,
   }
 }

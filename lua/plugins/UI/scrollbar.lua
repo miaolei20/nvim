@@ -2,59 +2,55 @@ return {
   {
     "petertriho/nvim-scrollbar",
     event = "BufReadPost",
-    dependencies = { "navarasu/onedark.nvim", "kevinhwang91/nvim-hlslens" },
+    dependencies = { "kevinhwang91/nvim-hlslens" },
     config = function()
-      -- 尝试加载 onedark 主题模块
-      local ok, _ = pcall(require, "onedark")
-      if not ok then
-        vim.notify("未找到 onedark 主题!", vim.log.levels.WARN)
-        return
-      end
-
-      -- 定义主题颜色（这里使用固定色值，可根据需要调整）
+      -- Modern color scheme
       local colors = {
-        grey   = "#5c6370",
-        red    = "#e06c75",
-        yellow = "#e5c07b",
-        blue   = "#61afef",
-        cyan   = "#56b6c2",
-        purple = "#c678dd",
+        grey   = "#5c6370", -- Handle
+        red    = "#f38ba8", -- Error
+        yellow = "#f9e2af", -- Warn
+        blue   = "#89b4fa", -- Info
+        cyan   = "#94e2d5", -- Hint
+        purple = "#cba6f7", -- Search
       }
 
-      -- 缓存 scrollbar 模块并设置基本配置
-      local scrollbar = require("scrollbar")
-      scrollbar.setup({
+      -- Setup with explicit text arrays to fix extmark error
+      require("scrollbar").setup({
         handle = {
           color = colors.grey,
-          blend = 50,         -- 使用 blend 控制透明度
-          symbol = "▏",
+          blend = 40,
           hide_if_all_visible = true,
         },
         marks = {
-          Error  = { color = colors.red,    symbol = "●" },
-          Warn   = { color = colors.yellow, symbol = "◆" },
-          Info   = { color = colors.blue,   symbol = "■" },
-          Hint   = { color = colors.cyan,   symbol = "▲" },
-          Search = { color = colors.purple, symbol = "◈" },
+          Error  = { color = colors.red,    text = {"●"} },
+          Warn   = { color = colors.yellow, text = {"◆"} },
+          Info   = { color = colors.blue,   text = {"■"} },
+          Hint   = { color = colors.cyan,   text = {"▲"} },
+          Search = { color = colors.purple, text = {"◈"} },
         },
         excluded_filetypes = {
-          "NvimTree", "TelescopePrompt", "alpha",
-          "dashboard", "lazy",
-          "cmp_menu", "cmp_docs"  -- 新增补全和文档窗口
+          "NvimTree",
+          "TelescopePrompt",
+          "alpha",
+          "lazy",
+          "cmp_menu",
         },
         handlers = {
+          cursor = false,
           diagnostic = true,
-          search = true,
           gitsigns = true,
+          search = true,
         },
       })
 
-      -- 配置高亮组，确保与 handle 配色一致
-      vim.api.nvim_set_hl(0, "ScrollbarHandle", {
-        bg = colors.grey,
-        blend = 30,
-        nocombine = true,
-      })
+      -- Set handle highlight
+      vim.api.nvim_set_hl(0, "ScrollbarHandle", { bg = colors.grey, blend = 40 })
+
+      -- Validate setup
+      local ok, err = pcall(require("scrollbar").show)
+      if not ok then
+        vim.notify("Scrollbar failed: " .. err, vim.log.levels.ERROR)
+      end
     end,
   },
 }
