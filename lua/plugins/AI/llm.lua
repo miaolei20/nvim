@@ -12,52 +12,48 @@ return {
         temperature = 0.3,
         top_p = 0.7,
 
-        -- 增强提示词工程：明确要求使用 Markdown 代码块格式
+        -- Updated prompt with full Markdown formatting
         prompt = [[
-          你是一个专业的编程助手，遵循以下规则：
-          1. 用中文回答
-          2. 代码需要可直接应用
-          3. 使用 Markdown 代码块格式
-          4. 优先使用最新 API
+          1. Use Chinese for responses
+          2. Ensure code is directly applicable
+          3. Use full Markdown formatting for all text, including headers, lists, and code blocks
+          4. Prioritize the latest API
         ]],
 
-        -- 优化界面显示
         prefix = {
-          user = { text = "  ", hl = "Title" },
-          assistant = { text = "  ", hl = "Added" },
+          user = { text = " ", hl = "Title" }, -- Updated user icon
+          assistant = { text = " ", hl = "Added" }, -- Updated assistant icon
         },
 
-        -- 历史记录配置
         save_session = true,
         max_history = 15,
 
-        -- 增强键位映射（双模式支持）
         keys = {
-          ["Input:Submit"]      = { mode = {"n", "i"}, key = "<cr>", remap = true },
-          ["Input:Cancel"]      = { mode = {"n", "i"}, key = "<C-c>", remap = true },
+          ["Input:Submit"] = { mode = {"n", "i"}, key = "<cr>", remap = true },
+          ["Input:Cancel"] = { mode = {"n", "i"}, key = "<C-c>", remap = true },
           ["Input:HistoryNext"] = { mode = {"n", "i"}, key = "<C-j>", remap = true },
           ["Input:HistoryPrev"] = { mode = {"n", "i"}, key = "<C-k>", remap = true },
         },
       })
 
-      -- 通过自动命令将 LLM 窗口的 filetype 设置为 markdown，从而保证内容渲染正确
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "llm",  -- 此处假设 LLM 窗口的 filetype 为 "llm"
+      -- Autocmd to set filetype to markdown
+      vim.api.nvim_create_autocmd("Filetype", {
+        pattern = "llm",
         callback = function()
           vim.bo.filetype = "markdown"
         end,
       })
     end,
 
-    -- 快捷键配置
+    -- Keeping present key configurations
     keys = {
       { "<leader>ac", mode = "n", "<cmd>LLMSessionToggle<cr>", desc = "Toggle AI Session" },
-      { "<leader>ae", mode = "v", "<cmd>LLMSelectedTextHandler 请解释下面这段代码<cr>", desc = "Explain Code" },
-      { "<leader>at", mode = "v", "<cmd>LLMSelectedTextHandler 优化这段代码<cr>", desc = "Optimize Code" },
-      { "<leader>ar", mode = "v", "<cmd>LLMSelectedTextHandler 重构这段代码<cr>", desc = "Refactor Code" },
-      { "<leader>ad", mode = "v", "<cmd>LLMSelectedTextHandler 为这段代码添加文档注释<cr>", desc = "Add Docs" },
-      { "<leader>ts", mode = "x", "<cmd>LLMSelectedTextHandler 将以下内容翻译成中文:<cr>", desc = "Translate to ZH" },
-      { "<leader>te", mode = "x", "<cmd>LLMSelectedTextHandler Translate to English:<cr>", desc = "Translate to EN" },
+      { "<leader>ae", mode = "v", "<cmd>LLMSelectedTextHandler  please explain the following code:<cr>", desc = "Explain Code" },
+      { "<leader>at", mode = "v", "<cmd>LLMSelectedTextHandler  optimize the following code:<cr>", desc = "Optimize Code" },
+      { "<leader>ar", mode = "v", "<cmd>LLMSelectedTextHandler  refactor the following code:<cr>", desc = "Refactor Code" },
+      { "<leader>ad", mode = "v", "<cmd>LLMSelectedTextHandler  add documentation to the following code:<cr>", desc = "Add Docs" },
+      { "<leader>ts", mode = "x", "<cmd>LLMSelectedTextHandler  translate the following text to Chinese:<cr>", desc = "Translate to ZH" },
+      { "<leader>te", mode = "x", "<cmd>LLMSelectedTextHandler  translate the following text to English:<cr>", desc = "Translate to EN" },
     },
   },
 }
