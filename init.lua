@@ -50,8 +50,6 @@ require("lazy").setup({
     { import = "plugins.UI.lualine" },    -- 状态栏
     { import = "plugins.UI.bufferline" }, -- 标签栏
     { import = "plugins.UI.nvimtree" },   -- 文件树
-    { import = "plugins.UI.cursorword" },
-    { import = "plugins.UI.scrollbar" },  -- 滚动条
     { import = "plugins.UI.rainbow" },    -- 彩虹括号
     { import = "plugins.UI.aerial" },   -- 代码大纲
     { import = "plugins.UI.notify"},    -- 通知
