@@ -6,13 +6,6 @@ return {
     version = false,
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
-    cmd = { "TSInstall", "TSUpdate" },
-    keys = {
-      init_selection    = "<C-space>",
-      node_incremental  = "<C-space>",
-      scope_incremental = false,  -- 禁用范围选择提升性能
-      node_decremental  = "<bs>",
-    },
     opts = {
       ensure_installed = {
         "bash", "c", "lua", "vim", "vimdoc", "python",
@@ -60,13 +53,13 @@ return {
       matchup = {
         enable = true,
         highlight = {
-          bg = colors.bg2,    -- 采用主题的二级背景色
-          fg = colors.yellow, -- 采用主题的黄色
+          bg = colors.bg2 or "#282c34",
+          fg = colors.yellow or "#E5C07B",
         },
       },
     },
     config = function(_, opts)
-      -- 自定义高亮组适配主题颜色
+      -- 设置自定义高亮组，确保与主题一致
       vim.api.nvim_set_hl(0, "@function",  { fg = colors.blue,   bold = true })
       vim.api.nvim_set_hl(0, "@parameter", { fg = colors.cyan })
       vim.api.nvim_set_hl(0, "@keyword",   { fg = colors.purple, italic = true })

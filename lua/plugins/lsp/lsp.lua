@@ -1,15 +1,16 @@
 return {
   {
     "neovim/nvim-lspconfig",
+    event = "BufReadPre",
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
       "hrsh7th/cmp-nvim-lsp",
       "glepnir/lspsaga.nvim",
-      "ray-x/lsp_signature.nvim",
-      "folke/neodev.nvim",
     },
-    event = { "BufReadPre", "BufNewFile" },
     config = function()
+      require("mason-lspconfig").setup({
+        ensure_installed = { "lua_ls", "clangd", "pyright" },
+      })
       require("config.lsp").setup()
     end,
   },
