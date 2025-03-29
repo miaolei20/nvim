@@ -1,4 +1,3 @@
-```markdown
 # Neovim Development Environment Configuration
 
 ![Neovim Logo](https://neovim.io/logos/neovim-logo-300x87.png)
