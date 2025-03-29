@@ -16,7 +16,9 @@ return {
       vim.api.nvim_set_hl(0, "RainbowDelimiterViolet", { fg = colors.purple })
 
       require("rainbow-delimiters.setup").setup({
-        strategy = {[""] = rainbow.strategy["global"]},
+        strategy = {
+          [''] = require('rainbow-delimiters').strategy['global'],
+        },
         query = {[""] = "rainbow-delimiters"},
         highlight = vim.tbl_keys(vim.api.nvim_get_hl(0, {name = "RainbowDelimiterRed"}))
       })
