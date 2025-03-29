@@ -91,8 +91,6 @@ nvim +LazySync
 ## Plugin Features
 
 ### GitHub Copilot
-![Copilot Demo](https://user-images.githubusercontent.com/1332805/149418658-1c9e4e6b-7d7e-4d0d-bd4a-8d5a0b5e5b5a.gif)
-
 **Configuration Path**: `lua/plugins/AI/copilot.lua`
 
 **Usage**:
@@ -108,6 +106,7 @@ nvim +LazySync
 [^copilot]: Implemented using zbirenbaum/copilot.lua
 
 ### LLM Code Assistant
+![LLM](https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135620.png)
 **Core Features**:
 ```lua
 -- Example configuration snippet
