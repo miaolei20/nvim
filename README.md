@@ -1,5 +1,3 @@
-Here's the optimized and translated English version of the README.md:
-
 ```markdown
 # Neovim Development Environment Configuration
 
