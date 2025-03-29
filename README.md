@@ -23,7 +23,7 @@
 ## Project Overview
 
 This configuration integrates core features of modern IDEs, supporting cross-platform development (Linux/macOS/Windows WSL2). Designed for efficient programming, it includes full LSP support, AI code completion, version control visualization, and special optimizations for WSL clipboard integration[5].
-
+![introduce](https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135140.png,https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135641.png,https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135713.png)
 ## Key Features
 
 - **Cross-platform Clipboard**: Seamless WSL ←→ Windows clipboard integration
@@ -124,7 +124,7 @@ nvim +LazySync
 3. Press `<Enter>` to apply changes
 
 ### Telescope Search
-![Telescope Demo](https://user-images.githubusercontent.com/1332805/149419888-1c9e4e6b-7d7e-4d0d-bd4a-8d5a0b5e5b5a.gif)
+![Telescope Demo](https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135407.png)
 
 **Keybindings**:
 - `<leader>ff` File search
