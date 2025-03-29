@@ -1,34 +1,33 @@
+-- lua/plugins/leetcode.lua
 return {
   {
     "kawre/leetcode.nvim",
-    event = "VeryLazy", -- Changed to VeryLazy for better startup performance
-    build = ":TSUpdate html",
+    event = "VeryLazy",
     dependencies = {
       "nvim-telescope/telescope.nvim",
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
+      "nvim-treesitter/nvim-treesitter",
     },
+    build = ":TSUpdateSync html",
+    cond = function()
+      -- 仅在 nvim-treesitter 安装并加载后启用构建
+      return pcall(require, "nvim-treesitter")
+    end,
     opts = {
-      arg = "leetcode.nvim",
-      lang = "c", -- Default language set to C
-      cn = {
-        enabled = true, -- Enable leetcode.cn support
-      },
+      lang = "c",
+      cn = { enabled = true },
       storage = {
         home = vim.fn.stdpath("data") .. "/leetcode",
         cache = vim.fn.stdpath("cache") .. "/leetcode",
       },
       console = {
         open_on_runcode = true,
-        dir = "row",
         size = { width = "90%", height = "75%" },
-        result = { size = "60%" },
-        testcase = { virt_text = true, size = "40%" },
       },
       description = {
         position = "left",
         width = "40%",
-        show_stats = true,
       },
       keys = {
         toggle = "q",
@@ -38,9 +37,13 @@ return {
         focus_testcases = "H",
         focus_result = "L",
       },
-      logging = false, -- Disable logging for performance
-      cache = { update_interval = 60 * 60 * 24 * 7 }, -- Weekly cache update
-      image_support = false, -- Disable image support for simplicity
     },
+    config = function(_, opts)
+      require("leetcode").setup(opts)
+      -- 添加手动构建命令
+      vim.api.nvim_create_user_command("LeetCodeBuild", ":TSUpdateSync html", {
+        desc = "Manually update LeetCode HTML parser",
+      })
+    end,
   },
 }

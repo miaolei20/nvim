@@ -1,83 +1,64 @@
 return {
-  {
-    "nvim-tree/nvim-tree.lua",
-    version = "*",
-    cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFile" },
-    keys = {
-      { "<C-b>", "<cmd>NvimTreeToggle<CR>", desc = "Toggle File Tree" },
-      { "<leader>e", "<cmd>NvimTreeFocus<CR>", desc = "Focus File Tree" },
-      { "<leader>r", "<cmd>NvimTreeFindFile<CR>", desc = "Reveal Current File" },
-    },
-    dependencies = {
-      { "nvim-tree/nvim-web-devicons" },
-    },
-    config = function()
-      -- 禁用 netrw 以确保 nvim-tree 正常工作
-      vim.g.loaded_netrw = 1
-      vim.g.loaded_netrwPlugin = 1
-
-      local api = require("nvim-tree.api")
-
-      -- 精简 on_attach 函数，仅保留常用映射
-      local function on_attach(bufnr)
-        local opts = function(desc)
-          return { desc = "NvimTree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-        end
-        vim.keymap.set("n", "<CR>", api.node.open.edit, opts("Open"))
-        vim.keymap.set("n", "o", api.node.open.edit, opts("Open"))
-        vim.keymap.set("n", "<C-v>", api.node.open.vertical, opts("Open Vertical"))
-        vim.keymap.set("n", "<C-s>", api.node.open.horizontal, opts("Open Horizontal"))
-        vim.keymap.set("n", "a", api.fs.create, opts("Create"))
-        vim.keymap.set("n", "d", api.fs.trash, opts("Delete"))
-        vim.keymap.set("n", "r", api.fs.rename, opts("Rename"))
-        vim.keymap.set("n", "R", api.tree.reload, opts("Refresh"))
-        vim.keymap.set("n", "y", api.fs.copy.absolute_path, opts("Copy Path"))
-        vim.keymap.set("n", "q", api.tree.close, opts("Close"))
-      end
-
-      require("nvim-tree").setup({
-        on_attach = on_attach,
-        hijack_cursor = true,
-        update_focused_file = { enable = true, update_root = true },
-        view = {
-          adaptive_size = true,
-          width = { min = 30, max = 50 },
-          side = "left",
-        },
-        renderer = {
-          indent_markers = { enable = true },
-          icons = {
-            glyphs = {
-              default = "",
-              symlink = "",
-              folder = {
-                arrow_closed = "",
-                arrow_open = "",
-                default = "",
-                open = "",
-              },
-              git = { unstaged = "✗", staged = "✓", untracked = "★" },
-            },
-          },
-          highlight_git = true,
-          group_empty = true,
-        },
-        diagnostics = {
-          enable = true,
-          severity = { min = vim.diagnostic.severity.HINT },
-          icons = { error = "" },
-        },
-        filters = {
-          custom = { "^.git$", "^node_modules$" },
-          exclude = { ".env" },
-        },
-        actions = {
-          open_file = { quit_on_open = false, window_picker = { enable = true } },
-        },
-        git = { enable = true, timeout = 200, ignore = false },
-        filesystem_watchers = { enable = true, debounce_delay = 500, ignore_dirs = { "node_modules" } },
-        trash = { cmd = "gio trash", require_confirm = true },
-      })
-    end,
+  "nvim-tree/nvim-tree.lua",
+  dependencies = { "nvim-tree/nvim-web-devicons" },
+  keys = {
+    { "<C-b>", "<cmd>NvimTreeToggle<CR>", desc = "Toggle File Tree" },
+    { "<leader>e", "<cmd>NvimTreeFocus<CR>", desc = "Focus File Tree" },
+    { "<leader>r", "<cmd>NvimTreeFindFile<CR>", desc = "Reveal File" },
   },
+  cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFile" },
+  init = function()
+    vim.g.loaded_netrw = 1
+    vim.g.loaded_netrwPlugin = 1
+  end,
+  opts = {
+    hijack_cursor = true,
+    sync_root_with_cwd = true,
+    update_focused_file = { enable = true, update_root = true },
+    view = { width = 32, side = "left" },
+    renderer = {
+      indent_width = 2,
+      indent_markers = { enable = true },
+      icons = {
+        glyphs = {
+          default = "󰈚",
+          symlink = "󰌹",
+          folder = { default = "", open = "", arrow_closed = "", arrow_open = "" },
+          git = { unstaged = "", staged = "󰄬", untracked = "󰐕" },
+        },
+      },
+    },
+    diagnostics = { enable = true, icons = { error = "", warning = "", info = "" } },
+    filters = { custom = { "^.git$" } },
+    git = { enable = true, ignore = false },
+    actions = { open_file = { quit_on_open = true } },
+  },
+  config = function(_, opts)
+    require("nvim-tree").setup(opts)
+
+    -- Dynamically adjust the width of the NvimTree window
+    vim.api.nvim_create_autocmd("WinEnter", {
+      callback = function()
+        if vim.bo.filetype == "NvimTree" then
+          local new_width = math.max(30, math.min(40, math.floor(vim.o.columns / 4)))
+          vim.api.nvim_win_set_width(0, new_width)
+        end
+      end,
+    })
+
+    -- Ensure NvimTree closes properly when it's the last window
+    vim.api.nvim_create_autocmd("QuitPre", {
+      callback = function()
+        local tree_wins = {}
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+          if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "NvimTree" then
+            table.insert(tree_wins, win)
+          end
+        end
+        if #tree_wins == 1 and #vim.api.nvim_list_wins() == 1 then
+          vim.cmd("quit")
+        end
+      end,
+    })
+  end,
 }

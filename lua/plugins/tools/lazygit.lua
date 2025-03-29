@@ -1,23 +1,20 @@
 return {
   {
     "kdheepak/lazygit.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    cmd = "LazyGit",
     keys = {
-      { "<leader>gg", "<cmd>LazyGit<cr>", desc = "Open Lazygit" },  -- 快捷键触发
+      { "<leader>gg", "<cmd>LazyGit<cr>", desc = "Lazygit (Project root)" },
     },
-    config = function()
-      -- 使用延迟加载
-      vim.cmd([[
-        let g:lazygit_floating_window = 1
-        let g:lazygit_use_neovim_remote = 1
-        let g:lazygit_height = 0.9
-        let g:lazygit_width = 0.9
-        let g:lazygit_border = 'rounded'
-      ]])
-
-      -- 如果有懒加载机制（如Lazy），通过触发按键时加载
-      -- 确保在调用时加载插件，避免启动时加载
+    dependencies = { "nvim-lua/plenary.nvim" },
+    init = function()
+      -- 设置浮动窗口现代样式
+      vim.g.lazygit_floating_window_scaling_factor = 0.9  -- 窗口占屏比例
+      vim.g.lazygit_floating_window_border_chars = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+      vim.g.lazygit_use_neovim_remote = 1  -- 确保 Neovim 终端集成
     end,
-    lazy = true,  -- 完全延迟加载
+    config = function()
+      -- 现代配色集成（可选）
+      vim.api.nvim_set_hl(0, "LazyGitBorder", { link = "FloatBorder" })
+    end
   }
 }

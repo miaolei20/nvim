@@ -19,7 +19,7 @@ local function on_attach(client, bufnr)
   map("n", "<leader>rn", "<cmd>Lspsaga rename<CR>")
   map("n", "[d", "<cmd>Lspsaga diagnostic_jump_prev<CR>")
   map("n", "]d", "<cmd>Lspsaga diagnostic_jump_next<CR>")
-  map("n", "<leader>f", vim.lsp.buf.format)
+  map("n", "<leader>lf", vim.lsp.buf.format)
 end
 
 function M.setup()
@@ -44,6 +44,9 @@ function M.setup()
   require("lspsaga").setup({
     ui = { border = "rounded" },
     symbol_in_winbar = { enable = true, separator = " › " },
+    lightbulb = {
+      enable = false,
+    },
   })
 end
 

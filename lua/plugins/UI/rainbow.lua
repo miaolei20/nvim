@@ -1,53 +1,25 @@
+-- rainbow.lua
 return {
   {
     "HiPhish/rainbow-delimiters.nvim",
-    event = { "BufReadPost", "BufNewFile" }, -- 延迟加载
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter", -- 依赖 Treesitter
-    },
+    event = "BufReadPost",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
-      local rainbow_delimiters = require("rainbow-delimiters")
+      local colors = require("onedarkpro.helpers").get_colors()
+      local rainbow = require("rainbow-delimiters")
 
-      -- 配置 rainbow-delimiters
+      vim.api.nvim_set_hl(0, "RainbowDelimiterRed",    { fg = colors.red })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterYellow", { fg = colors.yellow })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterBlue",   { fg = colors.blue })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterGreen",  { fg = colors.green })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterCyan",   { fg = colors.cyan })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterViolet", { fg = colors.purple })
+
       require("rainbow-delimiters.setup").setup({
-        strategy = {
-          [""] = rainbow_delimiters.strategy["global"], -- 默认全局策略
-          vim = rainbow_delimiters.strategy["local"],   -- Vim 文件使用本地策略
-        },
-        query = {
-          [""] = "rainbow-delimiters", -- 默认查询
-          lua = "rainbow-delimiters",  -- Lua 专用查询
-          javascript = "rainbow-parens", -- JS/TS 使用括号查询
-          tsx = "rainbow-parens",
-        },
-        highlight = {
-          -- 自定义高亮组，适配 OneDark 主题
-          "RainbowDelimiterRed",
-          "RainbowDelimiterYellow",
-          "RainbowDelimiterBlue",
-          "RainbowDelimiterGreen",
-          "RainbowDelimiterCyan",
-          "RainbowDelimiterViolet",
-          "RainbowDelimiterOrange",
-        },
+        strategy = {[""] = rainbow.strategy["global"]},
+        query = {[""] = "rainbow-delimiters"},
+        highlight = vim.tbl_keys(vim.api.nvim_get_hl(0, {name = "RainbowDelimiterRed"}))
       })
-
-      -- 异步设置高亮颜色，适配 OneDark
-      vim.schedule(function()
-        local palette = require("onedark.palette").dark
-        local colors = {
-          RainbowDelimiterRed = { fg = palette.red },
-          RainbowDelimiterYellow = { fg = palette.yellow },
-          RainbowDelimiterBlue = { fg = palette.blue },
-          RainbowDelimiterGreen = { fg = palette.green },
-          RainbowDelimiterCyan = { fg = palette.cyan },
-          RainbowDelimiterViolet = { fg = palette.purple },
-          RainbowDelimiterOrange = { fg = palette.orange },
-        }
-        for group, hl in pairs(colors) do
-          vim.api.nvim_set_hl(0, group, hl)
-        end
-      end)
-    end,
-  },
+    end
+  }
 }
