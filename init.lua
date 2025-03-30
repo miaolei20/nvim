@@ -43,7 +43,6 @@ require("lazy").setup({
     { import = "plugins.lsp.mason" },    -- LSP 包管理
     { import = "plugins.lsp.lsp" },      -- LSP 核心
     { import = "plugins.AI.copilot" },   -- AI 代码补全
-    { import = "plugins.lsp.tiny-inline-diagnostic" }, -- 行内诊断
 
     -- 核心 UI 组件
     { import = "plugins.UI.alpha" },      -- 启动界面
