@@ -84,7 +84,7 @@ echo 'export PATH="/opt/nvim/bin:$PATH"' >> ~/.bashrc
 
 ### Configuration Setup
 ```bash
-git clone https://github.com/yourusername/neovim-config ~/.config/nvim
+git clone https://github.com/miaolei20/nvim ~/.config/nvim
 nvim +LazySync
 ```
 
