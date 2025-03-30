@@ -3,7 +3,6 @@ vim.g.python3_host_prog = '/usr/bin/python3'
 require("config.options")
 -- 加载键映射配置
 require("config.keymaps")
-require("config.indent")
 -- 定义 lazy.nvim 插件的路径
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
@@ -52,6 +51,7 @@ require("lazy").setup({
     { import = "plugins.UI.rainbow" },    -- 彩虹括号
     { import = "plugins.UI.aerial" },   -- 代码大纲
     { import = "plugins.UI.notify"},    -- 通知
+    { import = "plugins.UI.indent"},
     -- 导航与搜索
     { import = "plugins.UI.navigation" },   -- 窗口导航
     { import = "plugins.tools.telescope" },    -- 模糊搜索
