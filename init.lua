@@ -53,11 +53,7 @@ require("lazy").setup({
     { import = "plugins.UI.notify"},    -- 通知
     { import = "plugins.UI.indent"},
     -- 导航与搜索
-    { import = "plugins.UI.navigation" },   -- 窗口导航
     { import = "plugins.tools.telescope" },    -- 模糊搜索
-
-    -- 版本控制
-    { import = "plugins.git.gitsigns" }, -- Git 状态显示
 
     -- 调试与工具
     { import = "plugins.tools.lazygit" }, -- 内置终端
@@ -67,7 +63,8 @@ require("lazy").setup({
     { import = "plugins.tools.which-key" },     -- 快捷键提示
     { import = "plugins.tools.lastplace" },       -- 恢复上次位置
     { import = "plugins.AI.llm"},
-    { import = "plugins.tools.markdown"}
+    { import = "plugins.tools.markdown"},
+    { import = "plugins.AI.avante"},
   },
   performance = {  -- 此部分保持不变
     rtp = {
