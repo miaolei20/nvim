@@ -20,14 +20,7 @@ return {
             api_key_name = "DEEPSEEK_API_KEY",
             max_tokens = 4096, -- Set within valid range (1-8192)
             __inherited_from = "openai",
-          },
-          kimi = {
-            endpoint = "https://api.moonshot.cn/v1",
-            model = "moonshot-v1-8k",
-            api_key_name = "KIMI_API_KEY",
-            max_tokens = 4096, -- Set within valid range (1-8192)
-            __inherited_from = "openai",
-          },
+          }
         },
         mappings = {
           ask = "<leader>aa",   -- Ask AI

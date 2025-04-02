@@ -36,7 +36,7 @@ require("lazy").setup({
     { import = "plugins.editor.autopairs" },            -- 自动括号
     { import = "plugins.editor.cmp" },                  -- 自动补全
     { import = "plugins.editor.comment" },              -- 注释
-    { import = "plugins.editor.search" },               -- 搜索功能
+    { import = "plugins.editor.search" },               -- search gitsigns mutiple
 
     -- LSP 与代码工具
     { import = "plugins.lsp.mason" },    -- LSP 包管理
@@ -64,7 +64,7 @@ require("lazy").setup({
     { import = "plugins.tools.lastplace" },       -- 恢复上次位置
     { import = "plugins.AI.llm"},
     { import = "plugins.tools.markdown"},
-    { import = "plugins.AI.avante"},
+    -- { import = "plugins.AI.avante"},
   },
   performance = {  -- 此部分保持不变
     rtp = {

@@ -5,46 +5,74 @@ return {
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "L3MON4D3/LuaSnip",
-      "saadparwaiz1/cmp_luasnip", -- Required for LuaSnip integration
+      "saadparwaiz1/cmp_luasnip",
       "zbirenbaum/copilot-cmp",
-      "rafamadriz/friendly-snippets", -- Added friendly-snippets
+      "rafamadriz/friendly-snippets",
     },
-    opts = function()
+    config = function()
       local cmp = require("cmp")
-      require("luasnip.loaders.from_vscode").lazy_load() -- Load friendly-snippets
-      return {
-        snippet = {
-          expand = function(args)
-            require("luasnip").lsp_expand(args.body)
-          end,
-        },
+      local luasnip = require("luasnip")
+
+      -- 自动加载代码片段
+      require("luasnip.loaders.from_vscode").lazy_load()
+
+      -- 极简图标系统
+      local icons = {
+        Text = "", Method = "ƒ", Function = "", Constructor = "",
+        Field = "", Variable = "", Class = "", Interface = "",
+        Module = "", Property = "", Unit = "", Value = "",
+        Enum = "ℰ", Keyword = "", Snippet = "", File = "",
+        Reference = "", Folder = "", EnumMember = "", Constant = "",
+        Struct = "", Event = "", Operator = "", Copilot = ""
+      }
+
+      cmp.setup({
+        snippet = { expand = function(args) luasnip.lsp_expand(args.body) end },
         mapping = cmp.mapping.preset.insert({
           ["<C-Space>"] = cmp.mapping.complete(),
           ["<CR>"] = cmp.mapping.confirm({ select = true }),
-          ["<C-n>"] = cmp.mapping.select_next_item(),
-          ["<C-p>"] = cmp.mapping.select_prev_item(),
+          ["<Tab>"] = cmp.mapping(function()
+            cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
+            luasnip.expand_or_jump()
+          end, { "i", "s" }),
+          ["<S-Tab>"] = cmp.mapping(function()
+            cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
+            luasnip.jump(-1)
+          end, { "i", "s" }),
         }),
         sources = cmp.config.sources({
           { name = "copilot", priority = 1000 },
           { name = "nvim_lsp", priority = 900 },
-          { name = "luasnip", priority = 800 }, -- Includes friendly-snippets
+          { name = "luasnip", priority = 800 },
         }),
         formatting = {
           fields = { "kind", "abbr" },
-          format = function(entry, item)
-            local icons = {
-              copilot = "",
-              nvim_lsp = "",
-              luasnip = "",
-            }
-            item.kind = icons[entry.source.name] or ""
+          format = function(_, item)
+            item.kind = icons[item.kind] or icons.Text
             return item
-          end,
+          end
         },
-        experimental = {
-          ghost_text = { hl_group = "Comment" },
+        window = {
+          completion = {
+            winhighlight = "Normal:CmpMenu,CursorLine:CmpSelection,NormalNC:CmpMenu",
+            scrollbar = false
+          },
+          documentation = {
+            winhighlight = "Normal:CmpDoc",
+            scrollbar = false
+          }
         },
-      }
-    end,
-  },
+        experimental = { ghost_text = true }
+      })
+
+      -- 现代高亮配置
+      vim.api.nvim_set_hl(0, "CmpSelection", {
+        bg = "#363A4F",  -- 选中项背景色块
+        fg = "#89B4FA",  -- 选中项文字颜色
+        bold = true
+      })
+      vim.api.nvim_set_hl(0, "CmpMenu", { bg = "NONE" })
+      vim.api.nvim_set_hl(0, "CmpDoc", { bg = "NONE" })
+    end
+  }
 }
