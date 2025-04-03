@@ -13,17 +13,36 @@ return {
       local cmp = require("cmp")
       local luasnip = require("luasnip")
 
-      -- 自动加载代码片段
       require("luasnip.loaders.from_vscode").lazy_load()
 
-      -- 极简图标系统
+      -- VSCode 风格图标
       local icons = {
-        Text = "", Method = "ƒ", Function = "", Constructor = "",
-        Field = "", Variable = "", Class = "", Interface = "",
-        Module = "", Property = "", Unit = "", Value = "",
-        Enum = "ℰ", Keyword = "", Snippet = "", File = "",
-        Reference = "", Folder = "", EnumMember = "", Constant = "",
-        Struct = "", Event = "", Operator = "", Copilot = ""
+        Text = "",
+        Method = "",
+        Function = "",
+        Constructor = "",
+        Field = "",
+        Variable = "",
+        Class = "",
+        Interface = "",
+        Module = "",
+        Property = "",
+        Unit = "",
+        Value = "",
+        Enum = "",
+        Keyword = "",
+        Snippet = "",
+        Color = "",
+        File = "",
+        Reference = "",
+        Folder = "",
+        EnumMember = "",
+        Constant = "",
+        Struct = "",
+        Event = "",
+        Operator = "",
+        TypeParameter = "",
+        Copilot = ""
       }
 
       cmp.setup({
@@ -65,10 +84,9 @@ return {
         experimental = { ghost_text = true }
       })
 
-      -- 现代高亮配置
       vim.api.nvim_set_hl(0, "CmpSelection", {
-        bg = "#363A4F",  -- 选中项背景色块
-        fg = "#89B4FA",  -- 选中项文字颜色
+        bg = "#363A4F",
+        fg = "#89B4FA",
         bold = true
       })
       vim.api.nvim_set_hl(0, "CmpMenu", { bg = "NONE" })

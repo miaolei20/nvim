@@ -34,7 +34,6 @@ return {
         dashboard.button("g", "  Live Grep", "<cmd>Telescope live_grep<cr>"),
         dashboard.button("e", "  Explorer", "<cmd>Telescope file_browser<cr>"),
         dashboard.button("l", "󰌵  LeetCode", "<cmd>Leet<cr>"), -- Added LeetCode button
-        dashboard.button("t", "  Todo", "<cmd>TodoTelescope<cr>"),
         dashboard.button("c", "  Config", "<cmd>e " .. vim.fn.stdpath("config") .. "/init.lua<cr>"),
         dashboard.button("q", "  Quit", "<cmd>qa<cr>"),
       }
