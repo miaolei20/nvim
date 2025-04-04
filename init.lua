@@ -41,7 +41,6 @@ require("lazy").setup({
     -- LSP 与代码工具
     { import = "plugins.lsp.mason" },    -- LSP 包管理
     { import = "plugins.lsp.lsp" },      -- LSP 核心
-    { import = "plugins.AI.copilot" },   -- AI 代码补全
 
     -- 核心 UI 组件
     { import = "plugins.UI.alpha" },      -- 启动界面
@@ -62,9 +61,7 @@ require("lazy").setup({
     -- 辅助功能
     { import = "plugins.tools.which-key" },     -- 快捷键提示
     { import = "plugins.tools.lastplace" },       -- 恢复上次位置
-    { import = "plugins.AI.llm"},
-    { import = "plugins.tools.markdown"},
-    -- { import = "plugins.AI.avante"},
+    { import = "plugins.tools.copilot"},
   },
   performance = {  -- 此部分保持不变
     rtp = {
