@@ -1,228 +1,110 @@
-# Neovim Development Environment Configuration
-
-![Neovim Logo](https://neovim.io/logos/neovim-logo-300x87.png)
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Key Features](#key-features)
-- [Installation Guide](#installation-guide)
-  - [System Dependencies](#system-dependencies)
-  - [WSL Clipboard Configuration](#wsl-clipboard-configuration)
-  - [Neovim Installation](#neovim-installation)
-  - [Configuration Setup](#configuration-setup)
-- [Plugin Features](#plugin-features)
-  - [GitHub Copilot](#github-copilot)
-  - [LLM Code Assistant](#llm-code-assistant)
-  - [Telescope Search](#telescope-search)
-  - [LazyGit Integration](#lazygit-integration)
-- [Keybindings Reference](#keybindings-reference)
-- [FAQ](#faq)
-- [Advanced Configuration](#advanced-configuration)
-
-## Project Overview
-
-This configuration integrates core features of modern IDEs, supporting cross-platform development (Linux/macOS/Windows WSL2). Designed for efficient programming, it includes full LSP support, AI code completion, version control visualization, and special optimizations for WSL clipboard integration[5].
-![introduce](https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135140.png)![nvimtree](https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135641.png)![lsp](https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135713.png)
-## Key Features
-
-- **Cross-platform Clipboard**: Seamless WSL ←→ Windows clipboard integration
-- **AI Programming Assistant**: GitHub Copilot + customized LLM toolchain
-- **Efficient Navigation**: Fuzzy search/Symbol jump/Multi-cursor editing
-- **Visual Debugging**: Built-in Git integration/LSP diagnostics
-- **Performance Optimized**: Async loading + lazy loading, startup time < 50ms
-
-## Installation Guide
-
-### System Dependencies
-
-#### Core Toolchain
+# Neovim Ultimate 2025 Configuration
+](https://neovim.io)
+[![Lua](https://img.shields.io/badge/Lua-100%25-blueviolet.svg)](https://lua.org)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+## ✨ Features Highlight
+- **Cross-platform Excellence**: Optimized for Linux/macOS/WSL2 with full clipboard integration[5]
+- **AI-Driven Development**: GitHub Copilot + CopilotChat workflow enhancements
+- **Modern Toolchain**: LSP support for 15+ languages with auto-configuration
+- **Blazing Performance**: <50ms cold start with lazy loading plugins
 ```bash
-# Arch/Manjaro
+git clone https://github.com/yourusername/nvim-config ~/.config/nvim
+```
+## 🛠️ Full Feature Breakdown
+### 智能编程套件
+| 组件 | 功能 | 配置文件 |
+|------|------|----------|
+| ![Copilot](https://via.placeholder.com/40.png/2d2d2d/ffffff?text=🤖) AI智能补全 | 实时代码建议和文档生成 | [copilot.lua](lua/plugins/copilot.lua) |
+| ![LSP](https://via.placeholder.com/40.png/2d2d2d/ffffff?text=🚀) LSP 强化 | 自动安装语言服务器和诊断 | [lsp.lua](lua/config/lsp.lua) |
+| ![Debug](https://via.placeholder.com/40.png/2d2d2d/ffffff?text=🐞) 调试工具 | 内建调试交互界面和性能分析 | [debug.lua](lua/plugins/debug.lua) |
+### 可视化工作流
+```lua
+-- 主题配置示例 (onedark.lua)
+require("onedarkpro").setup({
+  diagnostics = {
+    error = " ",
+    warn = " ",
+    info = " ",
+    hint = "󰌶 ",
+  },
+  filetypes = {
+    javascript = {
+      keywords = "italic",
+      functions = "bold"
+    }
+  }
+})
+```
+## 🚀 快速安装指南
+### 系统依赖
+```bash
+#Arch
 sudo pacman -S make clang llvm python gcc ripgrep unzip fd curl python-pip nodejs npm curl cargo rust lazygit
-
 # Ubuntu/Debian
-sudo apt install build-essential clang llvm python3-dev python3-pip nodejs npm ripgrep unzip fd-find cargo rustc lazygit
-
-# Fedora
-sudo dnf groupinstall "Development Tools" && sudo dnf install clang llvm python3-devel nodejs npm ripgrep unzip fd-find cargo rust lazygit
-
-# macOS (Homebrew)
-brew install make clang llvm python node ripgrep unzip fd curl rust lazygit
+sudo apt install python3-pip nodejs npm rustc fd-find ripgrep
+# macOS (via Homebrew)
+brew install python node rust fd ripgrep
 ```
-
-#### Optional Dependencies
+### Neovim 配置
 ```bash
-# Unified code formatters
-pip install black clang-format stylua prettier shfmt
-
-# Language Servers
-npm install -g pyright vscode-langservers-extracted
+# 克隆配置仓库
+git clone https://github.com/yourusername/nvim-config ~/.config/nvim
+# 安装插件依赖
+nvim +"Lazy install" +q
 ```
-
-### WSL Clipboard Configuration
-```bash
-# Install win32yank for WSL ←→ Windows clipboard integration
-curl -sLo/tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip
-unzip -p /tmp/win32yank.zip win32yank.exe > /tmp/win32yank.exe
-chmod +x /tmp/win32yank.exe
-sudo mv /tmp/win32yank.exe /usr/local/bin/
+### WSL 特别优化
+```powershell
+# Windows 端安装 win32yank
+curl.exe -LO https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip
+Expand-Archive win32yank-x64.zip -DestinationPath ~/win32yank
+mv ~/win32yank/win32yank.exe /usr/local/bin/
 ```
-This tool enables clipboard interoperability between WSL and Windows systems, supporting:
-- Direct copying to system clipboard from Neovim
-- Pasting code from browsers to WSL terminal
-- Cross-system file path copying[2][5]
-
-### Neovim Installation
-```bash
-# Latest stable version (v0.9+)
-curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz
-tar xzf nvim-linux64.tar.gz
-sudo mv nvim-linux64 /opt/nvim
-echo 'export PATH="/opt/nvim/bin:$PATH"' >> ~/.bashrc
-```
-
-### Configuration Setup
-```bash
-git clone https://github.com/miaolei20/nvim ~/.config/nvim
-nvim +LazySync
-```
-
-## Plugin Features
-
-### GitHub Copilot
-**Configuration Path**: `lua/plugins/AI/copilot.lua`
-
-**Usage**:
-1. Accept suggestions in Insert mode with `<Alt+Enter>`
-2. Key mappings:
-   - `<M-w>` Accept word
-   - `<M-l>` Accept line
-   - `<M-]>` Next suggestion
-   - `<M-[>` Previous suggestion
-
-**Supported Languages**: C/C++/Python/JavaScript/Lua[^copilot]
-
-[^copilot]: Implemented using zbirenbaum/copilot.lua
-
-### LLM Code Assistant
-![LLM](https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135620.png)
-**Core Features**:
+## ⌨️ 核心快捷键映射
+### 导航增强
+| 按键 | 功能 | 说明 |
+|------|------|------|
+| `<C-b>` | 切换文件树 | NVimTree 可视化导航 |
+| `<leader>ff` | 全局文件搜索 | Telescope 模糊查找 |
+| `<leader>fg` | 实时内容检索 | 跨项目文本搜索 |
+### 代码操作
+| 组合键 | 功能 | 模式 |
+|--------|------|------|
+| `<C-space>` | 触发补全 | Insert |
+| `gd` | 跳转定义 | Normal |
+| `<leader>rn` | 变量重命名 | Visual |
+## 🔧 高级自定义
+### 主题个性化
 ```lua
--- Example configuration snippet
-{
-  "<leader>ac", -- Open AI session
-  "<leader>ae", -- Explain selected code
-  "<leader>ao", -- Optimize code structure
-  "<leader>ag", -- Generate documentation
-}
+-- 修改 statusline 样式 (lualine.lua)
+require("lualine").setup({
+  options = {
+    theme = "onedark",
+    section_separators = { left = "", right = "" }
+  }
+})
 ```
-
-**Workflow**:
-1. Select code and press `<leader>ao` for optimization
-2. Navigate history with `<Ctrl-j/k>`
-3. Press `<Enter>` to apply changes
-
-### Telescope Search
-![Telescope Demo](https://github.com/miaolei20/nvim/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-03-29%20135407.png)
-
-**Keybindings**:
-- `<leader>ff` File search
-- `<leader>fg` Content search
-- `<leader>fb` File browser
-- `<leader>fr` Recent files
-
-**Optimized Configuration**:
+### 添加新语言支持
+1. 安装 LSP 服务器
+```bash
+:MasonInstall typescript-language-server
+```
+2. 配置 LSP
 ```lua
-file_ignore_patterns = { "^.git/", "^node_modules/" }  -- Ignore common directories
+-- lsp.lua
+require("lspconfig").tsserver.setup({
+  on_attach = custom_attach,
+  capabilities = capabilities
+})
 ```
-
-### LazyGit Integration
-**Launch Method**:
+## 🚨 故障排除
+### 常见问题处理
 ```bash
-<leader>gg  # Open LazyGit interface
+# 性能问题检测
+:checkhealth
+# 插件更新
+:Lazy update
+# Copilot 授权
+:Copilot auth
 ```
-
-**Features**:
-- Visual branch management
-- Interactive rebase
-- Patch mode commits
-
-## Keybindings Reference
-
-### Global Keybindings
-| Keybinding       | Description             |
-|------------------|-------------------------|
-| `<leader>ff`     | File search            |
-| `<leader>gg`     | Open LazyGit           |
-| `<F5>`           | Compile & run C/C++    |
-| `"+y`            | Copy to system clipboard |
-
-### Code Operations
-| Combination      | Function               |
-|------------------|------------------------|
-| `<leader>ac`     | Open AI session       |
-| `<leader>ae`     | Explain code          |
-| `<C-space>`      | Trigger completion    |
-
-## FAQ
-
-**Q: How to verify clipboard functionality?**
-```bash
-echo "Test content" | nvim -u NORC "+normal yy" "+q!"  # Should paste to Windows clipboard
-```
-
-**Q: Plugin compatibility issues after update?**
-```bash
-nvim +Lazy rollback  # Rollback to previous stable version
-```
-
-**Q: Copilot suggestions not showing?**
-1. Verify GitHub Token configuration
-2. Check network connection
-3. Run `:Copilot auth`
-
-## Advanced Configuration
-
-### Clipboard Advanced Settings
-In `options.lua`, adjust these parameters:
-```lua
-vim.g.clipboard = {
-  name = "win32yank-wsl",
-  copy = {
-    ["+"] = "win32yank.exe -i --crlf",
-    ["*"] = "win32yank.exe -i --crlf"
-  },
-  paste = {
-    ["+"] = "win32yank.exe -o --lf",
-    ["*"] = "win32yank.exe -o --lf"
-  },
-  cache_enabled = 1
-}
-```
-This configuration provides:
-- Automatic line ending conversion
-- Clipboard caching for better performance
-- Support for primary and clipboard registers[5]
-
-## License
-MIT License © 2024 [Your Name]
-
----
-
-**Update Notes**:
-1. Added WSL clipboard configuration section with detailed win32yank setup[1][4]
-2. Enhanced keybinding documentation with system clipboard operations[5]
-3. Added clipboard verification methods and advanced options
-4. Improved troubleshooting section with plugin rollback instructions
-5. Optimized document structure with new advanced configuration section
-```
-
-Key improvements made:
-1. Maintained consistent technical terminology across translations
-2. Preserved all code blocks and command-line instructions
-3. Optimized section ordering for better readability
-4. Added proper annotation for footnote references
-5. Ensured Markdown formatting consistency
-6. Improved table formatting for better visual presentation
-7. Maintained all original links and image references
+> **注意**：此配置已针对 Neovim v0.9+ 优化，建议配合最新版 Neovim 使用，获取完整功能体验。[查看更新日志](#) 
+![Demo](https://via.placeholder.com/800x400.png/2d2d2d/ffffff?text=AI+代码补全演示)
