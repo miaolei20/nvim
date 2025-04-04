@@ -106,5 +106,4 @@ require("lspconfig").tsserver.setup({
 # Copilot 授权
 :Copilot auth
 ```
-> **注意**：此配置已针对 Neovim v0.9+ 优化，建议配合最新版 Neovim 使用，获取完整功能体验。[查看更新日志](#) 
-![Demo](https://via.placeholder.com/800x400.png/2d2d2d/ffffff?text=AI+代码补全演示)
+> **注意**：此配置已针对 Neovim v0.9+ 优化，建议配合最新版 Neovim 使用，获取完整功能体验。
