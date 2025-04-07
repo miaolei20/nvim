@@ -2,7 +2,7 @@
 return {
   {
     "kawre/leetcode.nvim",
-    event = "VeryLazy",
+    cmd = { "Leet","LeetCode", "LeetCodeBuild" }, -- 仅在调用命令时加载插件
     dependencies = {
       "nvim-telescope/telescope.nvim",
       "nvim-lua/plenary.nvim",
@@ -11,7 +11,7 @@ return {
     },
     build = ":TSUpdateSync html",
     cond = function()
-      -- 仅在 nvim-treesitter 安装并加载后启用构建
+      -- 仅在 nvim-treesitter 可用时加载
       return pcall(require, "nvim-treesitter")
     end,
     opts = {
@@ -40,7 +40,7 @@ return {
     },
     config = function(_, opts)
       require("leetcode").setup(opts)
-      -- 添加手动构建命令
+      -- 添加手动构建命令，便于在需要时更新 HTML parser
       vim.api.nvim_create_user_command("LeetCodeBuild", ":TSUpdateSync html", {
         desc = "Manually update LeetCode HTML parser",
       })
