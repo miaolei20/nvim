@@ -32,8 +32,8 @@ end
 
 -- Main setup function
 function M.setup()
-  local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
+  -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
+  local capabilities = require('blink.cmp').get_lsp_capabilities()
   -- Configure LSP servers
   for server, config in pairs(servers) do
     require("lspconfig")[server].setup(vim.tbl_extend("force", {

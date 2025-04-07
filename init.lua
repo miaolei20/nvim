@@ -34,7 +34,8 @@ require("lazy").setup({
     { import = "plugins.editor.treesitter" },         -- 语法高亮基础
     { import = "plugins.editor.treesitter-context" },   -- 依赖 treesitter
     { import = "plugins.editor.autopairs" },            -- 自动括号
-    { import = "plugins.editor.cmp" },                  -- 自动补全
+    -- { import = "plugins.editor.cmp" },                  -- 自动补全
+    { import = "plugins.editor.blink"},
     { import = "plugins.editor.comment" },              -- 注释
     { import = "plugins.editor.search" },               -- search gitsigns mutiple
 

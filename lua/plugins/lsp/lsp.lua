@@ -4,7 +4,7 @@ return {
     event = "BufReadPre",
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
-      "hrsh7th/cmp-nvim-lsp",
+      dependencies = { 'saghen/blink.cmp' },
     },
     config = function()
       require("mason-lspconfig").setup({

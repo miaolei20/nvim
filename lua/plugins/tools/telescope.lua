@@ -10,7 +10,6 @@ return {
     "nvim-telescope/telescope-frecency.nvim",
     "nvim-telescope/telescope-ui-select.nvim",
     "tsakirist/telescope-lazy.nvim",
-    "benfowler/telescope-luasnip.nvim",
   },
   keys = {
     { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find Files" },
@@ -20,7 +19,6 @@ return {
     { "<leader>fu", "<cmd>Telescope undo<CR>",        desc = "Undo History" },
     { "<leader>fr", "<cmd>Telescope frecency<CR>",   desc = "Frecency" },
     { "<leader>fl", "<cmd>Telescope lazy<CR>",       desc = "Lazy Plugins" },
-    { "<leader>fs", "<cmd>Telescope luasnip<CR>",    desc = "Snippets" },
   },
   opts = {
     defaults = {
@@ -57,7 +55,6 @@ return {
         find_command = { "fd", "--type", "f", "--strip-cwd-prefix" },
       },
       diagnostics = { theme = "ivy" },
-      luasnip = { theme = "dropdown" },
     },
     extensions = {
       fzf = {
@@ -91,7 +88,6 @@ return {
       "frecency",
       "ui-select",
       "lazy",
-      "luasnip"
     }
 
     for _, ext in ipairs(extensions) do
