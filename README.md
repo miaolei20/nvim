@@ -48,7 +48,7 @@ brew install python node rust fd ripgrep
 ### Neovim 配置
 ```bash
 # 克隆配置仓库
-git clone https://github.com/yourusername/nvim-config ~/.config/nvim
+git clone https://github.com/miaolei20/nvim ~/.config/nvim
 # 安装插件依赖
 nvim +"Lazy install" +q
 ```
