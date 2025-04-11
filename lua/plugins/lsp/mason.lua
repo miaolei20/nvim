@@ -1,14 +1,13 @@
 return {
   {
     "williamboman/mason.nvim",
-    cmd = "Mason",
     opts = {
       ui = {
         border = "rounded",
         icons = {
-          package_installed   = "󰄬",
-          package_pending     = "󰁔",
-          package_uninstalled = "󰚌",
+          package_installed   = "✓",
+          package_pending     = "➜",
+          package_uninstalled = "✗",
         },
       },
     },
@@ -18,7 +17,6 @@ return {
   },
   {
     "williamboman/mason-lspconfig.nvim",
-    cmd = { "Mason", "MasonInstall", "MasonUninstall", "MasonLog" },
     dependencies = { "williamboman/mason.nvim" },
     opts = {
       ensure_installed = { "lua_ls", "clangd", "pyright", "bashls", "jsonls", "yamlls" },
@@ -30,7 +28,6 @@ return {
   },
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    cmd = { "Mason", "MasonInstall", "MasonUninstall", "MasonLog" },
     dependencies = { "williamboman/mason.nvim" },
     opts = {
       ensure_installed = { "stylua", "clang-format", "black", "shfmt", "prettier" },
@@ -42,3 +39,4 @@ return {
     end,
   },
 }
+

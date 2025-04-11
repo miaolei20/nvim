@@ -1,70 +1,75 @@
-vim.g.python3_host_prog = '/usr/bin/python3'
--- 加载配置选项
+-- Set global settings before loading plugins
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+vim.g.python3_host_prog = '/usr/bin/python3' -- Set Python 3 host program
+
+-- Load configuration options and keymaps
 require("config.options")
--- 加载键映射配置
 require("config.keymaps")
--- 定义 lazy.nvim 插件的路径
+
+-- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-
--- 如果路径不存在，则克隆 lazy.nvim 插件
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- 克隆最新的稳定版本
-    lazypath,
-  })
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
 end
-
--- 将 lazy.nvim 插件路径添加到运行时路径中
 vim.opt.rtp:prepend(lazypath)
 
--- 配置并加载 lazy.nvim 插件
+-- Setup lazy.nvim
 require("lazy").setup({
   spec = {
-    -- 基础与性能优化
-    { import = "plugins.tools.impatient" }, -- 性能优化插件优先加载
+    -- Base and performance optimization
+    { import = "plugins.tools.impatient" }, -- Performance optimization plugin first
 
-    -- 主题与视觉基础
-    { import = "plugins.UI.onedark" },   -- 主题必须最先加载
+    -- Theme and visual base
+    { import = "plugins.UI.onedark" }, -- Theme loaded first
 
-    -- 编辑增强
-    { import = "plugins.editor.treesitter" },         -- 语法高亮基础
-    { import = "plugins.editor.treesitter-context" },   -- 依赖 treesitter
-    { import = "plugins.editor.autopairs" },            -- 自动括号
-    -- { import = "plugins.editor.cmp" },                  -- 自动补全
-    { import = "plugins.editor.blink"},
-    { import = "plugins.editor.comment" },              -- 注释
-    { import = "plugins.editor.search" },               -- search gitsigns mutiple
+    -- Editor enhancements
+    { import = "plugins.editor.treesitter" },         -- Syntax highlighting
+    { import = "plugins.editor.treesitter-context" }, -- Depends on treesitter
+    { import = "plugins.editor.autopairs" },          -- Auto pairs
+    { import = "plugins.editor.blink" },              -- Completion (replacing cmp)
+    { import = "plugins.editor.comment" },            -- Commenting
+    { import = "plugins.editor.search" },             -- Search, gitsigns, multiple cursors
 
-    -- LSP 与代码工具
-    { import = "plugins.lsp.mason" },    -- LSP 包管理
-    { import = "plugins.lsp.lsp" },      -- LSP 核心
+    -- LSP and code tools
+    { import = "plugins.lsp.mason" },    -- LSP package manager
+    { import = "plugins.lsp.lsp" },      -- LSP core
 
-    -- 核心 UI 组件
-    { import = "plugins.UI.alpha" },      -- 启动界面
-    { import = "plugins.UI.lualine" },    -- 状态栏
-    { import = "plugins.UI.bufferline" }, -- 标签栏
-    { import = "plugins.UI.nvimtree" },   -- 文件树
-    { import = "plugins.UI.rainbow" },    -- 彩虹括号
-    { import = "plugins.UI.aerial" },   -- 代码大纲
-    { import = "plugins.UI.notify"},    -- 通知
-    { import = "plugins.UI.indent"},
-    -- 导航与搜索
-    { import = "plugins.tools.telescope" },    -- 模糊搜索
+    -- Core UI components
+    { import = "plugins.UI.alpha" },      -- Dashboard
+    { import = "plugins.UI.lualine" },    -- Statusline and tabline
+    { import = "plugins.UI.nvimtree" },   -- File tree
+    { import = "plugins.UI.rainbow" },    -- Rainbow brackets
+    { import = "plugins.UI.aerial" },     -- Code outline
+    { import = "plugins.UI.notify" },     -- Notifications
+    { import = "plugins.UI.indent" },     -- Indentation guides
 
-    -- 调试与工具
-    { import = "plugins.tools.lazygit" }, -- 内置终端
-    { import = "plugins.tools.leetcode" },   -- LeetCode 插件
+    -- Navigation and search
+    { import = "plugins.tools.telescope" },    -- Fuzzy finder
 
-    -- 辅助功能
-    { import = "plugins.tools.which-key" },     -- 快捷键提示
-    { import = "plugins.tools.lastplace" },       -- 恢复上次位置
-    { import = "plugins.tools.copilot"},
+    -- Debugging and tools
+    { import = "plugins.tools.lazygit" }, -- Git integration
+    { import = "plugins.tools.leetcode" }, -- LeetCode plugin
+
+    -- Utilities
+    { import = "plugins.tools.which-key" }, -- Keybinding hints
+    { import = "plugins.tools.lastplace" }, -- Restore last position
+    { import = "plugins.tools.copilot" },   -- GitHub Copilot
   },
-  performance = {  -- 此部分保持不变
+  -- Configure Lazy.nvim settings
+  install = { colorscheme = { "habamax" } }, -- Colorscheme for plugin installation
+  checker = { enabled = true },              -- Automatically check for updates
+  performance = {
     rtp = {
       disabled_plugins = {
         "netrw", "netrwPlugin", "netrwSettings", "netrwFileHandlers"

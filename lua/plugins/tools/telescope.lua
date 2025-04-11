@@ -2,15 +2,6 @@ return {
   "nvim-telescope/telescope.nvim",
   cmd = "Telescope",
   event = "VeryLazy",
-  keys = {
-    { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find Files" },
-    { "<leader>fg", "<cmd>Telescope live_grep<CR>",  desc = "Live Grep" },
-    { "<leader>fd", "<cmd>Telescope diagnostics<CR>", desc = "Diagnostics" },
-    { "<leader>fb", "<cmd>Telescope file_browser<CR>", desc = "File Browser" },
-    { "<leader>fu", "<cmd>Telescope undo<CR>",        desc = "Undo History" },
-    { "<leader>fr", "<cmd>Telescope frecency<CR>",    desc = "Frecency" },
-    { "<leader>fl", "<cmd>Telescope lazy<CR>",        desc = "Lazy Plugins" },
-  },
   dependencies = {
     "nvim-lua/plenary.nvim",
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
@@ -19,12 +10,12 @@ return {
     "nvim-telescope/telescope-frecency.nvim",
     "nvim-telescope/telescope-ui-select.nvim",
     "tsakirist/telescope-lazy.nvim",
+    "nvim-telescope/telescope-fzf-writer.nvim",
   },
   opts = function()
     local actions = require("telescope.actions")
     local themes = require("telescope.themes")
 
-    -- 将默认配置拆分为局部变量，避免多层嵌套
     local defaults = {
       layout_strategy = "horizontal",
       layout_config = {
@@ -104,6 +95,11 @@ return {
         previewer = false,
         layout_config = { width = 0.8, height = 0.5 },
       }),
+      fzf_writer = {
+        minimum_grep_characters = 2,
+        minimum_files_characters = 2,
+        use_highlighter = true,
+      },
     }
 
     return {
@@ -116,13 +112,38 @@ return {
     local telescope = require("telescope")
     telescope.setup(opts)
 
-    -- 使用局部列表加载扩展，并在加载失败时发出警告
-    local extensions_to_load = { "fzf", "file_browser", "undo", "frecency", "ui-select", "lazy" }
+    -- 加载扩展
+    local extensions_to_load = { "fzf", "file_browser", "undo", "frecency", "ui-select", "lazy", "fzf_writer" }
     for _, ext in ipairs(extensions_to_load) do
       local ok = pcall(telescope.load_extension, ext)
       if not ok then
         vim.notify("Failed to load telescope extension: " .. ext, vim.log.levels.WARN)
       end
     end
+
+    -- 定义 project_files 函数，使用 git_files 当可能时
+    local is_inside_work_tree = {}
+    local function project_files()
+      local opts = {}
+      local cwd = vim.fn.getcwd()
+      if is_inside_work_tree[cwd] == nil then
+        vim.fn.system("git rev-parse --is-inside-work-tree")
+        is_inside_work_tree[cwd] = vim.v.shell_error == 0
+      end
+      if is_inside_work_tree[cwd] then
+        require("telescope.builtin").git_files(opts)
+      else
+        require("telescope.builtin").find_files(opts)
+      end
+    end
+
+    -- 设置键映射
+    vim.keymap.set("n", "<leader>ff", project_files, { desc = "Find Files" })
+    vim.keymap.set("n", "<leader>fg", function() require('telescope').extensions.fzf_writer.grep() end, { desc = "Live Grep" })
+    vim.keymap.set("n", "<leader>fd", function() require('telescope.builtin').diagnostics() end, { desc = "Diagnostics" })
+    vim.keymap.set("n", "<leader>fb", function() require('telescope').extensions.file_browser.file_browser() end, { desc = "File Browser" })
+    vim.keymap.set("n", "<leader>fu", function() require('telescope').extensions.undo.undo() end, { desc = "Undo History" })
+    vim.keymap.set("n", "<leader>fr", function() require('telescope').extensions.frecency.frecency() end, { desc = "Frecency" })
+    vim.keymap.set("n", "<leader>fl", function() require('telescope').extensions.lazy.lazy() end, { desc = "Lazy Plugins" })
   end,
 }

@@ -4,6 +4,7 @@ return {
       vim = "",       -- Vim 图标
       clock = "",      -- 时钟图标
       branch = "",     -- Git分支图标
+      lsp = "",
     },
     kinds = {          -- LSP 符号类型图标
       Array = "",
