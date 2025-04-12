@@ -47,7 +47,7 @@ require("lazy").setup({
 
     -- Core UI components
     { import = "plugins.UI.alpha" },      -- Dashboard
-    { import = "plugins.UI.lualine" },    -- Statusline and tabline
+    { import = "plugins.UI.heirline" },    -- Statusline and tabline
     { import = "plugins.UI.nvimtree" },   -- File tree
     { import = "plugins.UI.rainbow" },    -- Rainbow brackets
     { import = "plugins.UI.aerial" },     -- Code outline
@@ -68,7 +68,7 @@ require("lazy").setup({
   },
   -- Configure Lazy.nvim settings
   install = { colorscheme = { "habamax" } }, -- Colorscheme for plugin installation
-  checker = { enabled = true },              -- Automatically check for updates
+  checker = { enabled = true,notify = false },              -- Automatically check for updates
   performance = {
     rtp = {
       disabled_plugins = {

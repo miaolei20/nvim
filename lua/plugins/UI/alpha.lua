@@ -86,14 +86,20 @@ return {
         end,
       })
 
-      -- Tabline toggle
+      -- Tabline, Statusline, and Winbar toggle for Alpha
       vim.api.nvim_create_autocmd("User", {
         pattern = "AlphaReady",
-        callback = function() vim.opt.showtabline = 0 end,
+        callback = function()
+          vim.opt.showtabline = 0 -- 隐藏标签栏
+          vim.opt.laststatus = 0 -- 隐藏状态栏
+        end,
       })
       vim.api.nvim_create_autocmd("BufUnload", {
         buffer = 0,
-        callback = function() vim.opt.showtabline = 2 end,
+        callback = function()
+          vim.opt.showtabline = 2 -- 显示标签栏
+          vim.opt.laststatus = 2 -- 显示状态栏
+        end,
       })
     end,
   },

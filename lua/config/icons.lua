@@ -5,6 +5,7 @@ return {
       clock = "",      -- 时钟图标
       branch = "",     -- Git分支图标
       lsp = "",
+      ui = { close = "✗", separator = "│" },
     },
     kinds = {          -- LSP 符号类型图标
       Array = "",
