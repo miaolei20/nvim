@@ -44,30 +44,30 @@ return {
       }
 
       ------------------------------------------------------------------------------
-      -- Icons (Minimal, modern set)
+      -- Icons (Simpler, modern set)
       ------------------------------------------------------------------------------
       local icons = {
-        mode = "󰀘",          -- Sleek mode indicator
-        folder = "󰉋",       -- Modern folder icon
-        file = "󰈔",         -- Default file icon
-        branch = "󰊢",       -- Minimal Git branch
-        lsp = "󰒋",          -- Modern LSP icon
-        clock = "󰥔",        -- Clean clock icon
-        encoding = "󰉢",     -- Encoding icon
-        format = "󰉢",       -- Format icon
+        mode = "󰣇",          -- Minimal mode indicator
+        folder = "󰉓",       -- Simpler folder icon
+        file = "󰈤",         -- Clean file icon
+        branch = "󰜘",       -- Modern Git branch
+        lsp = "󰧑",          -- Sleek LSP icon
+        clock = "󰔛",        -- Minimal clock
+        encoding = "󰬴",     -- Clean encoding icon
+        format = "󰬴",       -- Same for format
         modified = "●",      -- Simple modified dot
-        separator = "│",     -- Sleek separator
-        close = "󰅖",        -- Clean close icon
+        separator = "│",     -- Thin separator
+        close = "󰅜",        -- Ultra-clean close
         git = {
-          added = "󰐕",     -- Modern Git added
-          modified = "󰐖",  -- Modern Git modified
-          removed = "󰐓",   -- Modern Git removed
+          added = "+",      -- Simple Git added
+          modified = "~",   -- Simple Git modified
+          removed = "-",    -- Simple Git removed
         },
         diagnostics = {
-          error = "󰅚",    -- Clean error icon
-          warn = "󰀪",     -- Clean warning icon
-          info = "󰋽",     -- Clean info icon
-          hint = "󰌶",     -- Clean hint icon
+          error = "󰅙",    -- Minimal error
+          warn = "󰀦",     -- Minimal warning
+          info = "󰋼",     -- Minimal info
+          hint = "󰌵",     -- Minimal hint
         },
       }
 
@@ -79,7 +79,7 @@ return {
       hl(0, "HeirlineDarkBackground", { bg = colors.dark_bg, fg = colors.gray })
       hl(0, "HeirlineLightBackground", { bg = colors.light_bg, fg = colors.fg })
       hl(0, "HeirlineTabLine", { bg = colors.dark_bg, fg = colors.gray })
-      hl(0, "HeirlineTabLineSel", { bg = colors.accent, fg = colors.dark_bg, bold = true })
+      hl(0, "HeirlineTabLineSel", { bg = colors.accent, fg = colors.black, bold = true })
       hl(0, "HeirlineWinBar", { bg = colors.bg, fg = colors.fg })
       hl(0, "HeirlineSeparator", { fg = colors.gray, bg = colors.light_bg })
       hl(0, "HeirlineAccent", { fg = colors.dark_bg, bg = colors.accent, bold = true })
@@ -118,7 +118,7 @@ return {
       end
 
       ------------------------------------------------------------------------------
-      -- Mode Component
+      -- Mode Component (Full names)
       ------------------------------------------------------------------------------
       local Mode = {
         init = function(self)
@@ -132,9 +132,9 @@ return {
         end,
         static = {
           mode_names = {
-            n = "NORM", i = "INS", v = "VIS", V = "V-LN", ["\22"] = "V-BL",
-            c = "CMD", s = "SEL", S = "S-LN", ["\19"] = "S-BL",
-            R = "RPL", r = "RPL", ["!"] = "SHL", t = "TRM",
+            n = "NORMAL", i = "INSERT", v = "VISUAL", V = "VISUAL LINE", ["\22"] = "VISUAL BLOCK",
+            c = "COMMAND", s = "SELECT", S = "SELECT LINE", ["\19"] = "SELECT BLOCK",
+            R = "REPLACE", r = "REPLACE", ["!"] = "SHELL", t = "TERMINAL",
           },
         },
         provider = function(self)
@@ -195,7 +195,7 @@ return {
       }
 
       ------------------------------------------------------------------------------
-      -- Git Diff
+      -- Git Diff (Enhanced to show changes)
       ------------------------------------------------------------------------------
       local GitDiff = {
         condition = conditions.is_git_repo,
@@ -204,13 +204,19 @@ return {
         end,
         provider = function(self)
           local parts = {}
-          if self.status.added > 0 then table.insert(parts, icons.git.added .. self.status.added) end
-          if self.status.changed > 0 then table.insert(parts, icons.git.modified .. self.status.changed) end
-          if self.status.removed > 0 then table.insert(parts, icons.git.removed .. self.status.removed) end
+          if self.status.added > 0 then
+            table.insert(parts, icons.git.added .. self.status.added)
+          end
+          if self.status.changed > 0 then
+            table.insert(parts, icons.git.modified .. self.status.changed)
+          end
+          if self.status.removed > 0 then
+            table.insert(parts, icons.git.removed .. self.status.removed)
+          end
           return #parts > 0 and table.concat(parts, " ") .. " " or ""
         end,
         hl = { fg = colors.yellow, bg = colors.light_bg },
-        update = { "User", pattern = "GitSignsChanged" },
+        update = { "User", pattern = "GitSignsChanged", "BufEnter" },
       }
 
       ------------------------------------------------------------------------------
@@ -312,7 +318,7 @@ return {
           end,
           hl = function(self)
             local base_hl = self.is_active and "HeirlineTabLineSel" or "HeirlineTabLine"
-            return { fg = self.icon_color, bg = vim.api.nvim_get_hl_by_name(base_hl, true).background }
+            return { fg = self.is_active and self.icon_color or colors.gray, bg = vim.api.nvim_get_hl_by_name(base_hl, true).background }
           end,
         },
         {
@@ -327,7 +333,7 @@ return {
             name = function(self) return "close_buf_" .. self.bufnr end,
           },
         },
-        update = { "BufEnter", "BufModifiedSet" },
+        update = { "BufEnter", "BufModifiedSet", "BufDelete", "BufWipeout" },
         on_click = {
           callback = function(self)
             if vim.api.nvim_buf_is_valid(self.bufnr) then
@@ -341,7 +347,7 @@ return {
       local Buffers = {
         condition = function()
           return #vim.tbl_filter(function(buf)
-            return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
+            return vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
           end, vim.api.nvim_list_bufs()) > 1
         end,
         utils.make_buflist(BufferComponent),
@@ -361,7 +367,13 @@ return {
         },
         {
           provider = function(self) return "Tab " .. vim.api.nvim_tabpage_get_number(self.tabpage) .. " " end,
-          hl = function(self) return self.is_active and "HeirlineTabLineSel" or "HeirlineTabLine" end,
+          hl = function(self)
+            return {
+              fg = self.is_active and colors.black or colors.gray,
+              bg = self.is_active and colors.accent or colors.dark_bg,
+              bold = self.is_active,
+            }
+          end,
         },
         {
           provider = icons.close,
