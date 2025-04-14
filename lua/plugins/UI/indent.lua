@@ -1,44 +1,36 @@
 return {
   {
     "lukas-reineke/indent-blankline.nvim",
-    event = { "BufReadPost", "BufNewFile" }, -- 在读取或新建文件时加载
+    event = { "BufReadPost", "BufNewFile" }, -- 延迟加载
     main = "ibl",
-    opts = function()
-      return {
-        indent = {
-          char = "┆", -- VSCode 风格的细虚线
-          highlight = "IblIndent", -- 使用自定义高亮组
-        },
-        scope = {
-          enabled = false, -- 禁用范围显示，与 VSCode 一致
-        },
-        exclude = {
-          filetypes = { "help", "dashboard", "neo-tree", "Trouble", "lazy", "terminal" }, -- 排除无关文件类型
-        },
-      }
-    end,
+    opts = {
+      indent = {
+        char = "┆", -- VSCode 风格细虚线
+        highlight = "IblIndent",
+      },
+      scope = { enabled = false }, -- 禁用范围显示，模仿 VSCode
+      exclude = {
+        filetypes = { "help", "dashboard", "neo-tree", "Trouble", "lazy", "terminal" },
+      },
+    },
     config = function(_, opts)
-      local ibl = require("ibl")
-      local api = vim.api
-
-      -- 定义高亮组，模仿 VSCode 的浅灰色缩进线
-      local function set_indent_highlight()
-        local colors = require("onedarkpro.helpers").get_colors()
-        api.nvim_set_hl(0, "IblIndent", {
-          fg = colors.gray or colors.comment, -- 使用灰色或注释颜色
-          nocombine = true, -- 避免颜色叠加
+      -- 定义高亮组，模仿 VSCode 浅灰色缩进线
+      local set_highlight = function()
+        local colors = vim.api.nvim_get_hl(0, { name = "Comment" }) -- 默认使用 Comment 颜色
+        vim.api.nvim_set_hl(0, "IblIndent", {
+          fg = colors.fg or "#4B5263", -- 回退到 VSCode 常见灰色
+          nocombine = true,
         })
       end
 
-      -- 初始化高亮并设置配置
-      set_indent_highlight()
-      ibl.setup(opts)
+      set_highlight()
+      require("ibl").setup(opts)
 
-      -- 自适应颜色更新（仅在必要时触发）
-      api.nvim_create_autocmd("ColorScheme", {
-        group = api.nvim_create_augroup("IndentBlanklineColors", { clear = true }),
-        callback = set_indent_highlight,
-        desc = "Update IblIndent highlight on colorscheme change",
+      -- 主题切换时更新高亮
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        group = vim.api.nvim_create_augroup("IndentBlanklineColors", { clear = true }),
+        callback = set_highlight,
+        desc = "Update indent highlight",
       })
     end,
   },

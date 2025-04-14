@@ -1,17 +1,14 @@
 return {
   {
     "saghen/blink.cmp",
-    event = { "InsertEnter", "CmdlineEnter" }, -- 延迟加载，提升启动性能
+    event = { "InsertEnter", "CmdlineEnter" }, -- 延迟加载以提升启动性能
     version = "v1.*", -- 使用预构建二进制
-    dependencies = {
-      "rafamadriz/friendly-snippets",
-    },
+    dependencies = { "rafamadriz/friendly-snippets" },
     opts = function()
-      -- 构建默认的 sources 列表，只有在 lazydev 模块存在时才加入 lazydev
-      local default_sources = { "lsp", "path", "snippets", "buffer" }
-      local lazydev_ok, _ = pcall(require, "lazydev")
-      if lazydev_ok then
-        table.insert(default_sources, "lazydev")
+      -- 动态添加 lazydev 源
+      local sources = { "lsp", "path", "snippets", "buffer" }
+      if pcall(require, "lazydev") then
+        table.insert(sources, "lazydev")
       end
 
       return {
@@ -46,9 +43,7 @@ return {
           ["<C-D>"] = { "scroll_documentation_down", "fallback" },
           ["<C-E>"] = { "hide", "fallback" },
         },
-        sources = {
-          default = default_sources,
-        },
+        sources = { default = sources },
         completion = {
           ghost_text = { enabled = true },
           menu = {
@@ -77,9 +72,7 @@ return {
             TypeParameter = "󰊄",
           },
         },
-        fuzzy = {
-          implementation = "prefer_rust",
-        },
+        fuzzy = { implementation = "prefer_rust" },
       }
     end,
   },

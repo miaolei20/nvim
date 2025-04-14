@@ -3,7 +3,7 @@ return {
     "kyazdani42/nvim-web-devicons",
     lazy = false,
     config = function()
-      require("nvim-web-devicons").setup() -- Ensure icons are loaded early
+      require("nvim-web-devicons").setup({ default = true })
     end,
   },
   {
@@ -16,73 +16,63 @@ return {
       local utils = require("heirline.utils")
       local devicons = require("nvim-web-devicons")
 
-      -- Force tabline to always show
+      -- UI settings
       vim.opt.showtabline = 2
-      -- Hide command line and suppress all related UI elements
-      vim.opt.cmdheight = 0 -- Hide command line
-      vim.opt.showcmd = false -- Disable partial commands display
-      vim.opt.ruler = false -- Disable ruler
-      vim.opt.showmode = false -- Disable mode display (handled by Statusline)
+      vim.opt.cmdheight = 0
+      vim.opt.showcmd = false
+      vim.opt.ruler = false
+      vim.opt.showmode = false
 
       ------------------------------------------------------------------------------
-      -- Colors (AstroNvim-inspired palette)
+      -- Colors (Modern IDE-inspired palette)
       ------------------------------------------------------------------------------
       local colors = require("onedarkpro.helpers").get_colors() or {
-        bg = "#1e222a",           -- Dark background
-        fg = "#abb2bf",           -- Light foreground
-        black = "#000000",        -- Black for mode text
-        blue = "#61afef",         -- Normal mode, active elements
-        green = "#98c379",        -- Insert mode, Git added
-        purple = "#c678dd",       -- Visual mode, LSP
-        yellow = "#e5c07b",       -- Command mode, warnings, time
-        orange = "#d19a66",       -- Select mode
-        red = "#e06c75",          -- Replace mode, errors
-        gray = "#5c6370",         -- Inactive elements
-        dark_bg = "#181c24",      -- Darker background for contrast
-        light_bg = "#2a2e38",     -- Lighter background for components
-        accent = "#56b6c2",       -- Cyan accent for active elements
-        soft_accent = "#7dcfff",  -- Softer cyan for secondary highlights
+        bg = "#1e222a",
+        fg = "#abb2bf",
+        black = "#000000",
+        blue = "#61afef",
+        green = "#98c379",
+        purple = "#c678dd",
+        yellow = "#e5c07b",
+        orange = "#d19a66",
+        red = "#e06c75",
+        gray = "#5c6370",
+        dark_bg = "#181c24",
+        light_bg = "#2a2e38",
+        accent = "#56b6c2",
+        soft_accent = "#7dcfff",
       }
 
       ------------------------------------------------------------------------------
-      -- Icons (Ultra-modern set with AstroNvim inspiration)
+      -- Icons (Minimal, modern set)
       ------------------------------------------------------------------------------
       local icons = {
-        misc = {
-          lsp = "󱘖",           -- Ultra-modern LSP icon
-          vim = "󱕃",           -- Ultra-modern Vim icon
-          branch = "󰙅",       -- Ultra-modern Git branch icon
-          default = "󰈙",      -- Ultra-modern default file icon
-          clock = "󱑂",        -- Ultra-modern clock icon
-          encoding = "󱎸",    -- Ultra-modern encoding icon
-          format = "󱎘",      -- Ultra-modern file format icon
-          modified = "󱇨",    -- Ultra-modern modified indicator
-          -- Bottle icons for different water levels
-          bottle_empty = "󱔕", -- Empty bottle (0–10%)
-          bottle_low = "󱔓",   -- Low water (10–30%)
-          bottle_mid = "󱔔",   -- Medium water (30–70%)
-          bottle_high = "󱔒",  -- High water (70–90%)
-          bottle_full = "󱔑",  -- Full bottle (90–100%)
-        },
+        mode = "󰀘",          -- Sleek mode indicator
+        folder = "󰉋",       -- Modern folder icon
+        file = "󰈔",         -- Default file icon
+        branch = "󰊢",       -- Minimal Git branch
+        lsp = "󰒋",          -- Modern LSP icon
+        clock = "󰥔",        -- Clean clock icon
+        encoding = "󰉢",     -- Encoding icon
+        format = "󰉢",       -- Format icon
+        modified = "●",      -- Simple modified dot
+        separator = "│",     -- Sleek separator
+        close = "󰅖",        -- Clean close icon
         git = {
-          added = "󱓞",       -- Ultra-modern Git added icon
-          modified = "󱓟",    -- Ultra-modern Git modified icon
-          removed = "󱓜",     -- Ultra-modern Git removed icon
+          added = "󰐕",     -- Modern Git added
+          modified = "󰐖",  -- Modern Git modified
+          removed = "󰐓",   -- Modern Git removed
         },
         diagnostics = {
-          Error = "󱓤",      -- Ultra-modern error icon
-          Warn = "󱓦",       -- Ultra-modern warning icon
-          Info = "󱓥",       -- Ultra-modern info icon
-          Hint = "󱓣",       -- Ultra-modern hint icon
-        },
-        ui = {
-          close = "󱎘",      -- Ultra-modern close icon
-          separator = "┋",   -- Ultra-modern, sleek separator
+          error = "󰅚",    -- Clean error icon
+          warn = "󰀪",     -- Clean warning icon
+          info = "󰋽",     -- Clean info icon
+          hint = "󰌶",     -- Clean hint icon
         },
       }
 
       ------------------------------------------------------------------------------
-      -- Highlight Groups (AstroNvim style)
+      -- Highlight Groups
       ------------------------------------------------------------------------------
       local hl = vim.api.nvim_set_hl
       hl(0, "HeirlineBackground", { bg = colors.bg, fg = colors.fg })
@@ -93,16 +83,16 @@ return {
       hl(0, "HeirlineWinBar", { bg = colors.bg, fg = colors.fg })
       hl(0, "HeirlineSeparator", { fg = colors.gray, bg = colors.light_bg })
       hl(0, "HeirlineAccent", { fg = colors.dark_bg, bg = colors.accent, bold = true })
-      hl(0, "HeirlineSoftAccent", { fg = colors.dark_bg, bg = colors.soft_accent, bold = true })
-      hl(0, "HeirlineCloseButton", { fg = colors.red, bg = nil })
+      hl(0, "HeirlineSoftAccent", { fg = colors.dark_bg, bg = colors.soft_accent })
+      hl(0, "HeirlineCloseButton", { fg = colors.red, bg = colors.dark_bg })
 
       ------------------------------------------------------------------------------
-      -- Utility Components
+      -- Utilities
       ------------------------------------------------------------------------------
       local Space = { provider = " " }
       local Align = { provider = "%=" }
 
-      -- Cached icon retrieval for performance
+      -- Optimized icon cache
       local icon_cache = {}
       local function get_icon(filename, filetype, opts)
         local key = (filename or "") .. (filetype or "") .. (opts and opts.default and "default" or "")
@@ -110,14 +100,21 @@ return {
           return icon_cache[key].icon, icon_cache[key].color
         end
         local icon, hl = devicons.get_icon(filename, filetype, opts)
-        if not icon then
-          icon = icons.misc.default
-          hl = "HeirlineLightBackground"
-        end
-        local hl_group = vim.api.nvim_get_hl_by_name(hl, true)
+        icon = icon or icons.file
+        local hl_group = vim.api.nvim_get_hl_by_name(hl or "HeirlineLightBackground", true)
         local icon_color = hl_group.foreground and string.format("#%06x", hl_group.foreground) or colors.fg
         icon_cache[key] = { icon = icon, color = icon_color }
         return icon, icon_color
+      end
+
+      -- Modern path shortening (IDE-like)
+      local function shorten_path(path)
+        if path == "" then return "" end
+        local home = vim.fn.expand("~")
+        path = path:gsub("^" .. home, "~")
+        local parts = vim.split(path, "/")
+        if #parts <= 3 then return path end
+        return table.concat({ parts[1], "…", parts[#parts - 1], parts[#parts] }, "/")
       end
 
       ------------------------------------------------------------------------------
@@ -135,13 +132,13 @@ return {
         end,
         static = {
           mode_names = {
-            n = "NORMAL", i = "INSERT", v = "VISUAL", V = "V-LINE", ["\22"] = "V-BLOCK",
-            c = "COMMAND", s = "SELECT", S = "S-LINE", ["\19"] = "S-BLOCK",
-            R = "REPLACE", r = "REPLACE", ["!"] = "SHELL", t = "TERMINAL",
+            n = "NORM", i = "INS", v = "VIS", V = "V-LN", ["\22"] = "V-BL",
+            c = "CMD", s = "SEL", S = "S-LN", ["\19"] = "S-BL",
+            R = "RPL", r = "RPL", ["!"] = "SHL", t = "TRM",
           },
         },
         provider = function(self)
-          return " " .. icons.misc.vim .. " " .. self.mode_names[self.mode] .. " "
+          return icons.mode .. " " .. self.mode_names[self.mode] .. " "
         end,
         hl = function(self) return { fg = colors.black, bg = self.mode_color, bold = true } end,
         update = { "ModeChanged", pattern = "*:*" },
@@ -153,58 +150,52 @@ return {
       local GitBranch = {
         condition = conditions.is_git_repo,
         init = function(self)
-          self.status = vim.b.gitsigns_status_dict or { head = "unknown" }
+          self.status = vim.b.gitsigns_status_dict or { head = "" }
         end,
         provider = function(self)
-          return " " .. icons.misc.branch .. " " .. self.status.head .. " "
+          return icons.branch .. " " .. (self.status.head ~= "" and self.status.head or "none") .. " "
         end,
         hl = { fg = colors.green, bg = colors.light_bg },
         update = { "User", pattern = "GitSignsChanged" },
       }
 
       ------------------------------------------------------------------------------
-      -- File Name Component (Statusline)
+      -- File Name Component
       ------------------------------------------------------------------------------
       local FileName = {
         provider = function()
           local name = vim.fn.expand("%:t")
-          return " " .. (name ~= "" and name or "[No Name]") .. " "
+          return (name ~= "" and name or "[No Name]") .. " "
         end,
         hl = { fg = colors.fg, bg = colors.light_bg, bold = true },
         update = { "BufEnter", "BufModifiedSet" },
       }
 
       ------------------------------------------------------------------------------
-      -- Modified Indicator Component
+      -- Modified Indicator
       ------------------------------------------------------------------------------
       local ModifiedIndicator = {
         condition = function() return vim.bo.modified end,
-        provider = function() return " " .. icons.misc.modified .. " " end,
+        provider = icons.modified .. " ",
         hl = { fg = colors.orange, bg = colors.light_bg },
         update = { "BufModifiedSet" },
       }
 
       ------------------------------------------------------------------------------
-      -- LSP Clients Component
+      -- LSP Clients
       ------------------------------------------------------------------------------
       local LSPClients = {
         condition = function() return next(vim.lsp.get_clients({ bufnr = 0 })) ~= nil end,
-        init = function(self)
-          local clients = vim.lsp.get_clients({ bufnr = 0 })
-          self.names = {}
-          for _, client in ipairs(clients) do
-            if client.name then table.insert(self.names, client.name) end
-          end
-        end,
-        provider = function(self)
-          return " " .. icons.misc.lsp .. " " .. (#self.names > 0 and table.concat(self.names, ", ") or "None") .. " "
+        provider = function()
+          local names = vim.tbl_map(function(c) return c.name end, vim.lsp.get_clients({ bufnr = 0 }))
+          return icons.lsp .. " " .. (#names > 0 and table.concat(names, ", ") or "None") .. " "
         end,
         hl = { fg = colors.purple, bg = colors.light_bg },
         update = { "LspAttach", "LspDetach", "BufEnter" },
       }
 
       ------------------------------------------------------------------------------
-      -- Git Diff Component
+      -- Git Diff
       ------------------------------------------------------------------------------
       local GitDiff = {
         condition = conditions.is_git_repo,
@@ -216,27 +207,19 @@ return {
           if self.status.added > 0 then table.insert(parts, icons.git.added .. self.status.added) end
           if self.status.changed > 0 then table.insert(parts, icons.git.modified .. self.status.changed) end
           if self.status.removed > 0 then table.insert(parts, icons.git.removed .. self.status.removed) end
-          return #parts > 0 and " " .. table.concat(parts, " ") .. " " or ""
+          return #parts > 0 and table.concat(parts, " ") .. " " or ""
         end,
-        hl = function(self)
-          local fg = self.status.added > 0 and colors.green or
-                    self.status.changed > 0 and colors.yellow or
-                    self.status.removed > 0 and colors.red or colors.fg
-          return { fg = fg, bg = colors.light_bg }
-        end,
+        hl = { fg = colors.yellow, bg = colors.light_bg },
         update = { "User", pattern = "GitSignsChanged" },
       }
 
       ------------------------------------------------------------------------------
-      -- Diagnostics Component
+      -- Diagnostics
       ------------------------------------------------------------------------------
       local Diagnostics = {
         condition = conditions.has_diagnostics,
         static = {
-          error_icon = icons.diagnostics.Error,
-          warn_icon = icons.diagnostics.Warn,
-          info_icon = icons.diagnostics.Info,
-          hint_icon = icons.diagnostics.Hint,
+          icons = icons.diagnostics,
         },
         init = function(self)
           self.errors = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
@@ -246,24 +229,26 @@ return {
         end,
         provider = function(self)
           local parts = {}
-          if self.errors > 0 then table.insert(parts, self.error_icon .. self.errors) end
-          if self.warnings > 0 then table.insert(parts, self.warn_icon .. self.warnings) end
-          if self.info > 0 then table.insert(parts, self.info_icon .. self.info) end
-          if self.hints > 0 then table.insert(parts, self.hint_icon .. self.hints) end
-          return #parts > 0 and " " .. table.concat(parts, " ") .. " " or ""
+          if self.errors > 0 then table.insert(parts, self.icons.error .. self.errors) end
+          if self.warnings > 0 then table.insert(parts, self.icons.warn .. self.warnings) end
+          if self.info > 0 then table.insert(parts, self.icons.info .. self.info) end
+          if self.hints > 0 then table.insert(parts, self.icons.hint .. self.hints) end
+          return #parts > 0 and table.concat(parts, " ") .. " " or ""
         end,
         hl = function(self)
-          local fg = self.errors > 0 and colors.red or
-                    self.warnings > 0 and colors.yellow or
-                    self.info > 0 and colors.blue or
-                    colors.green
-          return { fg = fg, bg = colors.light_bg }
+          return {
+            fg = self.errors > 0 and colors.red or
+                 self.warnings > 0 and colors.yellow or
+                 self.info > 0 and colors.blue or
+                 colors.green,
+            bg = colors.light_bg,
+          }
         end,
         update = { "DiagnosticChanged", "BufEnter" },
       }
 
       ------------------------------------------------------------------------------
-      -- File Type Component (Statusline)
+      -- File Type
       ------------------------------------------------------------------------------
       local FileType = {
         init = function(self)
@@ -271,53 +256,36 @@ return {
           self.icon, self.icon_color = get_icon(nil, self.filetype, { default = true })
         end,
         provider = function(self)
-          return " " .. self.icon .. " " .. (self.filetype ~= "" and self.filetype or "none") .. " "
+          return self.icon .. " " .. (self.filetype ~= "" and self.filetype or "none") .. " "
         end,
         hl = function(self) return { fg = self.icon_color, bg = colors.light_bg } end,
         update = { "BufEnter", "OptionSet", pattern = "filetype" },
       }
 
       ------------------------------------------------------------------------------
-      -- File Encoding Component
+      -- File Encoding
       ------------------------------------------------------------------------------
       local FileEncoding = {
-        provider = function() return " " .. icons.misc.encoding .. " " .. (vim.bo.fileencoding or "utf-8") .. " " end,
+        provider = function() return icons.encoding .. " " .. (vim.bo.fileencoding or "utf-8") .. " " end,
         hl = { fg = colors.blue, bg = colors.light_bg },
         update = { "BufEnter", "OptionSet", pattern = "fileencoding" },
       }
 
       ------------------------------------------------------------------------------
-      -- File Format Component
+      -- File Format
       ------------------------------------------------------------------------------
       local FileFormat = {
-        provider = function() return " " .. icons.misc.format .. " " .. vim.bo.fileformat .. " " end,
+        provider = function() return icons.format .. " " .. vim.bo.fileformat .. " " end,
         hl = { fg = colors.green, bg = colors.light_bg },
         update = { "BufEnter", "OptionSet", pattern = "fileformat" },
       }
 
       ------------------------------------------------------------------------------
-      -- Location Component (Bottle-and-Water Metaphor)
+      -- Location
       ------------------------------------------------------------------------------
       local Location = {
-        init = function(self)
-          local line = vim.fn.line(".")
-          local total_lines = vim.fn.line("$")
-          local position = total_lines > 0 and (line / total_lines) or 0
-          -- Determine the bottle icon based on the cursor's relative position
-          if position <= 0.1 then
-            self.bottle_icon = icons.misc.bottle_empty -- Empty (0–10%)
-          elseif position <= 0.3 then
-            self.bottle_icon = icons.misc.bottle_low   -- Low (10–30%)
-          elseif position <= 0.7 then
-            self.bottle_icon = icons.misc.bottle_mid   -- Medium (30–70%)
-          elseif position <= 0.9 then
-            self.bottle_icon = icons.misc.bottle_high  -- High (70–90%)
-          else
-            self.bottle_icon = icons.misc.bottle_full  -- Full (90–100%)
-          end
-        end,
-        provider = function(self)
-          return " " .. self.bottle_icon .. " " .. vim.fn.line(".") .. ":" .. vim.fn.col(".") .. " "
+        provider = function()
+          return "Ln " .. vim.fn.line(".") .. ", Col " .. vim.fn.col(".") .. " "
         end,
         hl = { fg = colors.dark_bg, bg = colors.soft_accent },
         update = { "CursorMoved", "CursorMovedI", "BufEnter" },
@@ -330,17 +298,17 @@ return {
         init = function(self)
           self.bufnr = self.bufnr or vim.api.nvim_get_current_buf()
           self.filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.bufnr), ":t")
-          self.modified = vim.bo[self.bufnr].modified and "[+]" or ""
+          self.modified = vim.bo[self.bufnr].modified and icons.modified or ""
           self.is_active = vim.api.nvim_get_current_buf() == self.bufnr
           self.icon, self.icon_color = get_icon(self.filename, nil, { default = true })
         end,
         {
-          provider = icons.ui.separator,
+          provider = icons.separator,
           hl = function(self) return { fg = self.is_active and colors.accent or colors.gray, bg = colors.bg } end,
         },
         {
           provider = function(self)
-            return " " .. self.icon .. " " .. (self.filename ~= "" and self.filename or "[No Name]") .. self.modified .. " "
+            return self.icon .. " " .. (self.filename ~= "" and self.filename or "[No Name]") .. self.modified .. " "
           end,
           hl = function(self)
             local base_hl = self.is_active and "HeirlineTabLineSel" or "HeirlineTabLine"
@@ -348,7 +316,7 @@ return {
           end,
         },
         {
-          provider = icons.ui.close,
+          provider = icons.close,
           hl = function(self) return { fg = colors.red, bg = self.is_active and colors.accent or colors.dark_bg } end,
           on_click = {
             callback = function(self)
@@ -380,7 +348,7 @@ return {
       }
 
       ------------------------------------------------------------------------------
-      -- Tab Component (Tabline)
+      -- Tab Component
       ------------------------------------------------------------------------------
       local TabComponent = {
         init = function(self)
@@ -388,15 +356,15 @@ return {
           self.is_active = self.tabpage == vim.api.nvim_get_current_tabpage()
         end,
         {
-          provider = icons.ui.separator,
+          provider = icons.separator,
           hl = function(self) return { fg = self.is_active and colors.accent or colors.gray, bg = colors.bg } end,
         },
         {
-          provider = function(self) return " " .. vim.api.nvim_tabpage_get_number(self.tabpage) .. " " end,
+          provider = function(self) return "Tab " .. vim.api.nvim_tabpage_get_number(self.tabpage) .. " " end,
           hl = function(self) return self.is_active and "HeirlineTabLineSel" or "HeirlineTabLine" end,
         },
         {
-          provider = icons.ui.close,
+          provider = icons.close,
           hl = function(self) return { fg = colors.red, bg = self.is_active and colors.accent or colors.dark_bg } end,
           on_click = { callback = function() vim.cmd.tabclose() end, name = "tab_close" },
         },
@@ -418,26 +386,26 @@ return {
 
       local TabClose = {
         condition = function() return #vim.api.nvim_list_tabpages() > 1 end,
-        provider = " " .. icons.ui.close .. " ",
+        provider = icons.close .. " ",
         hl = { fg = colors.red, bg = colors.dark_bg },
         on_click = { callback = function() vim.cmd.tabclose() end, name = "tab_close" },
       }
 
       ------------------------------------------------------------------------------
-      -- Winbar File Path Component
+      -- Winbar File Path (IDE-like)
       ------------------------------------------------------------------------------
       local WinBarFilePath = {
         init = function(self)
           self.bufnr = vim.api.nvim_get_current_buf()
           local full_path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.bufnr), ":~:.")
-          self.filepath = vim.fn.pathshorten(full_path)
+          self.filepath = shorten_path(full_path)
           self.filename = vim.fn.fnamemodify(full_path, ":t")
           self.icon, self.icon_color = get_icon(self.filename, nil, { default = true })
         end,
         provider = function(self)
-          return " " .. self.icon .. " " .. (self.filepath ~= "" and self.filepath or "[No Name]") .. " "
+          return icons.folder .. " " .. (self.filepath ~= "" and self.filepath or "[No Name]") .. " "
         end,
-        hl = function(self) return { fg = self.icon_color, bg = colors.light_bg, italic = true } end,
+        hl = function(self) return { fg = self.icon_color, bg = colors.bg, italic = true } end,
         update = { "BufEnter", "BufModifiedSet", "DirChanged" },
         on_click = {
           callback = function(self)
@@ -450,29 +418,26 @@ return {
       }
 
       ------------------------------------------------------------------------------
-      -- Winbar Time Component
+      -- Winbar Time
       ------------------------------------------------------------------------------
       local WinBarTime = {
-        provider = function() return " " .. icons.misc.clock .. " " .. os.date("%H:%M") .. " " end,
-        hl = { fg = colors.yellow, bg = colors.light_bg },
+        provider = function() return icons.clock .. " " .. os.date("%H:%M") .. " " end,
+        hl = { fg = colors.yellow, bg = colors.bg },
         update = { "User", pattern = "HeirlineTimer" },
       }
 
-      -- Timer to update time every 15 minutes
+      -- Update time every 15 minutes
       vim.fn.timer_start(900000, function()
         vim.api.nvim_exec_autocmds("User", { pattern = "HeirlineTimer" })
       end, { ["repeat"] = -1 })
 
       ------------------------------------------------------------------------------
-      -- Winbar Diagnostics Component
+      -- Winbar Diagnostics
       ------------------------------------------------------------------------------
       local WinBarDiagnostics = {
         condition = conditions.has_diagnostics,
         static = {
-          error_icon = icons.diagnostics.Error,
-          warn_icon = icons.diagnostics.Warn,
-          info_icon = icons.diagnostics.Info,
-          hint_icon = icons.diagnostics.Hint,
+          icons = icons.diagnostics,
         },
         init = function(self)
           self.bufnr = vim.api.nvim_get_current_buf()
@@ -483,18 +448,19 @@ return {
         end,
         provider = function(self)
           local parts = {}
-          if self.errors > 0 then table.insert(parts, self.error_icon .. self.errors) end
-          if self.warnings > 0 then table.insert(parts, self.warn_icon .. self.warnings) end
-          if self.info > 0 then table.insert(parts, self.info_icon .. self.info) end
-          if self.hints > 0 then table.insert(parts, self.hint_icon .. self.hints) end
+          if self.errors > 0 then table.insert(parts, self.icons.error .. self.errors) end
+          if self.warnings > 0 then table.insert(parts, self.icons.warn .. self.warnings) end
+          if self.info > 0 then table.insert(parts, self.icons.info .. self.info) end
+          if self.hints > 0 then table.insert(parts, self.icons.hint .. self.hints) end
           return #parts > 0 and table.concat(parts, " ") .. " " or ""
         end,
         hl = function(self)
-          local fg = self.errors > 0 and colors.red or
-                    self.warnings > 0 and colors.yellow or
-                    self.info > 0 and colors.blue or
-                    colors.green
-          return { fg = fg }
+          return {
+            fg = self.errors > 0 and colors.red or
+                 self.warnings > 0 and colors.yellow or
+                 self.info > 0 and colors.blue or
+                 colors.green,
+          }
         end,
         update = { "DiagnosticChanged", "BufEnter" },
       }
@@ -506,8 +472,6 @@ return {
         condition = function()
           return not vim.bo.buftype:match("^(quickfix|nofile|help|terminal|alpha)$")
         end,
-        { provider = "▎", hl = { fg = colors.accent } },
-        Space,
         WinBarFilePath,
         Align,
         WinBarDiagnostics,
@@ -524,6 +488,7 @@ return {
         Mode,
         {
           hl = { bg = colors.light_bg },
+          Space,
           GitBranch,
           FileName,
           ModifiedIndicator,
@@ -547,7 +512,6 @@ return {
       local TabLine = {
         condition = function() return not vim.bo.buftype:match("alpha") end,
         hl = { bg = colors.bg },
-        { provider = "▎", hl = { fg = colors.accent } },
         Space,
         Buffers,
         Align,
@@ -573,7 +537,7 @@ return {
         },
       })
 
-      -- Hide statusline on startup page
+      -- Hide statusline on startup
       vim.api.nvim_create_autocmd("BufEnter", {
         callback = function()
           vim.opt.laststatus = (vim.fn.bufname() == "" or vim.bo.buftype == "alpha") and 0 or 2

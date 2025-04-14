@@ -5,10 +5,20 @@ return {
     config = function()
       local notify = require("notify")
       notify.setup({
-        stages = "static",   -- 静态动画，减少动画开销
-        timeout = 200,       -- 短超时（毫秒）
-        fps = 20,            -- 降低帧率，进一步降低 CPU 占用
-        -- 其它参数均采用默认值
+        stages = "fade_in_slide_out", -- Smooth animation for better visibility
+        timeout = 3000,               -- Longer timeout to prevent quick disappearance
+        fps = 30,                     -- Balanced frame rate for smooth animations
+        max_width = 80,               -- Limit width for readability
+        max_height = 10,              -- Limit height to avoid clutter
+        background_colour = "#1e222a", -- Match Neovim background for consistency
+        render = "compact",           -- Compact style for minimal footprint
+        icons = {
+          ERROR = "",
+          WARN = "",
+          INFO = "",
+          DEBUG = "",
+          TRACE = "",
+        },
       })
       vim.notify = notify
     end,
@@ -18,34 +28,43 @@ return {
     event = "VeryLazy",
     dependencies = {
       "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",  -- 使用 nvim-notify 作为通知后端
+      "rcarriga/nvim-notify",
     },
     config = function()
       require("noice").setup({
-        throttle = 1000 / 20,  -- 限制更新频率，与 notify 保持一致
+        throttle = 1000 / 30, -- Match notify fps for consistency
         cmdline = {
           enabled = true,
           view = "cmdline_popup",
+          format = {
+            cmdline = { icon = "" },
+            search_down = { icon = " " },
+            search_up = { icon = " " },
+          },
           opts = {
             border = { style = "rounded", padding = { 0, 1 } },
             win_options = { winblend = 10 },
-            position = { row = "5%", col = "50%" },  -- 将命令栏放置在顶部中间
-            size = { width = 60, height = "auto" },
+            position = { row = "10%", col = "50%" }, -- Slightly lower for better visibility
+            size = { width = "auto", height = "auto" },
           },
         },
         messages = {
           enabled = true,
-          view = "notify",
+          view = "notify",            -- Use nvim-notify for messages
           view_error = "notify",
           view_warn = "notify",
-          view_history = "messages",
+          view_history = "messages",  -- History view for :Noice history
           view_search = "virtualtext",
         },
         popupmenu = {
-          enabled = false,  -- 禁用内置 popupmenu，减少额外开销
+          enabled = false, -- Disable to reduce overhead
+        },
+        notify = {
+          enabled = true,
+          view = "notify",
         },
         lsp = {
-          progress = { enabled = false },
+          progress = { enabled = false }, -- Disable LSP progress to reduce noise
           override = {
             ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
             ["vim.lsp.util.stylize_markdown"] = true,
@@ -62,24 +81,44 @@ return {
           message = { enabled = false },
         },
         presets = {
-          bottom_search = false,     -- 关闭底部搜索预设
-          command_palette = false,   -- 关闭命令面板预设（非必要功能）
+          bottom_search = false,
+          command_palette = false,
           long_message_to_split = true,
           inc_rename = false,
-          lsp_doc_border = false,
+          lsp_doc_border = true,
         },
         views = {
           cmdline_popup = {
             border = { style = "rounded", padding = { 0, 1 } },
             win_options = { winblend = 10 },
+            position = { row = "10%", col = "50%" },
+            size = { width = "auto", height = "auto" },
           },
           notify = {
             merge = true,
             replace = true,
+            timeout = 3000, -- Sync with nvim-notify
           },
           mini = {
-            timeout = 200,
+            timeout = 3000, -- Match notify timeout
             win_options = { winblend = 10 },
+            position = { row = "bottom", col = "right" },
+          },
+          messages = {
+            view = "split", -- Use split for history to avoid flashing
+            enter = true,
+            size = { height = "30%" },
+            position = { row = "bottom" },
+          },
+        },
+        routes = {
+          { -- Route long messages to split
+            filter = { event = "msg_show", min_height = 10 },
+            view = "split",
+          },
+          { -- Route search count to mini
+            filter = { event = "msg_show", kind = "search_count" },
+            view = "mini",
           },
         },
       })
