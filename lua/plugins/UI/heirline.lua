@@ -198,27 +198,27 @@ return {
       -- Git Diff (Enhanced to show changes)
       ------------------------------------------------------------------------------
       local GitDiff = {
-        condition = conditions.is_git_repo,
-        init = function(self)
-          self.status = vim.b.gitsigns_status_dict or { added = 0, changed = 0, removed = 0 }
-        end,
-        provider = function(self)
-          local parts = {}
-          if self.status.added > 0 then
-            table.insert(parts, icons.git.added .. self.status.added)
-          end
-          if self.status.changed > 0 then
-            table.insert(parts, icons.git.modified .. self.status.changed)
-          end
-          if self.status.removed > 0 then
-            table.insert(parts, icons.git.removed .. self.status.removed)
-          end
-          return #parts > 0 and table.concat(parts, " ") .. " " or ""
-        end,
-        hl = { fg = colors.yellow, bg = colors.light_bg },
-        update = { "User", pattern = "GitSignsChanged", "BufEnter" },
-      }
-
+  condition = conditions.is_git_repo,
+  init = function(self)
+    self.status = vim.b.gitsigns_status_dict or { added = 0, changed = 0, removed = 0 }
+  end,
+  provider = function(self)
+    local parts = {}
+    -- Use `or 0` to default to 0 if the value is nil
+    if (self.status.added or 0) > 0 then
+      table.insert(parts, icons.git.added .. (self.status.added or 0))
+    end
+    if (self.status.changed or 0) > 0 then
+      table.insert(parts, icons.git.modified .. (self.status.changed or 0))
+    end
+    if (self.status.removed or 0) > 0 then
+      table.insert(parts, icons.git.removed .. (self.status.removed or 0))
+    end
+    return #parts > 0 and table.concat(parts, " ") .. " " or ""
+  end,
+  hl = { fg = colors.yellow, bg = colors.light_bg },
+  update = { "User", pattern = "GitSignsChanged", "BufEnter" },
+}
       ------------------------------------------------------------------------------
       -- Diagnostics
       ------------------------------------------------------------------------------

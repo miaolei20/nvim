@@ -62,8 +62,10 @@ require("lazy").setup({
     -- Productivity tools
     { import = "plugins.tools.leetcode" }, -- LeetCode
     { import = "plugins.tools.which-key" }, -- Keybinding hints
-    { import = "plugins.tools.lastplace" }, -- Restore cursor position
+    { import = "plugins.tools.lastplace" }, -- Restore cursor positio
     { import = "plugins.tools.copilot" }, -- GitHub Copilot
+  { import = "plugins.tools.harpoon" },
+  { import = "plugins.tools.spectre" },
   },
   install = {
     colorscheme = { "onedark", "habamax" }, -- Prefer onedarkpro, fallback to habamax
