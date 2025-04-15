@@ -4,21 +4,22 @@ vim.g.maplocalleader = "\\" -- Backslash as localleader
 vim.g.python3_host_prog = vim.fn.executable('/usr/bin/python3') and '/usr/bin/python3' or nil -- Validate Python 3 path
 
 -- Load core configuration
-require("config.options") -- Editor options (e.g., tabstop, mouse)
-require("config.keymaps") -- Custom keymaps (e.g., <leader>ff, <C-h>)
+pcall(require, "config.options") -- Editor options (e.g., tabstop, mouse)
+pcall(require, "config.keymaps") -- Custom keymaps (e.g., <leader>ff, <C-h>)
 
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "--branch=stable",
+    "https://github.com/folke/lazy.nvim.git",
+    lazypath,
+  })
   if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
+    vim.notify("Failed to clone lazy.nvim", vim.log.levels.ERROR)
     os.exit(1)
   end
 end
@@ -28,16 +29,16 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = {
     -- Performance optimization
-    { import = "plugins.tools.impatient" }, -- Speed up startup
+    { import = "plugins.tools.impatient" }, -- Startup optimization
 
-    -- Theme and UI
-    { import = "plugins.UI.onedark" }, -- onedarkpro theme (priority)
-    { import = "plugins.UI.alpha" }, -- Dashboard
+    -- Theme and UI components
+    { import = "plugins.UI.onedark" }, -- onedarkpro theme
     { import = "plugins.UI.heirline" }, -- Statusline and tabline
+    { import = "plugins.UI.alpha" }, -- Dashboard
     { import = "plugins.UI.neotree" }, -- File explorer
+    { import = "plugins.UI.notify" }, -- Notifications
     { import = "plugins.UI.rainbow" }, -- Rainbow brackets
     { import = "plugins.UI.aerial" }, -- Code outline
-    { import = "plugins.UI.notify" }, -- Notifications
     { import = "plugins.UI.indent" }, -- Indentation guides
 
     -- Editor enhancements
@@ -47,7 +48,6 @@ require("lazy").setup({
     { import = "plugins.editor.blink" }, -- Completion engine
     { import = "plugins.editor.comment" }, -- Commenting
     { import = "plugins.editor.search" }, -- Search, gitsigns, cursors
-    { import = "plugins.editor.guess"}, -- Guess indentation
 
     -- LSP and code tools
     { import = "plugins.lsp.mason" }, -- LSP installer
@@ -55,28 +55,29 @@ require("lazy").setup({
 
     -- Navigation and search
     { import = "plugins.tools.telescope" }, -- Fuzzy finder
+    { import = "plugins.tools.harpoon" }, -- File bookmarks
+    { import = "plugins.tools.spectre" }, -- Search and replace
 
-    -- Git and debugging
-    { import = "plugins.tools.lazygit" }, -- Git integration
+    -- Git integration
+    { import = "plugins.tools.lazygit" }, -- Git UI
 
-    -- Productivity tools
-    { import = "plugins.tools.leetcode" }, -- LeetCode
+    -- Productivity and utilities
     { import = "plugins.tools.which-key" }, -- Keybinding hints
-    { import = "plugins.tools.lastplace" }, -- Restore cursor positio
+    { import = "plugins.tools.lastplace" }, -- Restore cursor position
     { import = "plugins.tools.copilot" }, -- GitHub Copilot
-  { import = "plugins.tools.harpoon" },
-  { import = "plugins.tools.spectre" },
+    { import = "plugins.tools.leetcode" }, -- LeetCode integration
   },
   install = {
     colorscheme = { "onedark", "habamax" }, -- Prefer onedarkpro, fallback to habamax
   },
   checker = {
-    enabled = true, -- Auto-check updates
+    enabled = true, -- Auto-check for updates
     notify = false, -- Silent updates
-    frequency = 86400, -- Check daily
+    frequency = 172800, -- Check every 2 days
   },
   performance = {
     cache = { enabled = true }, -- Cache for faster startup
+    reset_packpath = false, -- Optimize packpath
     rtp = {
       disabled_plugins = {
         "gzip",
@@ -88,10 +89,16 @@ require("lazy").setup({
         "tohtml",
         "tutor",
         "zipPlugin",
+        "rplugin",
+        "editorconfig",
       }, -- Disable unused built-ins
     },
   },
   ui = {
-    border = "rounded", -- Match onedarkpro’s VSCode-like style
+    border = "rounded", -- VSCode-like rounded borders
+    title = " Lazy ", -- Custom title for Lazy UI
+  },
+  diff = {
+    cmd = "diffview.nvim", -- Use diffview.nvim if installed
   },
 })
