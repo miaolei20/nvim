@@ -7,14 +7,15 @@ return {
       "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
     },
-    event = "BufEnter", -- Load when entering a buffer
-    cmd = { "Neotree" }, -- Also load on :Neotree
+    event = { "BufEnter", "VeryLazy" }, -- Load on buffer enter or lazily
+    cmd = { "Neotree" }, -- Load on :Neotree command
     opts = {
-      close_if_last_window = false, -- Keep open if last window
-      popup_border_style = "rounded", -- VSCode-like borders
-      enable_git_status = true, -- Show git status
-      enable_diagnostics = true, -- Show LSP diagnostics
-      open_files_do_not_replace_types = { "terminal", "trouble", "qf" }, -- Don’t replace special buffers
+      close_if_last_window = false, -- Keep Neo-Tree open if last window
+      popup_border_style = "rounded", -- VSCode-like rounded borders
+      enable_git_status = true, -- Enable git integration
+      enable_diagnostics = true, -- Enable LSP diagnostics
+      open_files_do_not_replace_types = { "terminal", "trouble", "qf" }, -- Avoid replacing special buffers
+      -- Default component configurations
       default_component_configs = {
         icon = {
           folder_closed = "󰉋",
@@ -36,6 +37,7 @@ return {
           },
         },
       },
+      -- Window settings
       window = {
         position = "left",
         width = 40,
@@ -44,50 +46,76 @@ return {
           nowait = true,
         },
         mappings = {
+          -- Navigation
           ["<space>"] = "toggle_node", -- Toggle directory
           ["<cr>"] = "open", -- Open file/directory
-          ["<tab>"] = "open_with_window_picker", -- Open with window picker
-          ["P"] = { "toggle_preview", config = { use_float = true } }, -- Preview file
+          ["<tab>"] = "open_with_window_picker", -- Open in selected window
+          ["H"] = "toggle_hidden", -- Toggle hidden files
+          -- File operations
           ["a"] = { "add", config = { show_path = "relative" } }, -- Create file
           ["A"] = { "add_directory", config = { show_path = "relative" } }, -- Create directory
           ["d"] = "delete", -- Delete file/directory
           ["r"] = "rename", -- Rename file/directory
+          ["c"] = "copy", -- Copy file/directory
+          ["m"] = "move", -- Move file/directory
+          -- Clipboard
           ["y"] = "copy_to_clipboard", -- Copy to clipboard
           ["x"] = "cut_to_clipboard", -- Cut to clipboard
           ["p"] = "paste_from_clipboard", -- Paste from clipboard
-          ["c"] = "copy", -- Copy file/directory
-          ["m"] = "move", -- Move file/directory
-          ["q"] = "close_window", -- Close Neo-Tree
+          -- Preview and utilities
+          ["P"] = { "toggle_preview", config = { use_float = true } }, -- Toggle preview
           ["R"] = "refresh", -- Refresh tree
+          ["q"] = "close_window", -- Close Neo-Tree
           ["?"] = "show_help", -- Show help
-          ["["] = "prev_source", -- Previous source (e.g., filesystem, git)
+          ["["] = "prev_source", -- Previous source (filesystem, git, etc.)
           ["]"] = "next_source", -- Next source
-          ["H"] = "toggle_hidden", -- Toggle hidden files
         },
       },
+      -- Filesystem settings
       filesystem = {
         filtered_items = {
-          visible = false, -- Show hidden by default
-          hide_dotfiles = false,
-          hide_gitignored = true,
-          hide_by_name = { ".git", "node_modules" },
-          never_show = { ".DS_Store" },
+          visible = false, -- Hidden files not visible by default
+          hide_dotfiles = false, -- Show dotfiles
+          hide_gitignored = true, -- Hide gitignored files
+          hide_by_name = { ".git", "node_modules" }, -- Always hide specific names
+          never_show = { ".DS_Store", "thumbs.db" }, -- Never show these files
         },
         follow_current_file = {
           enabled = true, -- Auto-focus current file
-          leave_dirs_open = false, -- Close dirs when switching
+          leave_dirs_open = false, -- Close directories when switching files
         },
-        use_libuv_file_watcher = true, -- Auto-refresh on file changes
+        use_libuv_file_watcher = true, -- Auto-refresh on filesystem changes
+        hijack_netrw_behavior = "open_default", -- Replace netrw
+      },
+      -- Event handlers for performance
+      event_handlers = {
+        {
+          event = "neo_tree_buffer_enter",
+          handler = function()
+            vim.opt_local.signcolumn = "auto" -- Dynamic signcolumn for diagnostics
+          end,
+        },
       },
     },
     config = function(_, opts)
+      -- Setup Neo-Tree with provided options
       require("neo-tree").setup(opts)
-      -- Optional: Set highlights to match onedarkpro
-      vim.api.nvim_set_hl(0, "NeoTreeNormal", { bg = "#1e222a", fg = "#abb2bf" })
-      vim.api.nvim_set_hl(0, "NeoTreeFloatBorder", { fg = "#56b6c2", bg = "#1e222a" })
-      vim.api.nvim_set_hl(0, "NeoTreeGitAdded", { fg = "#98c379" })
-      vim.api.nvim_set_hl(0, "NeoTreeGitModified", { fg = "#e5c07b" })
-      vim.api.nvim_set_hl(0, "NeoTreeGitDeleted", { fg = "#e06c75" })
+      -- Set highlights to match onedarkpro and heirline.nvim palette
+      local colors = require("onedarkpro.helpers").get_colors() or {
+        bg = "#1e222a",
+        fg = "#abb2bf",
+        green = "#98c379",
+        yellow = "#e5c07b",
+        red = "#e06c75",
+        accent = "#56b6c2",
+      }
+      vim.api.nvim_set_hl(0, "NeoTreeNormal", { bg = colors.bg, fg = colors.fg })
+      vim.api.nvim_set_hl(0, "NeoTreeFloatBorder", { fg = colors.accent, bg = colors.bg })
+      vim.api.nvim_set_hl(0, "NeoTreeGitAdded", { fg = colors.green })
+      vim.api.nvim_set_hl(0, "NeoTreeGitModified", { fg = colors.yellow })
+      vim.api.nvim_set_hl(0, "NeoTreeGitDeleted", { fg = colors.red })
+      vim.api.nvim_set_hl(0, "NeoTreeDirectoryIcon", { fg = colors.accent })
+      vim.api.nvim_set_hl(0, "NeoTreeFileIcon", { fg = colors.fg })
     end,
   },
 }

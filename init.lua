@@ -1,16 +1,18 @@
 -- Set global settings before plugins
 vim.g.mapleader = " " -- Space as leader
 vim.g.maplocalleader = "\\" -- Backslash as localleader
-vim.g.python3_host_prog = vim.fn.executable('/usr/bin/python3') and '/usr/bin/python3' or nil -- Validate Python 3 path
+vim.g.python3_host_prog = vim.fn.executable('/usr/bin/python3') and '/usr/bin/python3' or nil -- Validate Python path
 
--- Load core configuration
-pcall(require, "config.options") -- Editor options (e.g., tabstop, mouse)
-pcall(require, "config.keymaps") -- Custom keymaps (e.g., <leader>ff, <C-h>)
+-- Load core configuration with error handling
+local ok, _ = pcall(require, "config.options") -- Editor options (e.g., tabstop, mouse)
+if not ok then vim.notify("Failed to load config.options", vim.log.levels.WARN) end
+ok, _ = pcall(require, "config.keymaps") -- Custom keymaps (e.g., <leader>ff, <C-h>)
+if not ok then vim.notify("Failed to load config.keymaps", vim.log.levels.WARN) end
 
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  vim.fn.system({
+if not vim.loop.fs_stat(lazypath) then
+  local out = vim.fn.system({
     "git",
     "clone",
     "--filter=blob:none",
@@ -19,7 +21,8 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
     lazypath,
   })
   if vim.v.shell_error ~= 0 then
-    vim.notify("Failed to clone lazy.nvim", vim.log.levels.ERROR)
+    vim.notify("Failed to clone lazy.nvim:\n" .. out, vim.log.levels.ERROR)
+    vim.fn.input("Press Enter to exit...")
     os.exit(1)
   end
 end
@@ -28,10 +31,10 @@ vim.opt.rtp:prepend(lazypath)
 -- Setup lazy.nvim
 require("lazy").setup({
   spec = {
-    -- Performance optimization
+    -- Performance
     { import = "plugins.tools.impatient" }, -- Startup optimization
 
-    -- Theme and UI components
+    -- Theme and UI
     { import = "plugins.UI.onedark" }, -- onedarkpro theme
     { import = "plugins.UI.heirline" }, -- Statusline and tabline
     { import = "plugins.UI.alpha" }, -- Dashboard
@@ -44,7 +47,6 @@ require("lazy").setup({
     -- Editor enhancements
     { import = "plugins.editor.treesitter" }, -- Syntax highlighting
     { import = "plugins.editor.treesitter-context" }, -- Context-aware code
-    { import = "plugins.editor.autopairs" }, -- Auto-close brackets
     { import = "plugins.editor.blink" }, -- Completion engine
     { import = "plugins.editor.comment" }, -- Commenting
     { import = "plugins.editor.search" }, -- Search, gitsigns, cursors
@@ -68,15 +70,15 @@ require("lazy").setup({
     { import = "plugins.tools.leetcode" }, -- LeetCode integration
   },
   install = {
-    colorscheme = { "onedark", "habamax" }, -- Prefer onedarkpro, fallback to habamax
+    colorscheme = { "onedark", "habamax" }, -- Prefer onedarkpro
   },
   checker = {
-    enabled = true, -- Auto-check for updates
+    enabled = true, -- Auto-check updates
     notify = false, -- Silent updates
-    frequency = 172800, -- Check every 2 days
+    frequency = 259200, -- Check every 3 days
   },
   performance = {
-    cache = { enabled = true }, -- Cache for faster startup
+    cache = { enabled = true }, -- Faster startup
     reset_packpath = false, -- Optimize packpath
     rtp = {
       disabled_plugins = {
@@ -91,14 +93,20 @@ require("lazy").setup({
         "zipPlugin",
         "rplugin",
         "editorconfig",
+        "spellfile",
       }, -- Disable unused built-ins
     },
   },
   ui = {
     border = "rounded", -- VSCode-like rounded borders
-    title = " Lazy ", -- Custom title for Lazy UI
+    title = "Lazy", -- Minimal Lazy UI title
+    pills = true, -- Modern UI tabs
   },
   diff = {
-    cmd = "diffview.nvim", -- Use diffview.nvim if installed
+    cmd = "diffview.nvim", -- Support diffview.nvim
+  },
+  profiling = {
+    loader = false, -- Disable loader profiling by default
+    require = false, -- Disable require profiling
   },
 })

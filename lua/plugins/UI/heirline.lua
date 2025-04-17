@@ -501,19 +501,47 @@ return {
         {
           hl = { bg = colors.light_bg },
           Space,
-          GitBranch,
+          {
+            flexible = 2,
+            GitBranch,
+            { provider = "" },
+          },
           FileName,
           ModifiedIndicator,
-          LSPClients,
-          GitDiff,
-          Diagnostics,
+          {
+            flexible = 1,
+            LSPClients,
+            { provider = "" },
+          },
+          {
+            flexible = 1,
+            GitDiff,
+            { provider = "" },
+          },
+          {
+            flexible = 2,
+            Diagnostics,
+            { provider = "" },
+          },
         },
         Align,
         {
           hl = { bg = colors.light_bg },
-          FileType,
-          FileEncoding,
-          FileFormat,
+          {
+            flexible = 2,
+            FileType,
+            { provider = "" },
+          },
+          {
+            flexible = 1,
+            FileEncoding,
+            { provider = "" },
+          },
+          {
+            flexible = 1,
+            FileFormat,
+            { provider = "" },
+          },
           Location,
         },
       }
