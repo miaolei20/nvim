@@ -101,11 +101,6 @@ M.opts = {
       previewer = false,
       layout_config = { width = 0.8, height = 0.5 },
     }),
-    fzf_writer = {
-      minimum_grep_characters = 2,
-      minimum_files_characters = 2,
-      use_highlighter = true,
-    },
     undo = {
       side_by_side = true,
       layout_strategy = "vertical",
@@ -130,12 +125,12 @@ M.opts = {
   },
 }
 
-function M.setup(opts)
+function M.setup()
   local telescope = require("telescope")
-  telescope.setup(opts)
+  telescope.setup(M.opts)
 
   -- Load extensions
-  local extensions = { "fzf", "file_browser", "undo", "frecency", "ui-select", "lazy", "fzf_writer", "notify" }
+  local extensions = { "fzf", "file_browser", "undo", "frecency", "ui-select", "lazy", "notify" }
   for _, ext in ipairs(extensions) do
     local ok, err = pcall(telescope.load_extension, ext)
     if not ok then
@@ -146,6 +141,12 @@ function M.setup(opts)
   -- Project files function
   local is_inside_work_tree = {}
   local function project_files()
+    local win_height = vim.api.nvim_win_get_height(0)
+    local safe_height = math.max(15, math.floor(win_height * 0.7))
+    local opts = {
+      show_untracked = true,
+      layout_config = { height = safe_height },
+    }
     local cwd = vim.fn.getcwd()
     if is_inside_work_tree[cwd] == nil then
       local job = vim.fn.jobstart("git rev-parse --is-inside-work-tree", {
@@ -156,7 +157,6 @@ function M.setup(opts)
       vim.fn.jobwait({ job }, 1000)
     end
     local builtin = require("telescope.builtin")
-    local opts = { show_untracked = true }
     if is_inside_work_tree[cwd] then
       builtin.git_files(opts)
     else
@@ -169,7 +169,7 @@ function M.setup(opts)
   wk.add({
     { "<leader>s", group = "Search", icon = "🔍" },
     { "<leader>sf", project_files, desc = "Find Files", mode = "n", icon = "📁" },
-    { "<leader>sg", function() require("telescope").extensions.fzf_writer.grep() end, desc = "Live Grep", mode = "n", icon = "🔎" },
+    { "<leader>sg", function() require("telescope.builtin").live_grep() end, desc = "Live Grep", mode = "n", icon = "🔎" },
     { "<leader>sd", function() require("telescope.builtin").diagnostics() end, desc = "Diagnostics", mode = "n", icon = "🩺" },
     { "<leader>sb", function() require("telescope").extensions.file_browser.file_browser() end, desc = "File Browser", mode = "n", icon = "📂" },
     { "<leader>su", function() require("telescope").extensions.undo.undo() end, desc = "Undo History", mode = "n", icon = "🔄" },

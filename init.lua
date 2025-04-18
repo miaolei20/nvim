@@ -63,7 +63,6 @@ require("lazy").setup({
     -- Navigation and search
     { import = "plugins.tools.telescope" }, -- Fuzzy finder
     { import = "plugins.tools.harpoon" }, -- File bookmarks
-    { import = "plugins.tools.spectre" }, -- Search and replace
 
     -- Git integration
     { import = "plugins.tools.lazygit" }, -- Git UI
