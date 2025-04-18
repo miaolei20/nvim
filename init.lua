@@ -43,17 +43,22 @@ require("lazy").setup({
     { import = "plugins.UI.rainbow" }, -- Rainbow brackets
     { import = "plugins.UI.aerial" }, -- Code outline
     { import = "plugins.UI.indent" }, -- Indentation guides
+    { import = "plugins.UI.noice"},
 
     -- Editor enhancements
     { import = "plugins.editor.treesitter" }, -- Syntax highlighting
     { import = "plugins.editor.treesitter-context" }, -- Context-aware code
     { import = "plugins.editor.blink" }, -- Completion engine
     { import = "plugins.editor.comment" }, -- Commenting
-    { import = "plugins.editor.search" }, -- Search, gitsigns, cursors
+    { import = "plugins.editor.gitsigns"},
+    { import = "plugins.editor.hlslens"},
+    { import = "plugins.editor.scrollbar"},
+    { import = "plugins.editor.visual-multi"},
 
     -- LSP and code tools
     { import = "plugins.lsp.mason" }, -- LSP installer
     { import = "plugins.lsp.lsp" }, -- LSP configuration
+    { import = "plugins.tools.formatter"},
 
     -- Navigation and search
     { import = "plugins.tools.telescope" }, -- Fuzzy finder

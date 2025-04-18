@@ -2,104 +2,112 @@ return {
   {
     "goolord/alpha-nvim",
     event = "VimEnter",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { "nvim-tree/nvim-web-devicons", "folke/which-key.nvim" },
     config = function()
       local alpha = require("alpha")
       local dashboard = require("alpha.themes.dashboard")
 
-      -- Larger, modern ASCII logo
+      -- Compact, modern ASCII logo
       local logo = {
-        "        ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣶⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀",
-        "        ⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀",
-        "        ⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀",
-        "        ⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀",
-        "        ⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀",
-        "        ⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀",
-        "        ⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀",
-        "        ⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀",
-        "        ⠀⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀",
-        "        ⠀⠀⠀⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀",
-        "        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⢿⣿⡿⠟⠉⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⢠⣾⣿⣿⣿⣿⣶⣄⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀⠀",
       }
 
       -- Header
       dashboard.section.header.val = logo
       dashboard.section.header.opts.hl = "AlphaHeader"
 
-      -- Enhanced button layout with LeetCode added
+      -- Buttons with STM32 focus
       dashboard.section.buttons.val = {
-        dashboard.button("n", "  New File", "<cmd>ene | startinsert<cr>"),
-        dashboard.button("f", "  Find Files", "<cmd>Telescope find_files<cr>"),
-        dashboard.button("r", "  Recent Files", "<cmd>Telescope frecency<cr>"),
-        dashboard.button("g", "  Live Grep", "<cmd>Telescope live_grep<cr>"),
-        dashboard.button("e", "  Explorer", "<cmd>Telescope file_browser<cr>"),
-        dashboard.button("l", "󰌵  LeetCode", "<cmd>Leet<cr>"), -- Added LeetCode button
-        dashboard.button("c", "  Config", "<cmd>e " .. vim.fn.stdpath("config") .. "/init.lua<cr>"),
-        dashboard.button("q", "  Quit", "<cmd>qa<cr>"),
+        dashboard.button("n", "  New File", "<cmd>ene | startinsert<CR>"),
+        dashboard.button("f", "  Find Files", "<cmd>Telescope find_files<CR>"),
+        dashboard.button("r", "  Recent Files", "<cmd>Telescope oldfiles<CR>"),
+        dashboard.button("p", "  STM32 Project", "<cmd>Telescope find_files cwd=~/Projects/STM32<CR>"),
+        dashboard.button("e", "  Explorer", "<cmd>Neotree toggle<CR>"),
+        dashboard.button("g", "  Live Grep", "<cmd>Telescope live_grep<CR>"),
+        dashboard.button("c", "  Config", "<cmd>edit " .. vim.fn.stdpath("config") .. "/init.lua<CR>"),
+        dashboard.button("q", "  Quit", "<cmd>qa<CR>"),
       }
+      for _, button in ipairs(dashboard.section.buttons.val) do
+        button.opts.hl = "AlphaButton"
+        button.opts.hl_shortcut = "AlphaShortcut"
+      end
 
-      -- Footer with dynamic info
+      -- Footer
       dashboard.section.footer.val = { "" }
       dashboard.section.footer.opts.hl = "AlphaFooter"
 
-      -- Full-screen, balanced layout
+      -- Streamlined layout
       local function get_layout()
         local win_height = vim.api.nvim_win_get_height(0)
-        local padding_top = math.max(3, math.floor(win_height * 0.15))
-        local padding_mid = math.max(2, math.floor(win_height * 0.1))
-        local padding_bottom = 2
+        local padding = math.max(2, math.floor(win_height * 0.1))
         return {
-          { type = "padding", val = padding_top },
+          { type = "padding", val = padding },
           dashboard.section.header,
-          { type = "padding", val = padding_mid },
+          { type = "padding", val = padding },
           dashboard.section.buttons,
-          { type = "padding", val = padding_bottom },
+          { type = "padding", val = 2 },
           dashboard.section.footer,
         }
       end
 
-      -- Modern, vibrant highlights
+      -- Theme-agnostic highlights
       local function set_highlights()
-        vim.api.nvim_set_hl(0, "AlphaHeader", { fg = "#89b4fa", bold = true })
-        vim.api.nvim_set_hl(0, "AlphaButton", { fg = "#b4befe", italic = true })
-        vim.api.nvim_set_hl(0, "AlphaShortcut", { fg = "#f9e2af", bold = true })
-        vim.api.nvim_set_hl(0, "AlphaFooter", { fg = "#a6e3a1", italic = true })
+        local colors = {
+          header = vim.api.nvim_get_hl(0, { name = "Keyword" }).fg or "#89b4fa",
+          button = vim.api.nvim_get_hl(0, { name = "String" }).fg or "#b4befe",
+          shortcut = vim.api.nvim_get_hl(0, { name = "Number" }).fg or "#f9e2af",
+          footer = vim.api.nvim_get_hl(0, { name = "Comment" }).fg or "#a6e3a1",
+        }
+        vim.api.nvim_set_hl(0, "AlphaHeader", { fg = colors.header, bold = true })
+        vim.api.nvim_set_hl(0, "AlphaButton", { fg = colors.button, italic = true })
+        vim.api.nvim_set_hl(0, "AlphaShortcut", { fg = colors.shortcut, bold = true })
+        vim.api.nvim_set_hl(0, "AlphaFooter", { fg = colors.footer, italic = true })
       end
 
       -- Setup
       set_highlights()
       alpha.setup({ layout = get_layout() })
 
-      -- Dynamic footer with system info and Lazy stats
+      -- Dynamic footer with Lazy stats
       vim.api.nvim_create_autocmd("User", {
         pattern = "LazyVimStarted",
+        once = true,
         callback = function()
           local stats = require("lazy").stats()
           local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
-          local version = vim.version()
-          local nvim_ver = string.format("NVIM v%d.%d.%d", version.major, version.minor, version.patch)
-          dashboard.section.footer.val = {
-            "⚡ " .. stats.count .. " plugins loaded in " .. ms .. "ms",
-            nvim_ver .. " | " .. vim.loop.os_uname().sysname,
-          }
+          dashboard.section.footer.val = { "⚡ " .. stats.count .. " plugins in " .. ms .. "ms" }
           pcall(vim.cmd.AlphaRedraw)
         end,
       })
 
-      -- Tabline, Statusline, and Winbar toggle for Alpha
+      -- Hide UI elements in Alpha
       vim.api.nvim_create_autocmd("User", {
         pattern = "AlphaReady",
         callback = function()
-          vim.opt.showtabline = 0 -- 隐藏标签栏
-          vim.opt.laststatus = 0 -- 隐藏状态栏
+          vim.opt.showtabline = 0
+          vim.opt.laststatus = 0
+          vim.opt.winbar = ""
         end,
       })
       vim.api.nvim_create_autocmd("BufUnload", {
         buffer = 0,
         callback = function()
-          vim.opt.showtabline = 2 -- 显示标签栏
-          vim.opt.laststatus = 2 -- 显示状态栏
+          vim.opt.showtabline = 2
+          vim.opt.laststatus = 3
+          vim.opt.winbar = "%=%m %f"
         end,
+      })
+
+      -- Which-key integration
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>d", group = "Dashboard", icon = "🏠" },
+        { "<leader>dd", "<cmd>Alpha<CR>", desc = "Open Dashboard", mode = "n", icon = "📊" },
       })
     end,
   },

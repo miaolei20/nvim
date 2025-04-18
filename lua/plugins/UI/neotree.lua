@@ -7,115 +7,63 @@ return {
       "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
     },
-    event = { "BufEnter", "VeryLazy" }, -- Load on buffer enter or lazily
-    cmd = { "Neotree" }, -- Load on :Neotree command
+    cmd = { "Neotree" },
     opts = {
-      close_if_last_window = false, -- Keep Neo-Tree open if last window
-      popup_border_style = "rounded", -- VSCode-like rounded borders
-      enable_git_status = true, -- Enable git integration
-      enable_diagnostics = true, -- Enable LSP diagnostics
-      open_files_do_not_replace_types = { "terminal", "trouble", "qf" }, -- Avoid replacing special buffers
-      -- Default component configurations
-      default_component_configs = {
-        icon = {
-          folder_closed = "󰉋",
-          folder_open = "󰝰",
-          folder_empty = "󰉖",
-          default = "󰈔",
-        },
-        git_status = {
-          symbols = {
-            added = "✚",
-            modified = "✹",
-            deleted = "✖",
-            renamed = "➜",
-            untracked = "?",
-            ignored = "◌",
-            unstaged = "□",
-            staged = "■",
-            conflict = "",
-          },
-        },
-      },
-      -- Window settings
+      close_if_last_window = true,
+      popup_border_style = "rounded",
+      enable_git_status = true,
+      enable_diagnostics = true,
       window = {
         position = "left",
         width = 40,
-        mapping_options = {
-          noremap = true,
-          nowait = true,
-        },
-        mappings = {
-          -- Navigation
-          ["<space>"] = "toggle_node", -- Toggle directory
-          ["<cr>"] = "open", -- Open file/directory
-          ["<tab>"] = "open_with_window_picker", -- Open in selected window
-          ["H"] = "toggle_hidden", -- Toggle hidden files
-          -- File operations
-          ["a"] = { "add", config = { show_path = "relative" } }, -- Create file
-          ["A"] = { "add_directory", config = { show_path = "relative" } }, -- Create directory
-          ["d"] = "delete", -- Delete file/directory
-          ["r"] = "rename", -- Rename file/directory
-          ["c"] = "copy", -- Copy file/directory
-          ["m"] = "move", -- Move file/directory
-          -- Clipboard
-          ["y"] = "copy_to_clipboard", -- Copy to clipboard
-          ["x"] = "cut_to_clipboard", -- Cut to clipboard
-          ["p"] = "paste_from_clipboard", -- Paste from clipboard
-          -- Preview and utilities
-          ["P"] = { "toggle_preview", config = { use_float = true } }, -- Toggle preview
-          ["R"] = "refresh", -- Refresh tree
-          ["q"] = "close_window", -- Close Neo-Tree
-          ["?"] = "show_help", -- Show help
-          ["["] = "prev_source", -- Previous source (filesystem, git, etc.)
-          ["]"] = "next_source", -- Next source
-        },
       },
-      -- Filesystem settings
       filesystem = {
         filtered_items = {
-          visible = false, -- Hidden files not visible by default
-          hide_dotfiles = false, -- Show dotfiles
-          hide_gitignored = true, -- Hide gitignored files
-          hide_by_name = { ".git", "node_modules" }, -- Always hide specific names
-          never_show = { ".DS_Store", "thumbs.db" }, -- Never show these files
-        },
-        follow_current_file = {
-          enabled = true, -- Auto-focus current file
-          leave_dirs_open = false, -- Close directories when switching files
-        },
-        use_libuv_file_watcher = true, -- Auto-refresh on filesystem changes
-        hijack_netrw_behavior = "open_default", -- Replace netrw
-      },
-      -- Event handlers for performance
-      event_handlers = {
-        {
-          event = "neo_tree_buffer_enter",
-          handler = function()
-            vim.opt_local.signcolumn = "auto" -- Dynamic signcolumn for diagnostics
-          end,
+          visible = false,
+          hide_dotfiles = true,
+          hide_gitignored = true,
         },
       },
     },
     config = function(_, opts)
-      -- Setup Neo-Tree with provided options
       require("neo-tree").setup(opts)
-      -- Set highlights to match onedarkpro and heirline.nvim palette
-      local colors = require("onedarkpro.helpers").get_colors() or {
-        bg = "#1e222a",
-        fg = "#abb2bf",
-        green = "#98c379",
-        yellow = "#e5c07b",
-        red = "#e06c75",
-        accent = "#56b6c2",
-      }
-      vim.api.nvim_set_hl(0, "NeoTreeNormal", { bg = colors.bg, fg = colors.fg })
-      vim.api.nvim_set_hl(0, "NeoTreeFloatBorder", { fg = colors.accent, bg = colors.bg })
-      vim.api.nvim_set_hl(0, "NeoTreeGitAdded", { fg = colors.green })
-      vim.api.nvim_set_hl(0, "NeoTreeGitModified", { fg = colors.yellow })
-      vim.api.nvim_set_hl(0, "NeoTreeGitDeleted", { fg = colors.red })
-      vim.api.nvim_set_hl(0, "NeoTreeDirectoryIcon", { fg = colors.accent })
-      vim.api.nvim_set_hl(0, "NeoTreeFileIcon", { fg = colors.fg })
+
+      -- Register explorer mappings
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>e", group = "Explorer", icon = "󰉋" },
+        { "<leader>et", "<cmd>Neotree toggle left<CR>", desc = "Toggle Explorer", icon = "󰐿", mode = "n" },
+        { "<leader>ef", "<cmd>Neotree focus left<CR>", desc = "Focus Explorer", icon = "󰋱", mode = "n" },
+        { "<leader>eg", "<cmd>Neotree git_status left<CR>", desc = "Git Status", icon = "󰜘", mode = "n" },
+        { "<leader>eb", "<cmd>Neotree buffers left<CR>", desc = "Buffer List", icon = "󰈤", mode = "n" },
+      })
+
+      -- Register neo-tree buffer mappings
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "neo-tree",
+        callback = function()
+          wk.add({
+            { "e", group = "Neo-Tree", icon = "󰉋" },
+            { "et", "toggle_node", desc = "Toggle Node", icon = "󰁙", mode = "n" },
+            { "eo", "open", desc = "Open", icon = "󰌑", mode = "n" },
+            { "ew", "open_with_window_picker", desc = "Open in Window", icon = "󱂬", mode = "n" },
+            { "ep", "toggle_preview", desc = "Toggle Preview", icon = "󰋲", mode = "n" },
+            { "ea", "add", desc = "Add File", icon = "󰝒", mode = "n" },
+            { "eA", "add_directory", desc = "Add Directory", icon = "󰉌", mode = "n" },
+            { "ed", "delete", desc = "Delete", icon = "󰅖", mode = "n" },
+            { "er", "rename", desc = "Rename", icon = "󰑕", mode = "n" },
+            { "ey", "copy_to_clipboard", desc = "Copy to Clipboard", icon = "󰅍", mode = "n" },
+            { "ex", "cut_to_clipboard", desc = "Cut to Clipboard", icon = "󰆐", mode = "n" },
+            { "es", "paste_from_clipboard", desc = "Paste from Clipboard", icon = "󰆒", mode = "n" },
+            { "ec", "copy", desc = "Copy File", icon = "󰉍", mode = "n" },
+            { "em", "move", desc = "Move File", icon = "󰹑", mode = "n" },
+            { "eq", "close_window", desc = "Close Explorer", icon = "󰅘", mode = "n" },
+            { "eR", "refresh", desc = "Refresh", icon = "󰑐", mode = "n" },
+            { "e?", "show_help", desc = "Show Help", icon = "󰋖", mode = "n" },
+            { "eh", "toggle_hidden", desc = "Toggle Hidden", icon = "󰘓", mode = "n" },
+          }, { buffer = vim.api.nvim_get_current_buf() })
+        end,
+      })
     end,
   },
 }

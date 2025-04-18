@@ -5,16 +5,16 @@ local function on_attach(client, bufnr)
   wk.add({
     { "<leader>l", group = "LSP", buffer = bufnr, icon = "💡" },
     { "<leader>lg", group = "Goto", buffer = bufnr },
-    { "<leader>lgd", "<cmd>Telescope lsp_definitions<CR>", desc = "转到定义", mode = "n", buffer = bufnr, icon = "🔍" },
-    { "<leader>lgr", "<cmd>Telescope lsp_references<CR>", desc = "查找引用", mode = "n", buffer = bufnr, icon = "📚" },
-    { "<leader>lh", vim.lsp.buf.hover, desc = "悬停文档", mode = "n", buffer = bufnr, icon = "📖" },
-    { "<leader>lr", vim.lsp.buf.rename, desc = "重命名符号", mode = "n", buffer = bufnr, icon = "✏️" },
-    { "<leader>lc", vim.lsp.buf.code_action, desc = "代码操作", mode = "n", buffer = bufnr, icon = "⚙️" },
+    { "<leader>lgd", "<cmd>Telescope lsp_definitions<CR>", desc = "Go to Definition", mode = "n", buffer = bufnr, icon = "🔍" },
+    { "<leader>lgr", "<cmd>Telescope lsp_references<CR>", desc = "References", mode = "n", buffer = bufnr, icon = "📚" },
+    { "<leader>lh", vim.lsp.buf.hover, desc = "Hover Documentation", mode = "n", buffer = bufnr, icon = "📖" },
+    { "<leader>lr", vim.lsp.buf.rename, desc = "Rename Symbol", mode = "n", buffer = bufnr, icon = "✏️" },
+    { "<leader>lc", vim.lsp.buf.code_action, desc = "Code Action", mode = "n", buffer = bufnr, icon = "⚙️" },
+    { "<leader>lf", function() require("conform").format({ async = true, lsp_fallback = true }) end, desc = "Format Buffer", mode = "n", buffer = bufnr, icon = "📄" },
   }, { buffer = bufnr })
 end
 
 function M.setup()
-  -- 诊断符号
   local diagnostic_signs = {
     { name = "DiagnosticSignError", text = "" },
     { name = "DiagnosticSignWarn", text = "" },
@@ -25,15 +25,16 @@ function M.setup()
     vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })
   end
 
-  -- 配置诊断设置
   vim.diagnostic.config({
-    virtual_text = false,
-    float = { border = "rounded", source = "always" },
-    signs = { active = true },
-    severity_sort = true,
-    update_in_insert = false,
-  })
-
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "",
+      [vim.diagnostic.severity.WARN] = "",
+      [vim.diagnostic.severity.INFO] = "",
+      [vim.diagnostic.severity.HINT] = "",
+    },
+  },
+})
   local servers = {
     lua_ls = {
       settings = {
@@ -41,6 +42,7 @@ function M.setup()
           diagnostics = { globals = { "vim" } },
           workspace = { checkThirdParty = false },
           telemetry = { enable = false },
+          format = { enable = false }, -- Prefer stylua via conform.nvim
         },
       },
     },
@@ -49,23 +51,23 @@ function M.setup()
       cmd = { "clangd", "--background-index", "--clang-tidy" },
     },
     pyright = {
-      settings = {
-        python = {
-          analysis = {
-            autoSearchPaths = true,
-            useLibraryCodeForTypes = true,
-          },
-        },
-      },
+      settings = { python = { analysis = { autoSearchPaths = true, useLibraryCodeForTypes = true } } },
+    },
+    bashls = {},
+    jsonls = {
+      settings = { json = { schemas = require("schemastore").json.schemas(), validate = { enable = true } } },
+    },
+    yamlls = {
+      settings = { yaml = { schemas = require("schemastore").yaml.schemas() } },
     },
   }
 
   local capabilities = require("blink.cmp").get_lsp_capabilities()
-
+  local lspconfig = require("lspconfig")
   require("mason-lspconfig").setup_handlers({
     function(server_name)
       local server = servers[server_name] or {}
-      require("lspconfig")[server_name].setup({
+      lspconfig[server_name].setup({
         on_attach = on_attach,
         capabilities = vim.tbl_deep_extend("force", capabilities, server.capabilities or {}),
         settings = server.settings,
