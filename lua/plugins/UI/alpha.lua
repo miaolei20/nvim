@@ -2,7 +2,7 @@ return {
   {
     "goolord/alpha-nvim",
     event = "VimEnter",
-    dependencies = { "nvim-tree/nvim-web-devicons", "folke/which-key.nvim" },
+    dependencies = { "folke/which-key.nvim" },
     config = function()
       local alpha = require("alpha")
       local dashboard = require("alpha.themes.dashboard")
@@ -38,7 +38,7 @@ return {
       end
 
       -- Footer
-      dashboard.section.footer.val = { "" }
+      dashboard.section.footer.val = { "⚡ Neovim" }
       dashboard.section.footer.opts.hl = "AlphaFooter"
 
       -- Streamlined layout
@@ -73,33 +73,15 @@ return {
       set_highlights()
       alpha.setup({ layout = get_layout() })
 
-      -- Dynamic footer with Lazy stats
+      -- Display startup time in footer
       vim.api.nvim_create_autocmd("User", {
         pattern = "LazyVimStarted",
         once = true,
         callback = function()
           local stats = require("lazy").stats()
           local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
-          dashboard.section.footer.val = { "⚡ " .. stats.count .. " plugins in " .. ms .. "ms" }
+          dashboard.section.footer.val = { "⚡ Neovim loaded in " .. ms .. "ms" }
           pcall(vim.cmd.AlphaRedraw)
-        end,
-      })
-
-      -- Hide UI elements in Alpha
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "AlphaReady",
-        callback = function()
-          vim.opt.showtabline = 0
-          vim.opt.laststatus = 0
-          vim.opt.winbar = ""
-        end,
-      })
-      vim.api.nvim_create_autocmd("BufUnload", {
-        buffer = 0,
-        callback = function()
-          vim.opt.showtabline = 2
-          vim.opt.laststatus = 3
-          vim.opt.winbar = "%=%m %f"
         end,
       })
 

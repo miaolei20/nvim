@@ -1,13 +1,17 @@
 -- Set global settings before plugins
 vim.g.mapleader = " " -- Space as leader
 vim.g.maplocalleader = "\\" -- Backslash as localleader
-vim.g.python3_host_prog = vim.fn.executable('/usr/bin/python3') and '/usr/bin/python3' or nil -- Validate Python path
+vim.g.python3_host_prog = vim.fn.executable("/usr/bin/python3") and "/usr/bin/python3" or nil -- Validate Python path
 
 -- Load core configuration with error handling
 local ok, _ = pcall(require, "config.options") -- Editor options (e.g., tabstop, mouse)
-if not ok then vim.notify("Failed to load config.options", vim.log.levels.WARN) end
+if not ok then
+  vim.notify("Failed to load config.options", vim.log.levels.WARN)
+end
 ok, _ = pcall(require, "config.keymaps") -- Custom keymaps (e.g., <leader>ff, <C-h>)
-if not ok then vim.notify("Failed to load config.keymaps", vim.log.levels.WARN) end
+if not ok then
+  vim.notify("Failed to load config.keymaps", vim.log.levels.WARN)
+end
 
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -31,34 +35,32 @@ vim.opt.rtp:prepend(lazypath)
 -- Setup lazy.nvim
 require("lazy").setup({
   spec = {
-    -- Performance
-    { import = "plugins.tools.impatient" }, -- Startup optimization
 
     -- Theme and UI
     { import = "plugins.UI.onedark" }, -- onedarkpro theme
     { import = "plugins.UI.heirline" }, -- Statusline and tabline
     { import = "plugins.UI.alpha" }, -- Dashboard
     { import = "plugins.UI.neotree" }, -- File explorer
-    { import = "plugins.UI.notify" }, -- Notifications
     { import = "plugins.UI.rainbow" }, -- Rainbow brackets
     { import = "plugins.UI.aerial" }, -- Code outline
     { import = "plugins.UI.indent" }, -- Indentation guides
-    { import = "plugins.UI.noice"},
 
     -- Editor enhancements
     { import = "plugins.editor.treesitter" }, -- Syntax highlighting
     { import = "plugins.editor.treesitter-context" }, -- Context-aware code
-    { import = "plugins.editor.blink" }, -- Completion engine
+    -- { import = "plugins.editor.blink" }, -- Completion engine
+    { import = "plugins.editor.cmp"},
     { import = "plugins.editor.comment" }, -- Commenting
-    { import = "plugins.editor.gitsigns"},
-    { import = "plugins.editor.hlslens"},
-    { import = "plugins.editor.scrollbar"},
-    { import = "plugins.editor.visual-multi"},
+    { import = "plugins.editor.gitsigns" },
+    { import = "plugins.editor.hlslens" },
+    { import = "plugins.editor.scrollbar" },
+    { import = "plugins.editor.visual-multi" },
 
     -- LSP and code tools
     { import = "plugins.lsp.mason" }, -- LSP installer
     { import = "plugins.lsp.lsp" }, -- LSP configuration
-    { import = "plugins.tools.formatter"},
+    { import = "plugins.tools.formatter" },
+    { import = "plugins.editor.lint" },
 
     -- Navigation and search
     { import = "plugins.tools.telescope" }, -- Fuzzy finder

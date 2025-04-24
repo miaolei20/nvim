@@ -28,7 +28,15 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = { "clang-format", "black", "stylua", "shfmt", "prettier" },
+      ensure_installed = {
+        "clang-format", -- C/C++ formatter
+        "black", -- Python formatter
+        "stylua", -- Lua formatter
+        "shfmt", -- Shell formatter
+        "prettier", -- Multi-language formatter
+        "cpplint", -- C/C++ linter
+        "flake8", -- Python linter
+      },
       auto_update = true,
       run_on_start = true,
     },

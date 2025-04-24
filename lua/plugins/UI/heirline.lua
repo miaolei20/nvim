@@ -1,14 +1,14 @@
 return {
   {
     "kyazdani42/nvim-web-devicons",
-    lazy = false,
+    event = "BufReadPost",
     config = function()
       require("nvim-web-devicons").setup({ default = true })
     end,
   },
   {
     "rebelot/heirline.nvim",
-    event = "VeryLazy",
+    event = "BufReadPost",
     dependencies = { "kyazdani42/nvim-web-devicons" },
     config = function()
       local heirline = require("heirline")
@@ -47,27 +47,20 @@ return {
       -- Icons (Simpler, modern set)
       ------------------------------------------------------------------------------
       local icons = {
-        mode = "󰣇",          -- Minimal mode indicator
-        folder = "󰉓",       -- Simpler folder icon
-        file = "󰈤",         -- Clean file icon
-        branch = "󰜘",       -- Modern Git branch
-        lsp = "󰧑",          -- Sleek LSP icon
-        clock = "󰔛",        -- Minimal clock
-        encoding = "󰬴",     -- Clean encoding icon
-        format = "󰬴",       -- Same for format
-        modified = "●",      -- Simple modified dot
-        separator = "│",     -- Thin separator
-        close = "󰅜",        -- Ultra-clean close
-        git = {
-          added = "+",      -- Simple Git added
-          modified = "~",   -- Simple Git modified
-          removed = "-",    -- Simple Git removed
-        },
+        mode = "󰣇",
+        folder = "󰉓",
+        file = "󰈤",
+        branch = "󰜘",
+        lsp = "󰧑",
+        clock = "󰔛",
+        modified = "●",
+        separator = "│",
+        close = "󰅜",
         diagnostics = {
-          error = "󰅙",    -- Minimal error
-          warn = "󰀦",     -- Minimal warning
-          info = "󰋼",     -- Minimal info
-          hint = "󰌵",     -- Minimal hint
+          error = "󰅙",
+          warn = "󰀦",
+          info = "󰋼",
+          hint = "󰌵",
         },
       }
 
@@ -107,7 +100,7 @@ return {
         return icon, icon_color
       end
 
-      -- Modern path shortening (IDE-like)
+      -- Modern path shortening
       local function shorten_path(path)
         if path == "" then return "" end
         local home = vim.fn.expand("~")
@@ -118,7 +111,7 @@ return {
       end
 
       ------------------------------------------------------------------------------
-      -- Mode Component (Full names)
+      -- Mode Component
       ------------------------------------------------------------------------------
       local Mode = {
         init = function(self)
@@ -138,7 +131,7 @@ return {
           },
         },
         provider = function(self)
-          return icons.mode .. " " .. self.mode_names[self.mode] .. " "
+          return icons.mode .. " " .. (self.mode_names[self.mode] or "UNKNOWN") .. " "
         end,
         hl = function(self) return { fg = colors.black, bg = self.mode_color, bold = true } end,
         update = { "ModeChanged", pattern = "*:*" },
@@ -150,10 +143,11 @@ return {
       local GitBranch = {
         condition = conditions.is_git_repo,
         init = function(self)
-          self.status = vim.b.gitsigns_status_dict or { head = "" }
+          self.status = vim.b.gitsigns_status_dict or {}
         end,
         provider = function(self)
-          return icons.branch .. " " .. (self.status.head ~= "" and self.status.head or "none") .. " "
+          local head = self.status.head
+          return icons.branch .. " " .. (head and head ~= "" and head or "none") .. " "
         end,
         hl = { fg = colors.green, bg = colors.light_bg },
         update = { "User", pattern = "GitSignsChanged" },
@@ -165,7 +159,7 @@ return {
       local FileName = {
         provider = function()
           local name = vim.fn.expand("%:t")
-          return (name ~= "" and name or "[No Name]") .. " "
+          return name ~= "" and name or "[No Name]"
         end,
         hl = { fg = colors.fg, bg = colors.light_bg, bold = true },
         update = { "BufEnter", "BufModifiedSet" },
@@ -194,31 +188,6 @@ return {
         update = { "LspAttach", "LspDetach", "BufEnter" },
       }
 
-      ------------------------------------------------------------------------------
-      -- Git Diff (Enhanced to show changes)
-      ------------------------------------------------------------------------------
-      local GitDiff = {
-  condition = conditions.is_git_repo,
-  init = function(self)
-    self.status = vim.b.gitsigns_status_dict or { added = 0, changed = 0, removed = 0 }
-  end,
-  provider = function(self)
-    local parts = {}
-    -- Use `or 0` to default to 0 if the value is nil
-    if (self.status.added or 0) > 0 then
-      table.insert(parts, icons.git.added .. (self.status.added or 0))
-    end
-    if (self.status.changed or 0) > 0 then
-      table.insert(parts, icons.git.modified .. (self.status.changed or 0))
-    end
-    if (self.status.removed or 0) > 0 then
-      table.insert(parts, icons.git.removed .. (self.status.removed or 0))
-    end
-    return #parts > 0 and table.concat(parts, " ") .. " " or ""
-  end,
-  hl = { fg = colors.yellow, bg = colors.light_bg },
-  update = { "User", pattern = "GitSignsChanged", "BufEnter" },
-}
       ------------------------------------------------------------------------------
       -- Diagnostics
       ------------------------------------------------------------------------------
@@ -251,6 +220,10 @@ return {
           }
         end,
         update = { "DiagnosticChanged", "BufEnter" },
+        on_click = {
+          callback = function() vim.cmd("Trouble diagnostics toggle") end,
+          name = "heirline_diagnostics",
+        },
       }
 
       ------------------------------------------------------------------------------
@@ -266,24 +239,6 @@ return {
         end,
         hl = function(self) return { fg = self.icon_color, bg = colors.light_bg } end,
         update = { "BufEnter", "OptionSet", pattern = "filetype" },
-      }
-
-      ------------------------------------------------------------------------------
-      -- File Encoding
-      ------------------------------------------------------------------------------
-      local FileEncoding = {
-        provider = function() return icons.encoding .. " " .. (vim.bo.fileencoding or "utf-8") .. " " end,
-        hl = { fg = colors.blue, bg = colors.light_bg },
-        update = { "BufEnter", "OptionSet", pattern = "fileencoding" },
-      }
-
-      ------------------------------------------------------------------------------
-      -- File Format
-      ------------------------------------------------------------------------------
-      local FileFormat = {
-        provider = function() return icons.format .. " " .. vim.bo.fileformat .. " " end,
-        hl = { fg = colors.green, bg = colors.light_bg },
-        update = { "BufEnter", "OptionSet", pattern = "fileformat" },
       }
 
       ------------------------------------------------------------------------------
@@ -404,7 +359,7 @@ return {
       }
 
       ------------------------------------------------------------------------------
-      -- Winbar File Path (IDE-like)
+      -- Winbar File Path
       ------------------------------------------------------------------------------
       local WinBarFilePath = {
         init = function(self)
@@ -472,9 +427,14 @@ return {
                  self.warnings > 0 and colors.yellow or
                  self.info > 0 and colors.blue or
                  colors.green,
+            bg = colors.bg,
           }
         end,
         update = { "DiagnosticChanged", "BufEnter" },
+        on_click = {
+          callback = function() vim.cmd("Trouble diagnostics toggle") end,
+          name = "winbar_diagnostics",
+        },
       }
 
       ------------------------------------------------------------------------------
@@ -514,11 +474,6 @@ return {
             { provider = "" },
           },
           {
-            flexible = 1,
-            GitDiff,
-            { provider = "" },
-          },
-          {
             flexible = 2,
             Diagnostics,
             { provider = "" },
@@ -530,16 +485,6 @@ return {
           {
             flexible = 2,
             FileType,
-            { provider = "" },
-          },
-          {
-            flexible = 1,
-            FileEncoding,
-            { provider = "" },
-          },
-          {
-            flexible = 1,
-            FileFormat,
             { provider = "" },
           },
           Location,
