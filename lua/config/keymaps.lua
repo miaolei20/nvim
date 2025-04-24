@@ -7,88 +7,96 @@ vim.g.maplocalleader = " "
 -- Keymap options
 local opts = { noremap = true, silent = true }
 
--- Debug logging
+-- Debug logging (conditional)
 local function debug_log(msg)
-  vim.notify("[Keymaps] " .. msg, vim.log.levels.DEBUG)
+  if vim.g.debug_keymaps then
+    vim.notify("[Keymaps] " .. msg, vim.log.levels.DEBUG)
+  end
 end
 
--- Window navigation
-vim.keymap.set("n", "<C-h>", "<C-w>h", vim.tbl_extend("force", opts, { desc = "Move to Left Window" }))
-vim.keymap.set("n", "<C-j>", "<C-w>j", vim.tbl_extend("force", opts, { desc = "Move to Lower Window" }))
-vim.keymap.set("n", "<C-k>", "<C-w>k", vim.tbl_extend("force", opts, { desc = "Move to Upper Window" }))
-vim.keymap.set("n", "<C-l>", "<C-w>l", vim.tbl_extend("force", opts, { desc = "Move to Right Window" }))
-
--- Dynamic window resizing
-local function resize(direction)
-  local step = vim.v.count1 * 2
+-- Window resize function
+local function resize_window(direction, step)
+  step = vim.v.count1 * (step or 2) -- Default step is 2 if not specified
   local win = vim.api.nvim_get_current_win()
   local actions = {
-    h = function() vim.api.nvim_win_set_width(win, vim.api.nvim_win_get_width(win) - step) end,
-    l = function() vim.api.nvim_win_set_width(win, vim.api.nvim_win_get_width(win) + step) end,
-    j = function() vim.api.nvim_win_set_height(win, vim.api.nvim_win_get_height(win) + step) end,
-    k = function() vim.api.nvim_win_set_height(win, vim.api.nvim_win_get_height(win) - step) end,
+    h = { func = vim.api.nvim_win_set_width, get = vim.api.nvim_win_get_width, delta = -step },
+    l = { func = vim.api.nvim_win_set_width, get = vim.api.nvim_win_get_width, delta = step },
+    j = { func = vim.api.nvim_win_set_height, get = vim.api.nvim_win_get_height, delta = step },
+    k = { func = vim.api.nvim_win_set_height, get = vim.api.nvim_win_get_height, delta = -step },
   }
-  if actions[direction] then
-    actions[direction]()
+  local action = actions[direction]
+  if action then
+    local current_size = action.get(win) -- Get current width or height
+    action.func(win, current_size + action.delta) -- Set new size
   else
     vim.notify("Invalid resize direction: " .. tostring(direction), vim.log.levels.WARN)
   end
 end
 
--- Define keymaps
-local window_keymaps = {
-  { lhs = "<leader>wv", rhs = "<C-w>v", desc = "Split Vertically", icon = "🪓" },
-  { lhs = "<leader>ws", rhs = "<C-w>s", desc = "Split Horizontally", icon = "🪚" },
-  { lhs = "<leader>wh", rhs = function() resize("h") end, desc = "Resize Left", icon = "⬅️" },
-  { lhs = "<leader>wj", rhs = function() resize("j") end, desc = "Resize Down", icon = "⬇️" },
-  { lhs = "<leader>wk", rhs = function() resize("k") end, desc = "Resize Up", icon = "⬆️" },
-  { lhs = "<leader>wl", rhs = function() resize("l") end, desc = "Resize Right", icon = "➡️" },
-  { lhs = "<leader>w[", rhs = "<C-o>", desc = "Previous Location", icon = "⏮️" },
-  { lhs = "<leader>w]", rhs = "<C-i>", desc = "Next Location", icon = "⏭️" },
-}
+-- Toggle window maximize
+local function toggle_maximize_window()
+  local win = vim.api.nvim_get_current_win()
+  if vim.w[win].maximized then
+    vim.api.nvim_win_set_height(win, vim.w[win].maximized.height)
+    vim.api.nvim_win_set_width(win, vim.w[win].maximized.width)
+    vim.w[win].maximized = nil
+  else
+    vim.w[win].maximized = {
+      height = vim.api.nvim_win_get_height(win),
+      width = vim.api.nvim_win_get_width(win),
+    }
+    vim.api.nvim_win_set_height(win, vim.o.lines - 2)
+    vim.api.nvim_win_set_width(win, vim.o.columns - 2)
+  end
+end
 
 -- Setup keymaps
 local function setup_keymaps()
   debug_log("Setting up keymaps")
-  -- Register fallback keymaps
-  for _, km in ipairs(window_keymaps) do
-    vim.keymap.set("n", km.lhs, km.rhs, vim.tbl_extend("force", opts, { desc = km.desc }))
-    debug_log("Registered fallback keymap: " .. km.lhs)
+
+  -- Window navigation (normal and terminal modes)
+  for _, mode in ipairs({ "n", "t" }) do
+    local mode_opts = vim.tbl_extend("force", opts, {
+      desc = mode == "t" and "Terminal: Move>Left Window" or "Move>Left Window",
+    })
+    vim.keymap.set(mode, "<C-h>", mode == "t" and "<C-\\><C-n><C-w>h" or "<C-w>h", mode_opts)
+    mode_opts.desc = mode == "t" and "Terminal: Move>Lower Window" or "Move>Lower Window"
+    vim.keymap.set(mode, "<C-j>", mode == "t" and "<C-\\><C-n><C-w>j" or "<C-w>j", mode_opts)
+    mode_opts.desc = mode == "t" and "Terminal: Move>Upper Window" or "Move>Upper Window"
+    vim.keymap.set(mode, "<C-k>", mode == "t" and "<C-\\><C-n><C-w>k" or "<C-w>k", mode_opts)
+    mode_opts.desc = mode == "t" and "Terminal: Move>Right Window" or "Move>Right Window"
+    vim.keymap.set(mode, "<C-l>", mode == "t" and "<C-\\><C-n><C-w>l" or "<C-w>l", mode_opts)
   end
 
-  -- Register with which-key
+  -- Improved movement for wrapped lines
+  vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { noremap = true, silent = true, expr = true, desc = "Move Down (Wrap)" })
+  vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { noremap = true, silent = true, expr = true, desc = "Move Up (Wrap)" })
+
+  -- Window management keymaps with which-key
   local ok, wk = pcall(require, "which-key")
   if not ok then
-    vim.notify("which-key not found, using fallback keymaps only", vim.log.levels.WARN)
+    vim.notify("which-key not found, using minimal keymaps", vim.log.levels.WARN)
+    -- Fallback keymaps
+    vim.keymap.set("n", "<leader>wv", "<C-w>v", vim.tbl_extend("force", opts, { desc = "Split Vertically" }))
+    vim.keymap.set("n", "<leader>ws", "<C-w>s", vim.tbl_extend("force", opts, { desc = "Split Horizontally" }))
     return
   end
 
-  local wk_mappings = {
+  -- Define window keymaps directly with which-key
+  wk.add({
     { "<leader>w", group = "Window", icon = "🪟" },
-  }
-  for _, km in ipairs(window_keymaps) do
-    table.insert(wk_mappings, {
-      km.lhs,
-      km.rhs,
-      desc = km.desc,
-      mode = "n",
-      icon = km.icon,
-    })
-  end
-
-  local success, err = pcall(function()
-    wk.add(wk_mappings)
-  end)
-  if success then
-    debug_log("Which-key keymaps registered successfully")
-  else
-    vim.notify("Which-key setup failed: " .. tostring(err), vim.log.levels.ERROR)
-  end
+    { "<leader>wv", "<C-w>v", desc = "Split Vertically", mode = "n", icon = "🪓" },
+    { "<leader>ws", "<C-w>s", desc = "Split Horizontally", mode = "n", icon = "🪚" },
+    { "<leader>wh", function() resize_window("h") end, desc = "Resize Left", mode = "n", icon = "⬅️" },
+    { "<leader>wj", function() resize_window("j") end, desc = "Resize Down", mode = "n", icon = "⬇️" },
+    { "<leader>wk", function() resize_window("k") end, desc = "Resize Up", mode = "n", icon = "⬆️" },
+    { "<leader>wl", function() resize_window("l") end, desc = "Resize Right", mode = "n", icon = "➡️" },
+    { "<leader>w[", "<C-o>", desc = "Previous Location", mode = "n", icon = "⏮️" },
+    { "<leader>w]", "<C-i>", desc = "Next Location", mode = "n", icon = "⏭️" },
+    { "<leader>wm", toggle_maximize_window, desc = "Toggle Maximize", mode = "n", icon = "↔️" },
+  })
+  debug_log("Keymaps registered successfully with which-key")
 end
-
--- Improved movement for wrapped lines
-vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { noremap = true, silent = true, expr = true, desc = "Move Down" })
-vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { noremap = true, silent = true, expr = true, desc = "Move Up" })
 
 -- Initialize on VimEnter
 vim.api.nvim_create_autocmd("VimEnter", {
@@ -98,6 +106,5 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
   once = true,
 })
-
 
 return M
