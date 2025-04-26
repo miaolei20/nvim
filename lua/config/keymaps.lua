@@ -195,23 +195,4 @@ vim.api.nvim_create_autocmd("VimEnter", {
     once = true
 })
 
-local utils = require("config.utils")
-
-local keymap = vim.keymap.set
-local opts = {
-    noremap = true,
-    silent = true
-}
-
--- 普通快捷切换
-keymap("n", "<leader>tt", function()
-    utils.switch_theme("tokyonight")
-end, opts)
-keymap("n", "<leader>to", function()
-    utils.switch_theme("onedark")
-end, opts)
-
--- 🔥 Telescope 弹出主题选择
-keymap("n", "<leader>ts", utils.pick_theme, opts)
-
 return M
