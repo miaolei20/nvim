@@ -16,115 +16,186 @@ return {{
         local utils = require("heirline.utils")
         local devicons = require("nvim-web-devicons")
 
-        -- Enable mouse support
-        vim.opt.mouse = "a" -- 确保鼠标支持已启用
-
-        -- UI settings
+        -- UI Settings
+        vim.opt.mouse = "a"
         vim.opt.showtabline = 2
-        -- vim.opt.cmdheight = 0
-        -- vim.opt.showcmd = false
         vim.opt.ruler = false
         vim.opt.showmode = false
 
-        ------------------------------------------------------------------------------
-        -- Colors
-        ------------------------------------------------------------------------------
-        local colors = require("onedarkpro.helpers").get_colors() or {
-            bg = "#1e222a",
-            fg = "#abb2bf",
-            black = "#000000",
-            blue = "#61afef",
-            green = "#98c379",
-            purple = "#c678dd",
-            yellow = "#e5c07b",
-            orange = "#d19a66",
-            red = "#e06c75",
-            gray = "#5c6370",
-            dark_bg = "#181c24",
-            light_bg = "#2a2e38",
-            accent = "#56b6c2",
-            soft_accent = "#7dcfff"
-        }
+        -- Theme Detection
+        local function get_current_theme()
+            local theme = vim.g.colors_name
+            if theme then
+                return theme
+            end
+            local selected_theme_file = vim.fn.stdpath("config") .. "/selected_theme.txt"
+            if vim.fn.filereadable(selected_theme_file) == 1 then
+                local success, lines = pcall(vim.fn.readfile, selected_theme_file)
+                if success and lines[1] and lines[1]:match("^colorscheme [%w%-]+$") then
+                    return lines[1]:match("^colorscheme (%w+[%w%-]*)$") or "onedark"
+                end
+            end
+            return "onedark"
+        end
 
-        ------------------------------------------------------------------------------
-        -- Icons (Using Nerd Fonts for a Modern Look)
-        ------------------------------------------------------------------------------
-        local icons = {
-            mode = "󰀘", -- nf-md-alpha_circle
-            folder = "󰉋", -- nf-md-folder
-            file = "󰈔", -- nf-md-file
-            branch = "󰊢", -- nf-md-git
-            lsp = "󰒋", -- nf-md-server
-            modified = "󰀬", -- nf-md-circle_medium
-            separator = "󰿟", -- nf-md-pipe
-            close = "󰅖", -- nf-md-close
-            diagnostics = {
-                error = "󰅚", -- nf-md-close_circle
-                warn = "󰀪", -- nf-md-alert
-                info = "󰋽", -- nf-md-information
-                hint = "󰌶" -- nf-md-lightbulb
+        -- Optimized Theme Palettes
+        local theme_palettes = {
+            onedark = {
+                bg = "#282c34", -- Dark background
+                fg = "#abb2bf", -- Light text
+                bg_alt = "#23272e", -- Slightly lighter inactive
+                fg_alt = "#6b7280", -- Muted text
+                blue = "#61afef",
+                green = "#98c379",
+                purple = "#c678dd",
+                yellow = "#e5c07b",
+                red = "#e06c75",
+                accent = "#5fabad", -- Very soft cyan
+                border = "#353941" -- Subtle border
+            },
+            catppuccin = {
+                bg = "#1e1e2e", -- Mocha base
+                fg = "#cdd6f4", -- Mocha text
+                bg_alt = "#1b1b29", -- Slightly lighter crust
+                fg_alt = "#6b7280", -- Mocha overlay1
+                blue = "#89b4fa",
+                green = "#a6e3a1",
+                purple = "#f5c2e7",
+                yellow = "#f9e2af",
+                red = "#f38ba8",
+                accent = "#8ac6be", -- Very soft teal
+                border = "#262638" -- Subtle border
+            },
+            ["catppuccin-latte"] = {
+                bg = "#eff1f5", -- Latte base
+                fg = "#16202f", -- Darker text
+                bg_alt = "#d4d8de", -- Slightly darker surface0
+                fg_alt = "#64748b", -- Darker overlay1
+                blue = "#1e66f5",
+                green = "#40a02b",
+                purple = "#8839ef",
+                yellow = "#df8e1d",
+                red = "#d20f39",
+                accent = "#5fabad", -- Very soft teal
+                border = "#caced6" -- Subtle border
+            },
+            tokyonight = {
+                bg = "#1a1b26", -- Night base
+                fg = "#c0caf5", -- Night text
+                bg_alt = "#1c1e2a", -- Slightly lighter darker
+                fg_alt = "#6b7280", -- Night comment
+                blue = "#7aa2f7",
+                green = "#9ece6a",
+                purple = "#bb9af7",
+                yellow = "#e0af68",
+                red = "#f7768e",
+                accent = "#6ba8d1", -- Very soft cyan
+                border = "#272a36" -- Subtle border
+            },
+            gruvbox = {
+                bg = "#282828", -- Dark bg0
+                fg = "#ebdbb2", -- Light fg
+                bg_alt = "#242424", -- Slightly lighter bg1
+                fg_alt = "#6b7280", -- Gray
+                blue = "#458588",
+                green = "#b8bb26",
+                purple = "#b16286",
+                yellow = "#fabd2f",
+                red = "#cc241d",
+                accent = "#769e9e", -- Very soft blue-green
+                border = "#363430" -- Subtle border
             }
         }
 
-        ------------------------------------------------------------------------------
+        -- Get Colors
+        local function get_colors()
+            local theme = get_current_theme()
+            return theme_palettes[theme] or theme_palettes.onedark
+        end
+
+        -- Icons
+        local icons = {
+            mode = "󰀘",
+            folder = "󰉋",
+            file = "󰈔",
+            branch = "󰊢",
+            lsp = "󰒋",
+            modified = "󰀬",
+            separator = "󰿟",
+            close = "󰅖",
+            diagnostics = {
+                error = "󰅚",
+                warn = "󰀪",
+                info = "󰋽",
+                hint = "󰌶"
+            }
+        }
+
         -- Highlight Groups
-        ------------------------------------------------------------------------------
-        local hl = vim.api.nvim_set_hl
-        hl(0, "HeirlineBackground", {
-            bg = colors.bg,
-            fg = colors.fg
-        })
-        hl(0, "HeirlineDarkBackground", {
-            bg = colors.dark_bg,
-            fg = colors.gray
-        })
-        hl(0, "HeirlineLightBackground", {
-            bg = colors.light_bg,
-            fg = colors.fg
-        })
-        hl(0, "HeirlineTabLine", {
-            bg = colors.dark_bg,
-            fg = colors.gray
-        })
-        hl(0, "HeirlineTabLineSel", {
-            bg = colors.accent,
-            fg = colors.black,
-            bold = true
-        })
-        hl(0, "HeirlineWinBar", {
-            bg = colors.dark_bg,
-            fg = colors.fg
-        })
-        hl(0, "HeirlineSeparator", {
-            fg = colors.gray,
-            bg = colors.light_bg
-        })
-        hl(0, "HeirlineAccent", {
-            fg = colors.dark_bg,
-            bg = colors.accent,
-            bold = true
-        })
-        hl(0, "HeirlineSoftAccent", {
-            fg = colors.dark_bg,
-            bg = colors.soft_accent
-        })
-        hl(0, "HeirlineCloseButton", {
-            fg = colors.red,
-            bg = colors.dark_bg
+        local function set_highlights()
+            local c = get_colors()
+            local hl_groups = {
+                HeirlineBase = {
+                    bg = c.bg,
+                    fg = c.fg
+                },
+                HeirlineInactive = {
+                    bg = c.bg,
+                    fg = c.fg_alt
+                },
+                HeirlineActive = {
+                    bg = c.border,
+                    fg = c.fg,
+                    bold = false
+                },
+                HeirlineTabLine = {
+                    bg = c.bg,
+                    fg = c.fg_alt
+                },
+                HeirlineTabLineSel = {
+                    bg = c.border,
+                    fg = c.fg,
+                    bold = false
+                },
+                HeirlineWinBar = {
+                    bg = c.bg,
+                    fg = c.fg
+                },
+                HeirlineAccent = {
+                    fg = c.fg,
+                    bg = c.accent
+                },
+                HeirlineCloseButton = {
+                    fg = c.red,
+                    bg = c.bg
+                }
+            }
+            for group, opts in pairs(hl_groups) do
+                pcall(vim.api.nvim_set_hl, 0, group, opts)
+            end
+        end
+        set_highlights()
+
+        -- Refresh on Theme Change
+        vim.api.nvim_create_autocmd("ColorScheme", {
+            callback = function()
+                set_highlights()
+                vim.defer_fn(function()
+                    pcall(vim.cmd, "redrawstatus")
+                    pcall(vim.cmd, "redrawtabline")
+                end, 0)
+            end
         })
 
-        ------------------------------------------------------------------------------
         -- Utilities
-        ------------------------------------------------------------------------------
         local Space = {
-            provider = "  "
+            provider = " "
         }
         local Align = {
             provider = "%="
         }
-
-        -- Icon cache for performance
         local icon_cache = {}
+
         local function get_icon(filename, filetype, opts)
             local key = (filename or "") .. (filetype or "") .. (opts and opts.default and "default" or "")
             if icon_cache[key] then
@@ -132,8 +203,12 @@ return {{
             end
             local icon, hl_group = devicons.get_icon(filename, filetype, opts)
             icon = icon or icons.file
-            local hl = vim.api.nvim_get_hl_by_name(hl_group or "HeirlineLightBackground", true)
-            local icon_color = hl.foreground and string.format("#%06x", hl.foreground) or colors.fg
+            local icon_color
+            if hl_group then
+                local success, hl = pcall(vim.api.nvim_get_hl_by_name, hl_group, true)
+                icon_color = success and hl.foreground and string.format("#%06x", hl.foreground)
+            end
+            icon_color = icon_color or get_colors().fg
             icon_cache[key] = {
                 icon = icon,
                 color = icon_color
@@ -141,7 +216,6 @@ return {{
             return icon, icon_color
         end
 
-        -- Path shortening
         local function shorten_path(path)
             if path == "" then
                 return ""
@@ -155,27 +229,26 @@ return {{
             return table.concat({parts[1], "…", parts[#parts - 1], parts[#parts]}, "/")
         end
 
-        ------------------------------------------------------------------------------
-        -- Mode Component
-        ------------------------------------------------------------------------------
+        -- Components
         local Mode = {
             init = function(self)
                 self.mode = vim.fn.mode(1)
+                local c = get_colors()
                 self.mode_color = ({
-                    n = colors.blue,
-                    i = colors.green,
-                    v = colors.purple,
-                    V = colors.purple,
-                    ["\22"] = colors.purple,
-                    c = colors.yellow,
-                    s = colors.orange,
-                    S = colors.orange,
-                    ["\19"] = colors.orange,
-                    R = colors.red,
-                    r = colors.red,
-                    ["!"] = colors.red,
-                    t = colors.red
-                })[self.mode] or colors.blue
+                    n = c.blue,
+                    i = c.green,
+                    v = c.purple,
+                    V = c.purple,
+                    ["\22"] = c.purple,
+                    c = c.yellow,
+                    s = c.yellow,
+                    S = c.yellow,
+                    ["\19"] = c.yellow,
+                    R = c.red,
+                    r = c.red,
+                    ["!"] = c.red,
+                    t = c.red
+                })[self.mode] or c.blue
             end,
             static = {
                 mode_names = {
@@ -199,54 +272,35 @@ return {{
             end,
             hl = function(self)
                 return {
-                    fg = colors.black,
-                    bg = self.mode_color,
-                    bold = true
+                    fg = self.mode_color,
+                    bg = get_colors().border
                 }
             end,
             update = {"ModeChanged"}
         }
 
-        ------------------------------------------------------------------------------
-        -- File Name Component
-        ------------------------------------------------------------------------------
         local FileName = {
             provider = function()
                 local name = vim.fn.expand("%:t")
                 return name ~= "" and name or "Dashboard"
             end,
-            hl = {
-                fg = colors.fg,
-                bg = colors.light_bg,
-                bold = true
-            },
+            hl = "HeirlineBase",
             update = {"BufEnter"}
         }
 
-        ------------------------------------------------------------------------------
-        -- Alpha-specific Statusline
-        ------------------------------------------------------------------------------
         local AlphaStatusLine = {
             condition = function()
                 return vim.bo.buftype == "alpha"
             end,
             hl = {
-                bg = colors.bg
+                bg = get_colors().bg
             },
             Mode,
             Space,
-            {
-                hl = {
-                    bg = colors.light_bg
-                },
-                FileName
-            },
+            FileName,
             Align
         }
 
-        ------------------------------------------------------------------------------
-        -- Git Branch Component
-        ------------------------------------------------------------------------------
         local GitBranch = {
             condition = conditions.is_git_repo,
             init = function(self)
@@ -257,8 +311,8 @@ return {{
                 return icons.branch .. " " .. (head and head ~= "" and head or "none") .. " "
             end,
             hl = {
-                fg = colors.green,
-                bg = colors.light_bg
+                fg = get_colors().green,
+                bg = get_colors().bg
             },
             update = {
                 "User",
@@ -266,24 +320,18 @@ return {{
             }
         }
 
-        ------------------------------------------------------------------------------
-        -- Modified Indicator
-        ------------------------------------------------------------------------------
         local ModifiedIndicator = {
             condition = function()
                 return vim.bo.modified
             end,
             provider = icons.modified .. " ",
             hl = {
-                fg = colors.orange,
-                bg = colors.light_bg
+                fg = get_colors().yellow,
+                bg = get_colors().bg
             },
             update = {"BufModifiedSet"}
         }
 
-        ------------------------------------------------------------------------------
-        -- LSP Clients
-        ------------------------------------------------------------------------------
         local LSPClients = {
             condition = function()
                 return next(vim.lsp.get_clients({
@@ -299,15 +347,12 @@ return {{
                 return icons.lsp .. " " .. (#names > 0 and table.concat(names, ", ") or "none") .. " "
             end,
             hl = {
-                fg = colors.purple,
-                bg = colors.light_bg
+                fg = get_colors().purple,
+                bg = get_colors().bg
             },
             update = {"LspAttach", "LspDetach"}
         }
 
-        ------------------------------------------------------------------------------
-        -- Diagnostics
-        ------------------------------------------------------------------------------
         local Diagnostics = {
             condition = conditions.has_diagnostics,
             static = {
@@ -344,10 +389,11 @@ return {{
                 return #parts > 0 and table.concat(parts, " ") .. " " or ""
             end,
             hl = function(self)
+                local c = get_colors()
                 return {
-                    fg = self.errors > 0 and colors.red or self.warnings > 0 and colors.yellow or self.info > 0 and
-                        colors.blue or colors.green,
-                    bg = colors.light_bg
+                    fg = self.errors > 0 and c.red or self.warnings > 0 and c.yellow or self.info > 0 and c.blue or
+                        c.green,
+                    bg = c.bg
                 }
             end,
             update = {"DiagnosticChanged"},
@@ -359,9 +405,6 @@ return {{
             }
         }
 
-        ------------------------------------------------------------------------------
-        -- File Type
-        ------------------------------------------------------------------------------
         local FileType = {
             init = function(self)
                 self.filetype = vim.bo.filetype
@@ -375,15 +418,12 @@ return {{
             hl = function(self)
                 return {
                     fg = self.icon_color,
-                    bg = colors.light_bg
+                    bg = get_colors().bg
                 }
             end,
             update = {"BufEnter"}
         }
 
-        ------------------------------------------------------------------------------
-        -- File Info
-        ------------------------------------------------------------------------------
         local FileInfo = {
             provider = function()
                 local enc = (vim.bo.fileencoding ~= "" and vim.bo.fileencoding) or vim.o.encoding
@@ -400,35 +440,29 @@ return {{
                 return string.format("%s %s %.1f%s ", enc:upper(), icons.separator, size, units[i])
             end,
             hl = {
-                fg = colors.blue,
-                bg = colors.light_bg
+                fg = get_colors().blue,
+                bg = get_colors().bg
             },
             update = {"BufEnter", "BufWritePost"}
         }
 
-        ------------------------------------------------------------------------------
-        -- Location
-        ------------------------------------------------------------------------------
         local Location = {{
-            provider = "󰆌 ", -- nf-md-cursor
+            provider = "󰆌 ",
             hl = {
-                fg = colors.dark_bg,
-                bg = colors.soft_accent
+                fg = get_colors().fg,
+                bg = get_colors().border
             }
         }, {
             provider = function()
                 return vim.fn.line(".") .. ":" .. vim.fn.col(".") .. " "
             end,
             hl = {
-                fg = colors.dark_bg,
-                bg = colors.soft_accent
+                fg = get_colors().fg,
+                bg = get_colors().border
             },
             update = {"CursorMoved"}
         }}
 
-        ------------------------------------------------------------------------------
-        -- Buffer Component (Tabline)
-        ------------------------------------------------------------------------------
         local BufferComponent = {
             init = function(self)
                 self.bufnr = self.bufnr or vim.api.nvim_get_current_buf()
@@ -442,9 +476,10 @@ return {{
             {
                 provider = icons.separator .. " ",
                 hl = function(self)
+                    local c = get_colors()
                     return {
-                        fg = self.is_active and colors.accent or colors.gray,
-                        bg = colors.bg
+                        fg = self.is_active and c.accent or c.fg_alt,
+                        bg = c.bg
                     }
                 end
             },
@@ -455,19 +490,16 @@ return {{
                             " "
                 end,
                 hl = function(self)
-                    local base_hl = self.is_active and "HeirlineTabLineSel" or "HeirlineTabLine"
+                    local c = get_colors()
                     return {
-                        fg = self.is_active and self.icon_color or colors.gray,
-                        bg = vim.api.nvim_get_hl_by_name(base_hl, true).background
+                        fg = self.is_active and c.fg or c.fg_alt,
+                        bg = self.is_active and c.border or c.bg
                     }
                 end,
                 on_click = {
-                    callback = function(_, minwid, _, _)
-                        print("Switching to buffer: " .. minwid) -- 调试日志
+                    callback = function(_, minwid)
                         if vim.api.nvim_buf_is_valid(minwid) then
                             vim.api.nvim_set_current_buf(minwid)
-                        else
-                            print("Invalid buffer: " .. minwid)
                         end
                     end,
                     name = function(self)
@@ -475,26 +507,24 @@ return {{
                     end,
                     minwid = function(self)
                         return self.bufnr
-                    end -- 使用 minwid 传递 bufnr
+                    end
                 }
             },
             {
                 provider = icons.close .. " ",
                 hl = function(self)
+                    local c = get_colors()
                     return {
-                        fg = colors.red,
-                        bg = self.is_active and colors.accent or colors.dark_bg
+                        fg = c.red,
+                        bg = self.is_active and c.border or c.bg
                     }
                 end,
                 on_click = {
-                    callback = function(_, minwid, _, _)
-                        print("Closing buffer: " .. minwid) -- 调试日志
+                    callback = function(_, minwid)
                         if vim.api.nvim_buf_is_valid(minwid) then
                             vim.api.nvim_buf_delete(minwid, {
                                 force = true
                             })
-                        else
-                            print("Invalid buffer to close: " .. minwid)
                         end
                     end,
                     name = function(self)
@@ -502,7 +532,7 @@ return {{
                     end,
                     minwid = function(self)
                         return self.bufnr
-                    end -- 使用 minwid 传递 bufnr
+                    end
                 }
             },
             update = {"BufEnter", "BufDelete"}
@@ -517,9 +547,6 @@ return {{
             utils.make_buflist(BufferComponent)
         }
 
-        ------------------------------------------------------------------------------
-        -- Tab Component
-        ------------------------------------------------------------------------------
         local TabComponent = {
             init = function(self)
                 self.tabpage = self.tabpage or vim.api.nvim_get_current_tabpage()
@@ -529,30 +556,28 @@ return {{
             {
                 provider = icons.separator .. " ",
                 hl = function(self)
+                    local c = get_colors()
                     return {
-                        fg = self.is_active and colors.accent or colors.gray,
-                        bg = colors.bg
+                        fg = self.is_active and c.accent or c.fg_alt,
+                        bg = c.bg
                     }
                 end
             },
             {
                 provider = function(self)
                     return "󰓩 " .. self.tabnr .. " "
-                end, -- nf-md-tab
+                end,
                 hl = function(self)
+                    local c = get_colors()
                     return {
-                        fg = self.is_active and colors.black or colors.gray,
-                        bg = self.is_active and colors.accent or colors.dark_bg,
-                        bold = self.is_active
+                        fg = self.is_active and c.fg or c.fg_alt,
+                        bg = self.is_active and c.border or c.bg
                     }
                 end,
                 on_click = {
-                    callback = function(_, minwid, _, _)
-                        print("Switching to tab: " .. minwid) -- 调试日志
+                    callback = function(_, minwid)
                         if vim.api.nvim_tabpage_is_valid(minwid) then
                             vim.api.nvim_set_current_tabpage(minwid)
-                        else
-                            print("Invalid tab: " .. minwid)
                         end
                     end,
                     name = function(self)
@@ -560,25 +585,23 @@ return {{
                     end,
                     minwid = function(self)
                         return self.tabpage
-                    end -- 使用 minwid 传递 tabpage
+                    end
                 }
             },
             {
                 provider = icons.close .. " ",
                 hl = function(self)
+                    local c = get_colors()
                     return {
-                        fg = colors.red,
-                        bg = self.is_active and colors.accent or colors.dark_bg
+                        fg = c.red,
+                        bg = self.is_active and c.border or c.bg
                     }
                 end,
                 on_click = {
-                    callback = function(_, minwid, _, _)
-                        print("Closing tab: " .. minwid) -- 调试日志
-                        local tabnr = vim.api.nvim_tabpage_get_number(minwid)
+                    callback = function(_, minwid)
                         if vim.api.nvim_tabpage_is_valid(minwid) then
+                            local tabnr = vim.api.nvim_tabpage_get_number(minwid)
                             vim.cmd("tabclose " .. tabnr)
-                        else
-                            print("Invalid tab to close: " .. minwid)
                         end
                     end,
                     name = function(self)
@@ -586,17 +609,17 @@ return {{
                     end,
                     minwid = function(self)
                         return self.tabpage
-                    end -- 使用 minwid 传递 tabpage
+                    end
                 }
             },
-            update = {"TabEnter", "TabClosed"} -- 移除 TabNew，减少不必要更新
+            update = {"TabEnter", "TabClosed"}
         }
 
         local Tabs = {
             condition = function()
                 return #vim.api.nvim_list_tabpages() >= 2
             end,
-            utils.make_tablist(NumberedTabComponent)
+            utils.make_tablist(TabComponent)
         }
 
         local TabClose = {
@@ -605,21 +628,17 @@ return {{
             end,
             provider = icons.close .. " ",
             hl = {
-                fg = colors.red,
-                bg = colors.dark_bg
+                fg = get_colors().red,
+                bg = get_colors().bg
             },
             on_click = {
                 callback = function()
-                    print("Closing current tab") -- 调试日志
                     vim.cmd("tabclose")
                 end,
                 name = "tab_close"
             }
         }
 
-        ------------------------------------------------------------------------------
-        -- Winbar File Path
-        ------------------------------------------------------------------------------
         local WinBarFilePath = {
             init = function(self)
                 self.bufnr = vim.api.nvim_get_current_buf()
@@ -636,18 +655,17 @@ return {{
             hl = function(self)
                 return {
                     fg = self.icon_color,
-                    bg = colors.dark_bg,
+                    bg = get_colors().bg,
                     italic = true
                 }
             end,
             update = {"BufEnter", "DirChanged"},
             on_click = {
-                callback = function(_, minwid, _, _)
-                    print("Switching to buffer (winbar): " .. minwid) -- 调试日志
+                callback = function(_, minwid)
                     if vim.api.nvim_buf_is_valid(minwid) then
                         vim.api.nvim_set_current_buf(minwid)
                     else
-                        print("Invalid buffer (winbar): " .. minwid)
+                        vim.notify("Invalid buffer", vim.log.levels.WARN)
                     end
                 end,
                 name = function(self)
@@ -659,9 +677,6 @@ return {{
             }
         }
 
-        ------------------------------------------------------------------------------
-        -- Winbar
-        ------------------------------------------------------------------------------
         local WinBar = {
             condition = function()
                 return not vim.bo.buftype:match("^(quickfix|nofile|help|terminal|alpha)$")
@@ -671,21 +686,18 @@ return {{
             Align
         }
 
-        ------------------------------------------------------------------------------
-        -- Statusline for Non-Alpha Buffers
-        ------------------------------------------------------------------------------
         local DefaultStatusLine = {
             condition = function()
                 return not vim.bo.buftype:match("alpha")
             end,
             hl = {
-                bg = colors.bg
+                bg = get_colors().bg
             },
             Mode,
             Space,
             {
                 hl = {
-                    bg = colors.light_bg
+                    bg = get_colors().bg
                 },
                 GitBranch,
                 Space,
@@ -697,7 +709,7 @@ return {{
             Align,
             {
                 hl = {
-                    bg = colors.light_bg
+                    bg = get_colors().bg
                 },
                 Diagnostics,
                 Space,
@@ -709,15 +721,12 @@ return {{
             }
         }
 
-        ------------------------------------------------------------------------------
-        -- Tabline
-        ------------------------------------------------------------------------------
         local TabLine = {
             condition = function()
                 return not vim.bo.buftype:match("alpha")
             end,
             hl = {
-                bg = colors.bg
+                bg = get_colors().bg
             },
             Space,
             Buffers,
@@ -727,9 +736,7 @@ return {{
             TabClose
         }
 
-        ------------------------------------------------------------------------------
         -- Heirline Setup
-        ------------------------------------------------------------------------------
         heirline.setup({
             statusline = {AlphaStatusLine, DefaultStatusLine},
             tabline = TabLine,
@@ -744,7 +751,7 @@ return {{
             }
         })
 
-        -- Always show statusline
+        -- Ensure statusline is always shown
         vim.api.nvim_create_autocmd("VimEnter", {
             callback = function()
                 vim.opt.laststatus = 2

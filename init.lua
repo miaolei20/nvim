@@ -1,118 +1,137 @@
--- Set global settings before plugins
-vim.g.mapleader = " " -- Space as leader
-vim.g.maplocalleader = "\\" -- Backslash as localleader
-vim.g.python3_host_prog = vim.fn.executable("/usr/bin/python3") and "/usr/bin/python3" or nil -- Validate Python path
+-- 全局设置
+vim.g.mapleader = " " -- 设置 leader 键为空格
+vim.g.maplocalleader = "\\" -- 设置本地 leader 键为反斜杠
+vim.g.python3_host_prog = vim.fn.executable("/usr/bin/python3") and "/usr/bin/python3" or nil
 
--- Load core configuration with error handling
-local ok, _ = pcall(require, "config.options") -- Editor options (e.g., tabstop, mouse)
-if not ok then
-  vim.notify("Failed to load config.options", vim.log.levels.WARN)
-end
-ok, _ = pcall(require, "config.keymaps") -- Custom keymaps (e.g., <leader>ff, <C-h>)
-if not ok then
-  vim.notify("Failed to load config.keymaps", vim.log.levels.WARN)
+-- 加载核心配置并处理错误
+for _, module in ipairs({"config.options", "config.keymaps"}) do
+    local ok, err = pcall(require, module)
+    if not ok then
+        vim.notify(string.format("无法加载 %s: %s", module, err), vim.log.levels.WARN)
+    end
 end
 
--- Bootstrap lazy.nvim
+-- 安装 lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-  local out = vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "--branch=stable",
-    "https://github.com/folke/lazy.nvim.git",
-    lazypath,
-  })
-  if vim.v.shell_error ~= 0 then
-    vim.notify("Failed to clone lazy.nvim:\n" .. out, vim.log.levels.ERROR)
-    vim.fn.input("Press Enter to exit...")
-    os.exit(1)
-  end
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local out = vim.fn.system({"git", "clone", "--filter=blob:none", "--branch=stable",
+                               "https://github.com/folke/lazy.nvim.git", lazypath})
+    if vim.v.shell_error ~= 0 then
+        vim.notify("无法克隆 lazy.nvim:\n" .. out, vim.log.levels.ERROR)
+        vim.fn.input("按回车退出...")
+        os.exit(1)
+    end
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Setup lazy.nvim
+-- 设置 lazy.nvim
 require("lazy").setup({
-  spec = {
-
-    -- Theme and UI
-    { import = "plugins.UI.onedark" }, -- onedarkpro theme
-    { import = "plugins.UI.heirline" }, -- Statusline and tabline
-    { import = "plugins.UI.alpha" }, -- Dashboard
-    { import = "plugins.UI.neotree" }, -- File explorer
-    { import = "plugins.UI.rainbow" }, -- Rainbow brackets
-    { import = "plugins.UI.aerial" }, -- Code outline
-    { import = "plugins.UI.indent" }, -- Indentation guides
-
-    -- Editor enhancements
-    { import = "plugins.editor.treesitter" }, -- Syntax highlighting
-    { import = "plugins.editor.treesitter-context" }, -- Context-aware code
-    -- { import = "plugins.editor.blink" }, -- Completion engine
-    { import = "plugins.editor.cmp"},
-    { import = "plugins.editor.comment" }, -- Commenting
-    { import = "plugins.editor.gitsigns" },
-    { import = "plugins.editor.hlslens" },
-    { import = "plugins.editor.scrollbar" },
-    { import = "plugins.editor.visual-multi" },
-
-    -- LSP and code tools
-    { import = "plugins.lsp.mason" }, -- LSP installer
-    { import = "plugins.lsp.lsp" }, -- LSP configuration
-    { import = "plugins.tools.formatter" },
-    { import = "plugins.editor.lint" },
-
-    -- Navigation and search
-    { import = "plugins.tools.telescope" }, -- Fuzzy finder
-    { import = "plugins.tools.harpoon" }, -- File bookmarks
-
-    -- Git integration
-    { import = "plugins.tools.lazygit" }, -- Git UI
-
-    -- Productivity and utilities
-    { import = "plugins.tools.which-key" }, -- Keybinding hints
-    { import = "plugins.tools.lastplace" }, -- Restore cursor position
-    { import = "plugins.tools.copilot" }, -- GitHub Copilot
-    { import = "plugins.tools.leetcode" }, -- LeetCode integration
-  },
-  install = {
-    colorscheme = { "onedark", "habamax" }, -- Prefer onedarkpro
-  },
-  checker = {
-    enabled = true, -- Auto-check updates
-    notify = false, -- Silent updates
-    frequency = 259200, -- Check every 3 days
-  },
-  performance = {
-    cache = { enabled = true }, -- Faster startup
-    reset_packpath = false, -- Optimize packpath
-    rtp = {
-      disabled_plugins = {
-        "gzip",
-        "matchit",
-        "matchparen",
-        "netrw",
-        "netrwPlugin",
-        "tarPlugin",
-        "tohtml",
-        "tutor",
-        "zipPlugin",
-        "rplugin",
-        "editorconfig",
-        "spellfile",
-      }, -- Disable unused built-ins
+    spec = {{
+        import = "plugins.UI.theme"
+    }, {
+        import = "plugins.UI.heirline"
+    }, {
+        import = "plugins.UI.alpha"
+    }, {
+        import = "plugins.UI.neotree"
+    }, {
+        import = "plugins.UI.rainbow"
+    }, {
+        import = "plugins.UI.aerial"
+    }, {
+        import = "plugins.UI.indent"
+    }, {
+        import = "plugins.editor.treesitter"
+    }, {
+        import = "plugins.editor.treesitter-context"
+    }, {
+        import = "plugins.editor.cmp"
+    }, {
+        import = "plugins.editor.comment"
+    }, {
+        import = "plugins.editor.gitsigns"
+    }, {
+        import = "plugins.editor.hlslens"
+    }, {
+        import = "plugins.editor.visual-multi"
+    }, {
+        import = "plugins.lsp.mason"
+    }, {
+        import = "plugins.lsp.lsp"
+    }, {
+        import = "plugins.tools.formatter"
+    }, {
+        import = "plugins.editor.lint"
+    }, {
+        import = "plugins.tools.telescope"
+    }, {
+        import = "plugins.tools.harpoon"
+    }, {
+        import = "plugins.tools.lazygit"
+    }, {
+        import = "plugins.tools.which-key"
+    }, {
+        import = "plugins.tools.lastplace"
+    }, {
+        import = "plugins.tools.copilot"
+    }, {
+        import = "plugins.tools.leetcode"
+    }},
+    install = {
+        colorscheme = {"onedark", "catppuccin", "catppuccin-latte", "tokyonight", "gruvbox", "habamax"}
     },
-  },
-  ui = {
-    border = "rounded", -- VSCode-like rounded borders
-    title = "Lazy", -- Minimal Lazy UI title
-    pills = true, -- Modern UI tabs
-  },
-  diff = {
-    cmd = "diffview.nvim", -- Support diffview.nvim
-  },
-  profiling = {
-    loader = false, -- Disable loader profiling by default
-    require = false, -- Disable require profiling
-  },
+    checker = {
+        enabled = true,
+        notify = false,
+        frequency = 259200 -- 每3天检查更新
+    },
+    performance = {
+        cache = {
+            enabled = true
+        },
+        reset_packpath = false,
+        rtp = {
+            disabled_plugins = {"gzip", "matchit", "matchparen", "netrw", "netrwPlugin", "tarPlugin", "tohtml", "tutor",
+                                "zipPlugin", "rplugin", "editorconfig", "spellfile"}
+        }
+    },
+    ui = {
+        border = "rounded",
+        title = "Lazy",
+        pills = true
+    },
+    diff = {
+        cmd = "diffview.nvim"
+    },
+    profiling = {
+        loader = false,
+        require = false
+    }
 })
+
+-- 读取保存的主题
+local selected_theme_file = vim.fn.stdpath("config") .. "/selected_theme.txt"
+local default_theme = "colorscheme onedark"
+if vim.fn.filereadable(selected_theme_file) == 1 then
+    local success, lines_or_err = pcall(vim.fn.readfile, selected_theme_file)
+    if not success then
+        vim.notify("读取主题文件失败: " .. tostring(lines_or_err), vim.log.levels.ERROR)
+        vim.cmd(default_theme)
+    else
+        local cmd = lines_or_err[1] or ""
+        -- 更新正则以支持包含连字符的主题名
+        if cmd:match("^colorscheme [%w%-]+$") then
+            local ok, apply_err = pcall(vim.cmd, cmd)
+            if not ok then
+                vim.notify("应用主题失败: " .. tostring(apply_err), vim.log.levels.ERROR)
+                vim.cmd(default_theme)
+            end
+        else
+            vim.notify("无效的主题命令: " .. cmd, vim.log.levels.WARN)
+            vim.cmd(default_theme)
+        end
+    end
+else
+    vim.cmd(default_theme)
+end
+
