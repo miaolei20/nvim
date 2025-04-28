@@ -16,104 +16,62 @@ return {{
         local utils = require("heirline.utils")
         local devicons = require("nvim-web-devicons")
 
-        -- UI Settings
+        -- UI 设置
         vim.opt.mouse = "a"
         vim.opt.showtabline = 2
         vim.opt.ruler = false
         vim.opt.showmode = false
 
-        -- Theme Detection
+        -- 主题缓存
+        local current_theme_cache = nil
+
+        -- 主题检测
         local function get_current_theme()
+            if current_theme_cache then
+                return current_theme_cache
+            end
             local theme = vim.g.colors_name
             if theme then
+                current_theme_cache = theme
                 return theme
             end
             local selected_theme_file = vim.fn.stdpath("config") .. "/selected_theme.txt"
             if vim.fn.filereadable(selected_theme_file) == 1 then
                 local success, lines = pcall(vim.fn.readfile, selected_theme_file)
                 if success and lines[1] and lines[1]:match("^colorscheme [%w%-]+$") then
-                    return lines[1]:match("^colorscheme (%w+[%w%-]*)$") or "onedark"
+                    current_theme_cache = lines[1]:match("^colorscheme (%w+[%w%-]*)$") or "onedark"
+                    return current_theme_cache
                 end
             end
-            return "onedark"
+            current_theme_cache = "onedark"
+            return current_theme_cache
         end
 
-        -- Optimized Theme Palettes
+        -- 主题调色板（示例，仅包含 onedark，其他主题可按需添加）
         local theme_palettes = {
             onedark = {
-                bg = "#282c34", -- Dark background
-                fg = "#abb2bf", -- Light text
-                bg_alt = "#23272e", -- Slightly lighter inactive
-                fg_alt = "#6b7280", -- Muted text
+                bg = "#282c34",
+                fg = "#abb2bf",
+                bg_alt = "#23272e",
+                fg_alt = "#6b7280",
                 blue = "#61afef",
                 green = "#98c379",
                 purple = "#c678dd",
                 yellow = "#e5c07b",
                 red = "#e06c75",
-                accent = "#5fabad", -- Very soft cyan
-                border = "#353941" -- Subtle border
-            },
-            catppuccin = {
-                bg = "#1e1e2e", -- Mocha base
-                fg = "#cdd6f4", -- Mocha text
-                bg_alt = "#1b1b29", -- Slightly lighter crust
-                fg_alt = "#6b7280", -- Mocha overlay1
-                blue = "#89b4fa",
-                green = "#a6e3a1",
-                purple = "#f5c2e7",
-                yellow = "#f9e2af",
-                red = "#f38ba8",
-                accent = "#8ac6be", -- Very soft teal
-                border = "#262638" -- Subtle border
-            },
-            ["catppuccin-latte"] = {
-                bg = "#eff1f5", -- Latte base
-                fg = "#16202f", -- Darker text
-                bg_alt = "#d4d8de", -- Slightly darker surface0
-                fg_alt = "#64748b", -- Darker overlay1
-                blue = "#1e66f5",
-                green = "#40a02b",
-                purple = "#8839ef",
-                yellow = "#df8e1d",
-                red = "#d20f39",
-                accent = "#5fabad", -- Very soft teal
-                border = "#caced6" -- Subtle border
-            },
-            tokyonight = {
-                bg = "#1a1b26", -- Night base
-                fg = "#c0caf5", -- Night text
-                bg_alt = "#1c1e2a", -- Slightly lighter darker
-                fg_alt = "#6b7280", -- Night comment
-                blue = "#7aa2f7",
-                green = "#9ece6a",
-                purple = "#bb9af7",
-                yellow = "#e0af68",
-                red = "#f7768e",
-                accent = "#6ba8d1", -- Very soft cyan
-                border = "#272a36" -- Subtle border
-            },
-            gruvbox = {
-                bg = "#282828", -- Dark bg0
-                fg = "#ebdbb2", -- Light fg
-                bg_alt = "#242424", -- Slightly lighter bg1
-                fg_alt = "#6b7280", -- Gray
-                blue = "#458588",
-                green = "#b8bb26",
-                purple = "#b16286",
-                yellow = "#fabd2f",
-                red = "#cc241d",
-                accent = "#769e9e", -- Very soft blue-green
-                border = "#363430" -- Subtle border
+                accent = "#5fabad",
+                border = "#353941"
             }
+            -- 添加其他主题如 catppuccin、tokyonight 等
         }
 
-        -- Get Colors
+        -- 获取颜色
         local function get_colors()
             local theme = get_current_theme()
             return theme_palettes[theme] or theme_palettes.onedark
         end
 
-        -- Icons
+        -- 图标
         local icons = {
             mode = "󰀘",
             folder = "󰉋",
@@ -131,7 +89,7 @@ return {{
             }
         }
 
-        -- Highlight Groups
+        -- 高亮组
         local function set_highlights()
             local c = get_colors()
             local hl_groups = {
@@ -176,9 +134,10 @@ return {{
         end
         set_highlights()
 
-        -- Refresh on Theme Change
+        -- 主题变更时刷新
         vim.api.nvim_create_autocmd("ColorScheme", {
             callback = function()
+                current_theme_cache = nil
                 set_highlights()
                 vim.defer_fn(function()
                     pcall(vim.cmd, "redrawstatus")
@@ -187,7 +146,7 @@ return {{
             end
         })
 
-        -- Utilities
+        -- 工具函数
         local Space = {
             provider = " "
         }
@@ -229,7 +188,7 @@ return {{
             return table.concat({parts[1], "…", parts[#parts - 1], parts[#parts]}, "/")
         end
 
-        -- Components
+        -- 组件
         local Mode = {
             init = function(self)
                 self.mode = vim.fn.mode(1)
@@ -305,10 +264,11 @@ return {{
             condition = conditions.is_git_repo,
             init = function(self)
                 self.status = vim.b.gitsigns_status_dict or {}
+                self.cache = self.cache or {}
+                self.cache.head = self.status.head or self.cache.head or "none"
             end,
             provider = function(self)
-                local head = self.status.head
-                return icons.branch .. " " .. (head and head ~= "" and head or "none") .. " "
+                return icons.branch .. " " .. self.cache.head .. " "
             end,
             hl = {
                 fg = get_colors().green,
@@ -330,6 +290,18 @@ return {{
                 bg = get_colors().bg
             },
             update = {"BufModifiedSet"}
+        }
+
+        local ReadOnlyIndicator = {
+            condition = function()
+                return vim.bo.readonly or not vim.bo.modifiable
+            end,
+            provider = "🔒 ",
+            hl = {
+                fg = get_colors().red,
+                bg = get_colors().bg
+            },
+            update = {"BufEnter"}
         }
 
         local LSPClients = {
@@ -463,6 +435,107 @@ return {{
             update = {"CursorMoved"}
         }}
 
+        local CurrentFunction = {
+            condition = function()
+                return vim.bo.filetype == "c" or vim.bo.filetype == "cpp" or vim.bo.filetype == "python"
+            end,
+            provider = function()
+                local func = vim.b.lsp_current_function or ""
+                return func ~= "" and "λ " .. func .. " " or ""
+            end,
+            hl = {
+                fg = get_colors().yellow,
+                bg = get_colors().bg
+            },
+            update = {"CursorMoved"}
+        }
+
+        local WinBarFilePath = {
+            init = function(self)
+                self.bufnr = vim.api.nvim_get_current_buf()
+                local full_path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.bufnr), ":~:.")
+                self.filepath = shorten_path(full_path)
+                self.filename = vim.fn.fnamemodify(full_path, ":t")
+                self.icon, self.icon_color = get_icon(self.filename, nil, {
+                    default = true
+                })
+            end,
+            provider = function(self)
+                return icons.folder .. " " .. (self.filepath ~= "" and self.filepath or "Dashboard") .. " "
+            end,
+            hl = function(self)
+                return {
+                    fg = self.icon_color,
+                    bg = get_colors().bg,
+                    italic = true
+                }
+            end,
+            update = {"BufEnter", "DirChanged"},
+            on_click = {
+                callback = function(_, minwid)
+                    if vim.api.nvim_buf_is_valid(minwid) then
+                        vim.api.nvim_set_current_buf(minwid)
+                    else
+                        vim.notify("Invalid buffer", vim.log.levels.WARN)
+                    end
+                end,
+                name = function(self)
+                    return "winbar_buf_" .. self.bufnr
+                end,
+                minwid = function(self)
+                    return self.bufnr
+                end
+            }
+        }
+
+        local WinBar = {
+            condition = function()
+                return not vim.bo.buftype:match("^(quickfix|nofile|help|terminal|alpha)$")
+            end,
+            Space,
+            WinBarFilePath,
+            Space,
+            CurrentFunction,
+            Align
+        }
+
+        local DefaultStatusLine = {
+            condition = function()
+                return not vim.bo.buftype:match("alpha")
+            end,
+            hl = {
+                bg = get_colors().bg
+            },
+            Mode,
+            Space,
+            {
+                hl = {
+                    bg = get_colors().bg
+                },
+                GitBranch,
+                Space,
+                FileName,
+                ModifiedIndicator,
+                ReadOnlyIndicator,
+                Space,
+                LSPClients
+            },
+            Align,
+            {
+                hl = {
+                    bg = get_colors().bg
+                },
+                Diagnostics,
+                Space,
+                FileType,
+                Space,
+                FileInfo,
+                Space,
+                Location
+            }
+        }
+
+        -- 标签栏组件（示例，需按需调整）
         local BufferComponent = {
             init = function(self)
                 self.bufnr = self.bufnr or vim.api.nvim_get_current_buf()
@@ -547,180 +620,6 @@ return {{
             utils.make_buflist(BufferComponent)
         }
 
-        local TabComponent = {
-            init = function(self)
-                self.tabpage = self.tabpage or vim.api.nvim_get_current_tabpage()
-                self.is_active = self.tabpage == vim.api.nvim_get_current_tabpage()
-                self.tabnr = vim.api.nvim_tabpage_get_number(self.tabpage)
-            end,
-            {
-                provider = icons.separator .. " ",
-                hl = function(self)
-                    local c = get_colors()
-                    return {
-                        fg = self.is_active and c.accent or c.fg_alt,
-                        bg = c.bg
-                    }
-                end
-            },
-            {
-                provider = function(self)
-                    return "󰓩 " .. self.tabnr .. " "
-                end,
-                hl = function(self)
-                    local c = get_colors()
-                    return {
-                        fg = self.is_active and c.fg or c.fg_alt,
-                        bg = self.is_active and c.border or c.bg
-                    }
-                end,
-                on_click = {
-                    callback = function(_, minwid)
-                        if vim.api.nvim_tabpage_is_valid(minwid) then
-                            vim.api.nvim_set_current_tabpage(minwid)
-                        end
-                    end,
-                    name = function(self)
-                        return "tab_" .. self.tabpage
-                    end,
-                    minwid = function(self)
-                        return self.tabpage
-                    end
-                }
-            },
-            {
-                provider = icons.close .. " ",
-                hl = function(self)
-                    local c = get_colors()
-                    return {
-                        fg = c.red,
-                        bg = self.is_active and c.border or c.bg
-                    }
-                end,
-                on_click = {
-                    callback = function(_, minwid)
-                        if vim.api.nvim_tabpage_is_valid(minwid) then
-                            local tabnr = vim.api.nvim_tabpage_get_number(minwid)
-                            vim.cmd("tabclose " .. tabnr)
-                        end
-                    end,
-                    name = function(self)
-                        return "close_tab_" .. self.tabpage
-                    end,
-                    minwid = function(self)
-                        return self.tabpage
-                    end
-                }
-            },
-            update = {"TabEnter", "TabClosed"}
-        }
-
-        local Tabs = {
-            condition = function()
-                return #vim.api.nvim_list_tabpages() >= 2
-            end,
-            utils.make_tablist(TabComponent)
-        }
-
-        local TabClose = {
-            condition = function()
-                return #vim.api.nvim_list_tabpages() > 1
-            end,
-            provider = icons.close .. " ",
-            hl = {
-                fg = get_colors().red,
-                bg = get_colors().bg
-            },
-            on_click = {
-                callback = function()
-                    vim.cmd("tabclose")
-                end,
-                name = "tab_close"
-            }
-        }
-
-        local WinBarFilePath = {
-            init = function(self)
-                self.bufnr = vim.api.nvim_get_current_buf()
-                local full_path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.bufnr), ":~:.")
-                self.filepath = shorten_path(full_path)
-                self.filename = vim.fn.fnamemodify(full_path, ":t")
-                self.icon, self.icon_color = get_icon(self.filename, nil, {
-                    default = true
-                })
-            end,
-            provider = function(self)
-                return icons.folder .. " " .. (self.filepath ~= "" and self.filepath or "Dashboard") .. " "
-            end,
-            hl = function(self)
-                return {
-                    fg = self.icon_color,
-                    bg = get_colors().bg,
-                    italic = true
-                }
-            end,
-            update = {"BufEnter", "DirChanged"},
-            on_click = {
-                callback = function(_, minwid)
-                    if vim.api.nvim_buf_is_valid(minwid) then
-                        vim.api.nvim_set_current_buf(minwid)
-                    else
-                        vim.notify("Invalid buffer", vim.log.levels.WARN)
-                    end
-                end,
-                name = function(self)
-                    return "winbar_buf_" .. self.bufnr
-                end,
-                minwid = function(self)
-                    return self.bufnr
-                end
-            }
-        }
-
-        local WinBar = {
-            condition = function()
-                return not vim.bo.buftype:match("^(quickfix|nofile|help|terminal|alpha)$")
-            end,
-            Space,
-            WinBarFilePath,
-            Align
-        }
-
-        local DefaultStatusLine = {
-            condition = function()
-                return not vim.bo.buftype:match("alpha")
-            end,
-            hl = {
-                bg = get_colors().bg
-            },
-            Mode,
-            Space,
-            {
-                hl = {
-                    bg = get_colors().bg
-                },
-                GitBranch,
-                Space,
-                FileName,
-                ModifiedIndicator,
-                Space,
-                LSPClients
-            },
-            Align,
-            {
-                hl = {
-                    bg = get_colors().bg
-                },
-                Diagnostics,
-                Space,
-                FileType,
-                Space,
-                FileInfo,
-                Space,
-                Location
-            }
-        }
-
         local TabLine = {
             condition = function()
                 return not vim.bo.buftype:match("alpha")
@@ -731,12 +630,11 @@ return {{
             Space,
             Buffers,
             Align,
-            Tabs,
-            Space,
-            TabClose
+            -- Tabs 组件可按需添加
+            Space
         }
 
-        -- Heirline Setup
+        -- Heirline 设置
         heirline.setup({
             statusline = {AlphaStatusLine, DefaultStatusLine},
             tabline = TabLine,
@@ -751,10 +649,10 @@ return {{
             }
         })
 
-        -- Ensure statusline is always shown
+        -- 确保状态栏始终显示
         vim.api.nvim_create_autocmd("VimEnter", {
             callback = function()
-                vim.opt.laststatus = 2
+                vim.opt.laststatus = 3 -- 全局状态栏
             end
         })
     end
