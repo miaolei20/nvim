@@ -218,10 +218,10 @@ return {
 
     -- LSP client names component
     local LSP = {
-      condition = function() return #vim.lsp.get_active_clients({ bufnr = 0 }) > 0 end,
+      condition = function() return #vim.lsp.get_clients({ bufnr = 0 }) > 0 end,
       provider = function()
         local names = {}
-        for _, client in ipairs(vim.lsp.get_active_clients({ bufnr = 0 })) do
+        for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
           table.insert(names, client.name)
         end
         local s = table.concat(names, ", ")

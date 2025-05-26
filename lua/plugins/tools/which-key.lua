@@ -1,12 +1,12 @@
 return {{
-    "folke/which-key.nvim",
+    "folke/which-key.nvim",             -- 按键提示界面
     event = "VeryLazy",
     opts = {
         preset = "modern",
         delay = 300,
         win = {
             border = "rounded",
-            padding = {1, 2},
+            padding = {1,2},
             height = {
                 min = 4,
                 max = 25
@@ -84,5 +84,4 @@ return {{
             mode = "n",
             icon = "🔧"
         }})
-    end
 }}

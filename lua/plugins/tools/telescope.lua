@@ -1,15 +1,21 @@
-return {{
+return {
     "nvim-telescope/telescope.nvim",
     cmd = "Telescope",
-    event = {"BufReadPre", "BufNewFile"},
-    dependencies = {"nvim-lua/plenary.nvim", {
-        "nvim-telescope/telescope-fzf-native.nvim",
-        build = "make",
-        cond = function()
-            return vim.fn.executable("make") == 1
-        end
-    }, "nvim-telescope/telescope-file-browser.nvim", "debugloop/telescope-undo.nvim",
-                    "nvim-telescope/telescope-ui-select.nvim", "folke/which-key.nvim"},
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = {
+        "nvim-lua/plenary.nvim",
+        {
+            "nvim-telescope/telescope-fzf-native.nvim",
+            build = "make",
+            cond = function()
+                return vim.fn.executable("make") == 1
+            end,
+        },
+        "nvim-telescope/telescope-file-browser.nvim",
+        "debugloop/telescope-undo.nvim",
+        "nvim-telescope/telescope-ui-select.nvim",
+        { "folke/which-key.nvim", optional = true },
+    },
     config = function()
         local telescope = require("telescope")
         local builtin = require("telescope.builtin")
@@ -20,37 +26,38 @@ return {{
         local state = require("telescope.actions.state")
         local themes = require("telescope.themes")
 
-        -- 定义主题选择器函数
+        -- Set diagnostic signs to avoid sign-define deprecation
+        vim.diagnostic.config({
+            signs = {
+                text = {
+                    [vim.diagnostic.severity.ERROR] = "✖",
+                    [vim.diagnostic.severity.WARN] = "⚠",
+                    [vim.diagnostic.severity.INFO] = "ℹ",
+                    [vim.diagnostic.severity.HINT] = "➤",
+                },
+            },
+        })
+
+        -- Theme picker function
         local function theme_picker()
-            local theme_list = {{
-                name = "onedark",
-                cmd = "colorscheme onedark"
-            }, {
-                name = "catppuccin (dark)",
-                cmd = "colorscheme catppuccin"
-            }, {
-                name = "catppuccin (light)",
-                cmd = "colorscheme catppuccin-latte"
-            }, {
-                name = "tokyonight",
-                cmd = "colorscheme tokyonight"
-            }, {
-                name = "gruvbox",
-                cmd = "colorscheme gruvbox"
-            }}
-            pickers.new(themes.get_dropdown({
-                previewer = false
-            }), {
-                prompt_title = "选择主题",
+            local theme_list = {
+                { name = "onedark", cmd = "colorscheme onedark" },
+                { name = "catppuccin (dark)", cmd = "colorscheme catppuccin" },
+                { name = "catppuccin (light)", cmd = "colorscheme catppuccin-latte" },
+                { name = "tokyonight", cmd = "colorscheme tokyonight" },
+                { name = "gruvbox", cmd = "colorscheme gruvbox" },
+            }
+            pickers.new(themes.get_dropdown({ previewer = false }), {
+                prompt_title = "Select Theme",
                 finder = finders.new_table({
                     results = theme_list,
                     entry_maker = function(entry)
                         return {
                             value = entry,
                             display = entry.name,
-                            ordinal = entry.name
+                            ordinal = entry.name,
                         }
-                    end
+                    end,
                 }),
                 sorter = conf.generic_sorter({}),
                 attach_mappings = function(prompt_bufnr)
@@ -59,109 +66,113 @@ return {{
                         actions.close(prompt_bufnr)
                         if selection then
                             vim.cmd(selection.value.cmd)
-                            -- 保存选择的主题到文件
-                            local selected_theme_file = vim.fn.stdpath("config") .. "/selected_theme.txt"
-                            local ok, err = pcall(vim.fn.writefile, {selection.value.cmd}, selected_theme_file)
-                            if ok then
-                                vim.notify("主题已保存: " .. selection.value.cmd, vim.log.levels.INFO)
-                            else
-                                vim.notify("保存主题失败: " .. tostring(err), vim.log.levels.ERROR)
-                            end
+                            vim.g.selected_theme = selection.value.cmd
+                            vim.notify("Theme set: " .. selection.value.name, vim.log.levels.INFO)
                         end
                     end)
                     return true
-                end
+                end,
             }):find()
         end
 
-        -- Telescope 配置
+        -- Telescope setup
         telescope.setup({
             defaults = {
                 layout_strategy = "horizontal",
                 layout_config = {
                     horizontal = {
                         width = 0.95,
-                        height = 0.85,
+                        height = function(_, _, max_lines)
+                            return math.min(max_lines, math.floor(vim.o.lines * 0.85))
+                        end,
                         preview_width = 0.6,
-                        prompt_position = "top"
+                        prompt_position = "top",
                     },
                     vertical = {
                         width = 0.85,
-                        height = 0.85,
-                        prompt_position = "top"
-                    }
+                        height = function(_, _, max_lines)
+                            return math.min(max_lines, math.floor(vim.o.lines * 0.85))
+                        end,
+                        prompt_position = "top",
+                    },
                 },
-                path_display = {"smart"},
-                file_ignore_patterns = {"^.git/", "^node_modules/", "^.venv/", "^.cache/"},
+                path_display = { "smart" },
+                file_ignore_patterns = { "%.git/", "node_modules/", "%.venv/", "%.cache/" },
                 mappings = {
                     i = {
-                        ["<C-j>"] = "move_selection_next",
-                        ["<C-k>"] = "move_selection_previous",
-                        ["<Esc>"] = "close",
-                        ["<CR>"] = "select_default",
-                        ["<C-u>"] = "preview_scrolling_up",
-                        ["<C-d>"] = "preview_scrolling_down"
+                        ["<C-j>"] = actions.move_selection_next,
+                        ["<C-k>"] = actions.move_selection_previous,
+                        ["<Esc>"] = actions.close,
+                        ["<CR>"] = actions.select_default,
+                        ["<C-u>"] = actions.preview_scrolling_up,
+                        ["<C-d>"] = actions.preview_scrolling_down,
                     },
                     n = {
-                        ["q"] = "close",
-                        ["<Esc>"] = "close",
-                        ["<CR>"] = "select_default"
-                    }
+                        ["q"] = actions.close,
+                        ["<Esc>"] = actions.close,
+                        ["<CR>"] = actions.select_default,
+                    },
                 },
                 sorting_strategy = "ascending",
-                set_env = {
-                    ["COLORTERM"] = "truecolor"
+                set_env = { ["COLORTERM"] = "truecolor" },
+                vimgrep_arguments = {
+                    "rg",
+                    "--color=never",
+                    "--no-heading",
+                    "--with-filename",
+                    "--line-number",
+                    "--column",
+                    "--smart-case",
+                    "--hidden",
+                    "--glob=!.git/*",
+                    "--glob=!node_modules/*",
+                    "--glob=!.venv/*",
+                    "--max-depth=5",
                 },
-                vimgrep_arguments = {"rg", "--color=never", "--no-heading", "--with-filename", "--line-number",
-                                     "--column", "--smart-case", "--hidden", "--glob=!.git/*", "--glob=!node_modules/*",
-                                     "--glob=!.venv/*", "--max-depth=5", "--threads=0", "--mmap"}
             },
             pickers = {
                 find_files = {
                     hidden = true,
                     no_ignore = false,
-                    find_command = {"fd", "--type=f", "--strip-cwd-prefix", "--hidden", "--exclude=.git",
-                                    "--max-depth=5"}
+                    find_command = vim.fn.executable("fd") == 1 and {
+                        "fd",
+                        "--type=f",
+                        "--strip-cwd-prefix",
+                        "--hidden",
+                        "--exclude=.git",
+                        "--max-depth=5",
+                    } or nil,
                 },
                 diagnostics = {
                     theme = "ivy",
-                    layout_config = {
-                        height = 0.4
-                    },
-                    line_width = 0.8
+                    layout_config = { height = 0.4 },
+                    line_width = 0.8,
                 },
                 live_grep = {
                     only_sort_text = true,
-                    max_results = 3000
+                    max_results = 3000,
                 },
                 buffers = {
                     theme = "dropdown",
                     previewer = false,
                     sort_lastused = true,
                     mappings = {
-                        i = {
-                            ["<C-d>"] = "delete_buffer"
-                        },
-                        n = {
-                            ["d"] = "delete_buffer"
-                        }
-                    }
+                        i = { ["<C-d>"] = actions.delete_buffer },
+                        n = { ["d"] = actions.delete_buffer },
+                    },
                 },
                 oldfiles = {
                     theme = "dropdown",
                     previewer = false,
-                    layout_config = {
-                        width = 0.8,
-                        height = 0.5
-                    }
-                }
+                    layout_config = { width = 0.8, height = 0.5 },
+                },
             },
             extensions = {
                 fzf = {
                     fuzzy = true,
                     override_generic_sorter = true,
                     override_file_sorter = true,
-                    case_mode = "smart_case"
+                    case_mode = "smart_case",
                 },
                 file_browser = {
                     hijack_netrw = true,
@@ -170,137 +181,63 @@ return {{
                     initial_mode = "normal",
                     path = "%:p:h",
                     respect_gitignore = true,
-                    depth = 5
+                    depth = 5,
                 },
                 ["ui-select"] = themes.get_dropdown({
                     previewer = false,
-                    layout_config = {
-                        width = 0.8,
-                        height = 0.5
-                    }
+                    layout_config = { width = 0.8, height = 0.5 },
                 }),
                 undo = {
                     side_by_side = true,
                     layout_strategy = "vertical",
-                    layout_config = {
-                        preview_height = 0.7
-                    }
-                }
-            }
+                    layout_config = { preview_height = 0.7 },
+                },
+            },
         })
 
-        -- 异步加载扩展
-        vim.defer_fn(function()
-            local extensions = {"fzf", "file_browser", "undo", "ui-select"}
-            for _, ext in ipairs(extensions) do
-                local ok, err = pcall(telescope.load_extension, ext)
-                if not ok then
-                    vim.notify("无法加载 Telescope 扩展: " .. ext .. " (" .. tostring(err) .. ")",
-                        vim.log.levels.WARN)
-                end
-            end
-        end, 100)
-
-        -- 项目文件搜索函数
-        local is_inside_work_tree = {}
-        local function project_files()
-            local win_height = vim.api.nvim_win_get_height(0)
-            local safe_height = math.max(15, math.floor(win_height * 0.7))
-            local opts = {
-                show_untracked = true,
-                layout_config = {
-                    height = safe_height
-                }
-            }
-            local cwd = vim.fn.getcwd()
-            if is_inside_work_tree[cwd] ~= nil then
-                if is_inside_work_tree[cwd] then
-                    builtin.git_files(opts)
-                else
-                    builtin.find_files(opts)
-                end
-            else
-                vim.system({"git", "rev-parse", "--is-inside-work-tree"}, {
-                    text = true
-                }, function(obj)
-                    is_inside_work_tree[cwd] = obj.code == 0
-                    vim.schedule(function()
-                        if is_inside_work_tree[cwd] then
-                            builtin.git_files(opts)
-                        else
-                            builtin.find_files(opts)
-                        end
-                    end)
-                end)
+        -- Load extensions with error handling
+        local extensions = { "fzf", "file_browser", "undo", "ui-select" }
+        for _, ext in ipairs(extensions) do
+            local ok, err = pcall(telescope.load_extension, ext)
+            if not ok then
+                vim.notify("Failed to load Telescope extension: " .. ext .. " (" .. tostring(err) .. ")", vim.log.levels.WARN)
             end
         end
 
-        -- 使用 which-key 设置快捷键
-        local wk = require("which-key")
-        wk.add({{
-            "<leader>s",
-            group = "搜索",
-            icon = "🔍"
-        }, {
-            "<leader>sf",
-            project_files,
-            desc = "查找文件",
-            mode = "n",
-            icon = "📁"
-        }, {
-            "<leader>sg",
-            function()
-                builtin.live_grep()
-            end,
-            desc = "实时搜索",
-            mode = "n",
-            icon = "🔎"
-        }, {
-            "<leader>sd",
-            function()
-                builtin.diagnostics()
-            end,
-            desc = "诊断",
-            mode = "n",
-            icon = "🩺"
-        }, {
-            "<leader>sb",
-            function()
-                telescope.extensions.file_browser.file_browser()
-            end,
-            desc = "文件浏览器",
-            mode = "n",
-            icon = "📂"
-        }, {
-            "<leader>su",
-            function()
-                telescope.extensions.undo.undo()
-            end,
-            desc = "撤销历史",
-            mode = "n",
-            icon = "🔄"
-        }, {
-            "<leader>sr",
-            function()
-                builtin.oldfiles()
-            end,
-            desc = "最近文件",
-            mode = "n",
-            icon = "🕒"
-        }, {
-            "<leader>so",
-            function()
-                builtin.buffers()
-            end,
-            desc = "打开缓冲区",
-            mode = "n",
-            icon = "📋"
-        }, {
-            "<leader>st",
-            theme_picker,
-            desc = "选择主题",
-            mode = "n",
-            icon = "🎨"
-        }})
-    end
-}}
+        -- Project files function
+        local function project_files()
+            local opts = {
+                show_untracked = true,
+                layout_config = {
+                    height = function(_, _, max_lines)
+                        return math.min(max_lines, math.max(15, math.floor(vim.o.lines * 0.7)))
+                    end,
+                },
+            }
+            local ok, result = pcall(vim.fn.systemlist, { "git", "rev-parse", "--is-inside-work-tree" })
+            if ok and result[1] == "true" then
+                builtin.git_files(opts)
+            else
+                builtin.find_files(opts)
+            end
+        end
+
+        -- Register keybindings with which-key
+        local ok, wk = pcall(require, "which-key")
+        if ok then
+            wk.add({
+                { "<leader>s", group = "Search", icon = "🔍" },
+                { "<leader>sf", project_files, desc = "Find Files", mode = "n", icon = "📁" },
+                { "<leader>sg", builtin.live_grep, desc = "Live Grep", mode = "n", icon = "🔎" },
+                { "<leader>sd", builtin.diagnostics, desc = "Diagnostics", mode = "n", icon = "🩺" },
+                { "<leader>sb", telescope.extensions.file_browser.file_browser, desc = "File Browser", mode = "n", icon = "📂" },
+                { "<leader>su", telescope.extensions.undo.undo, desc = "Undo History", mode = "n", icon = "🔄" },
+                { "<leader>sr", builtin.oldfiles, desc = "Recent Files", mode = "n", icon = "🕒" },
+                { "<leader>so", builtin.buffers, desc = "Open Buffers", mode = "n", icon = "📋" },
+                { "<leader>st", theme_picker, desc = "Select Theme", mode = "n", icon = "🎨" },
+            })
+        else
+            vim.notify("which-key not found, keybindings not registered", vim.log.levels.WARN)
+        end
+    end,
+}
