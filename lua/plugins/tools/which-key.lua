@@ -1,12 +1,12 @@
 return {{
-    "folke/which-key.nvim",             -- 按键提示界面
+    "folke/which-key.nvim",
     event = "VeryLazy",
     opts = {
         preset = "modern",
         delay = 300,
         win = {
             border = "rounded",
-            padding = {1,2},
+            padding = {1, 2},
             height = {
                 min = 4,
                 max = 25
@@ -56,32 +56,5 @@ return {{
         local wk = require("which-key")
         wk.setup(opts)
 
-        -- Register global leader groups
-        wk.add({{
-            "<leader>",
-            group = "Leader",
-            icon = "🌟"
-        }, {
-            "<localleader>",
-            group = "Local Leader",
-            icon = "🔧"
-        }, {
-            "<leader>?",
-            function()
-                wk.show()
-            end,
-            desc = "Show Help",
-            icon = "󰋖",
-            mode = "n"
-        }, {
-            "<leader>m",
-            group = "Mason",
-            icon = "🛠️"
-        }, {
-            "<leader>mt",
-            "<cmd>MasonToolsInstall<CR>",
-            desc = "Install Tools",
-            mode = "n",
-            icon = "🔧"
-        }})
+    end
 }}
