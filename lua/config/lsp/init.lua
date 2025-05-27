@@ -1,47 +1,66 @@
--- ~/.config/nvim/lua/config/lsp/init.lua
-
 local M = {}
 
 local lspconfig = require("lspconfig")
 local mason_lspconfig = require("mason-lspconfig")
 local cmp_nvim_lsp = require("cmp_nvim_lsp")
-local wk = require("which-key")
 
 -- 💡 LSP 附加功能配置
 local function on_attach(client, bufnr)
-    wk.register({
-        ["<leader>l"] = { name = "LSP 💡" },
-        ["<leader>lg"] = { name = "Goto 🔍" },
-        ["<leader>lgd"] = { "<cmd>Telescope lsp_definitions<CR>", "Go to Definition" },
-        ["<leader>lgr"] = { "<cmd>Telescope lsp_references<CR>", "References" },
-        ["<leader>lh"] = { vim.lsp.buf.hover, "Hover Documentation" },
-        ["<leader>lr"] = { vim.lsp.buf.rename, "Rename Symbol" },
-        ["<leader>lc"] = { vim.lsp.buf.code_action, "Code Action" },
-        ["<leader>lf"] = {
-            function()
-                require("conform").format({ async = true, lsp_fallback = true })
-            end,
-            "Format Buffer"
-        },
-    }, { buffer = bufnr })
+    -- 定义按键映射
+    local mappings = {
+        { modes = { "n" }, lhs = "<leader>lgd", rhs = "<cmd>Telescope lsp_definitions<CR>", desc = "跳转到定义" },
+        { modes = { "n" }, lhs = "<leader>lgr", rhs = "<cmd>Telescope lsp_references<CR>", desc = "引用" },
+        { modes = { "n" }, lhs = "<leader>lh", rhs = vim.lsp.buf.hover, desc = "悬浮文档" },
+        { modes = { "n" }, lhs = "<leader>lr", rhs = vim.lsp.buf.rename, desc = "重命名符号" },
+        { modes = { "n" }, lhs = "<leader>lc", rhs = vim.lsp.buf.code_action, desc = "代码操作" },
+        { modes = { "n" }, lhs = "<leader>lf", rhs = function()
+            require("conform").format({ async = true, lsp_fallback = true })
+        end, desc = "格式化缓冲区" },
+    }
+
+    -- 设置按键映射
+    for _, mapping in ipairs(mappings) do
+        vim.keymap.set(mapping.modes, mapping.lhs, mapping.rhs, { buffer = bufnr, desc = mapping.desc, noremap = true, silent = true })
+    end
 end
 
 -- 🚀 主配置入口
 function M.setup()
-    -- Diagnostic 符号设置
-    local signs = {
-        { name = "DiagnosticSignError", text = "" },
-        { name = "DiagnosticSignWarn", text = "" },
-        { name = "DiagnosticSignInfo", text = "" },
-        { name = "DiagnosticSignHint", text = "" },
-    }
-    for _, sign in ipairs(signs) do
-        vim.fn.sign_define(sign.name, {
-            texthl = sign.name,
-            text = sign.text,
-            numhl = sign.name,
-        })
-    end
+    -- 诊断符号设置
+   vim.diagnostic.config({
+    virtual_text = true,
+    signs = {
+        text = {
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.INFO] = "",
+            [vim.diagnostic.severity.HINT] = "",
+        },
+        texthl = {
+            [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+            [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+            [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+            [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+        },
+        numhl = {
+            [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+            [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+            [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+            [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+        },
+    },
+    update_in_insert = false,
+    underline = true,
+    severity_sort = true,
+    float = {
+        focusable = true,
+        style = "minimal",
+        border = "rounded",
+        source = "always",
+        header = "",
+        prefix = "",
+    },
+})
 
     vim.diagnostic.config({
         virtual_text = true,
@@ -128,4 +147,3 @@ function M.setup()
 end
 
 return M
-

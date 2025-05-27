@@ -1,12 +1,13 @@
 return {{
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim",
-                    "folke/which-key.nvim" -- 明确声明 which-key 依赖
+    dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-tree/nvim-web-devicons",
+        "MunifTanjim/nui.nvim"
     },
-    cmd = {"Neotree"},
-    -- 确保在特定事件触发时加载，避免未加载问题
-    event = {"BufEnter", "VimEnter"},
+    cmd = { "Neotree" },
+    event = { "BufEnter", "VimEnter" },
     opts = {
         close_if_last_window = true,
         popup_border_style = "rounded",
@@ -25,8 +26,6 @@ return {{
         }
     },
     config = function(_, opts)
-        local wk = require("which-key")
-
         -- Debug logging
         local function debug_log(msg)
             if vim.g.debug_neotree then
@@ -42,7 +41,7 @@ return {{
         if opts.open_on_setup then
             vim.api.nvim_create_autocmd("VimEnter", {
                 callback = function()
-                    if vim.fn.argc() == 0 then -- Only open if no file is opened
+                    if vim.fn.argc() == 0 then
                         vim.cmd("Neotree show left")
                         debug_log("Neo-tree opened on startup")
                     end
@@ -51,153 +50,48 @@ return {{
             })
         end
 
-        -- Register global explorer mappings
-        wk.add({{
-            "<leader>e",
-            group = "Explorer",
-            icon = "󰉋"
-        }, {
-            "<leader>et",
-            "<cmd>Neotree toggle left<CR>",
-            desc = "Toggle Explorer",
-            icon = "󰐿",
-            mode = "n"
-        }, {
-            "<leader>ef",
-            "<cmd>Neotree focus left<CR>",
-            desc = "Focus Explorer",
-            icon = "󰋱",
-            mode = "n"
-        }, {
-            "<leader>eg",
-            "<cmd>Neotree git_status left<CR>",
-            desc = "Git Status",
-            icon = "󰜘",
-            mode = "n"
-        }, {
-            "<leader>eb",
-            "<cmd>Neotree buffers left<CR>",
-            desc = "Buffer List",
-            icon = "󰈤",
-            mode = "n"
-        }})
+        -- Global keymaps
+        local map = vim.keymap.set
+        local opts_silent = { noremap = true, silent = true }
+
+        map("n", "<leader>et", "<cmd>Neotree toggle left<CR>", opts_silent)
+        map("n", "<leader>ef", "<cmd>Neotree focus left<CR>", opts_silent)
+        map("n", "<leader>eg", "<cmd>Neotree git_status left<CR>", opts_silent)
+        map("n", "<leader>eb", "<cmd>Neotree buffers left<CR>", opts_silent)
+
         debug_log("Global explorer mappings registered")
 
-        -- Register neo-tree buffer mappings
+        -- Neo-tree buffer-local mappings
         vim.api.nvim_create_autocmd("FileType", {
             pattern = "neo-tree",
             callback = function(args)
-                wk.add({{
-                    "e",
-                    group = "Neo-Tree",
-                    icon = "󰉋"
-                }, {
-                    "et",
-                    "toggle_node",
-                    desc = "Toggle Node",
-                    icon = "󰁙",
-                    mode = "n"
-                }, {
-                    "eo",
-                    "open",
-                    desc = "Open",
-                    icon = "󰌑",
-                    mode = "n"
-                }, {
-                    "ew",
-                    "open_with_window_picker",
-                    desc = "Open in Window",
-                    icon = "󱂬",
-                    mode = "n"
-                }, {
-                    "ep",
-                    "toggle_preview",
-                    desc = "Toggle Preview",
-                    icon = "󰋲",
-                    mode = "n"
-                }, {
-                    "ea",
-                    "add",
-                    desc = "Add File",
-                    icon = "󰝒",
-                    mode = "n"
-                }, {
-                    "eA",
-                    "add_directory",
-                    desc = "Add Directory",
-                    icon = "󰉌",
-                    mode = "n"
-                }, {
-                    "ed",
-                    "delete",
-                    desc = "Delete",
-                    icon = "󰅖",
-                    mode = "n"
-                }, {
-                    "er",
-                    "rename",
-                    desc = "Rename",
-                    icon = "󰑕",
-                    mode = "n"
-                }, {
-                    "ey",
-                    "copy_to_clipboard",
-                    desc = "Copy to Clipboard",
-                    icon = "󰅍",
-                    mode = "n"
-                }, {
-                    "ex",
-                    "cut_to_clipboard",
-                    desc = "Cut to Clipboard",
-                    icon = "󰆐",
-                    mode = "n"
-                }, {
-                    "es",
-                    "paste_from_clipboard",
-                    desc = "Paste from Clipboard",
-                    icon = "󰆒",
-                    mode = "n"
-                }, {
-                    "ec",
-                    "copy",
-                    desc = "Copy File",
-                    icon = "󰉍",
-                    mode = "n"
-                }, {
-                    "em",
-                    "move",
-                    desc = "Move File",
-                    icon = "󰹑",
-                    mode = "n"
-                }, {
-                    "eq",
-                    "close_window",
-                    desc = "Close Explorer",
-                    icon = "󰅘",
-                    mode = "n"
-                }, {
-                    "eR",
-                    "refresh",
-                    desc = "Refresh",
-                    icon = "󰑐",
-                    mode = "n"
-                }, {
-                    "e?",
-                    "show_help",
-                    desc = "Show Help",
-                    icon = "󰋖",
-                    mode = "n"
-                }, {
-                    "eh",
-                    "toggle_hidden",
-                    desc = "Toggle Hidden",
-                    icon = "󰘓",
-                    mode = "n"
-                }}, {
-                    buffer = args.buf
-                })
+                local bmap = function(lhs, rhs, desc)
+                    map("n", lhs, function()
+                        vim.cmd("Neotree action=" .. rhs)
+                    end, { buffer = args.buf, desc = desc, noremap = true, silent = true })
+                end
+
+                bmap("et", "toggle_node", "Toggle Node")
+                bmap("eo", "open", "Open")
+                bmap("ew", "open_with_window_picker", "Open in Window")
+                bmap("ep", "toggle_preview", "Toggle Preview")
+                bmap("ea", "add", "Add File")
+                bmap("eA", "add_directory", "Add Directory")
+                bmap("ed", "delete", "Delete")
+                bmap("er", "rename", "Rename")
+                bmap("ey", "copy_to_clipboard", "Copy to Clipboard")
+                bmap("ex", "cut_to_clipboard", "Cut to Clipboard")
+                bmap("es", "paste_from_clipboard", "Paste from Clipboard")
+                bmap("ec", "copy", "Copy File")
+                bmap("em", "move", "Move File")
+                bmap("eq", "close_window", "Close Explorer")
+                bmap("eR", "refresh", "Refresh")
+                bmap("e?", "show_help", "Show Help")
+                bmap("eh", "toggle_hidden", "Toggle Hidden")
+
                 debug_log("Neo-tree buffer mappings registered for buffer " .. args.buf)
             end
         })
     end
 }}
+

@@ -6,7 +6,6 @@ return {
       "williamboman/mason-lspconfig.nvim",
       -- "saghen/blink.cmp",
       "hrsh7th/cmp-nvim-lsp",
-      "folke/which-key.nvim",
       "b0o/schemastore.nvim", -- Added for jsonls and yamlls schemas
     },
     config = function()

@@ -2,10 +2,9 @@ return {
     "kevinhwang91/nvim-hlslens",
     event = { "BufReadPost", "BufNewFile" },
     keys = { "n", "N", "*", "#", "/", "?" },
-    dependencies = { "folke/which-key.nvim", optional = true },
     opts = {
-        calm_down = true, -- Prevent lens jumping
-        nearest_only = true, -- Highlight nearest match
+        calm_down = true, -- 防止镜头跳动
+        nearest_only = true, -- 高亮最近的匹配项
         override_lens = function(render, pos_list, nearest, idx, rel_idx)
             local sfw = vim.v.searchforward == 1
             local indicator = string.format("%d/%d", idx, #pos_list)
@@ -16,19 +15,19 @@ return {
     config = function(_, opts)
         local ok, hlslens = pcall(require, "hlslens")
         if not ok then
-            vim.notify("Failed to load nvim-hlslens", vim.log.levels.WARN)
+            vim.notify("无法加载 nvim-hlslens", vim.log.levels.WARN)
             return
         end
         hlslens.setup(opts)
 
-        local wk_ok, wk = pcall(require, "which-key")
-        if wk_ok then
-            wk.add({
-                { "<leader>s", group = "Search", icon = "🔍" },
-                { "<leader>sh", "<cmd>noh<CR>", desc = "Clear Search Highlight", mode = "n", icon = "🧹" },
-            })
-        else
-            vim.notify("which-key not found, keybindings not registered", vim.log.levels.WARN)
+        -- 定义按键映射
+        local mappings = {
+            { modes = { "n" }, lhs = "<leader>sh", rhs = "<cmd>noh<CR>", desc = "清除搜索高亮" },
+        }
+
+        -- 设置按键映射
+        for _, mapping in ipairs(mappings) do
+            vim.keymap.set(mapping.modes, mapping.lhs, mapping.rhs, { desc = mapping.desc })
         end
-    end,
+    end
 }

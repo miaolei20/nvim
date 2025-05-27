@@ -48,7 +48,7 @@ local function resize_window(direction, step)
         local current_size = action.get(win) -- Get current width or height
         action.func(win, current_size + action.delta) -- Set new size
     else
-        vim.notify("Invalid resize direction: " .. tostring(direction), vim.log.levels.WARN)
+        vim.notify("无效的调整方向: " .. tostring(direction), vim.log.levels.WARN)
     end
 end
 
@@ -71,19 +71,19 @@ end
 
 -- Setup keymaps
 local function setup_keymaps()
-    debug_log("Setting up keymaps")
+    debug_log("设置按键映射")
 
     -- Window navigation (normal and terminal modes)
     for _, mode in ipairs({"n", "t"}) do
         local mode_opts = vim.tbl_extend("force", opts, {
-            desc = mode == "t" and "Terminal: Move>Left Window" or "Move>Left Window"
+            desc = mode == "t" and "终端: 移动>左窗口" or "移动>左窗口"
         })
         vim.keymap.set(mode, "<C-h>", mode == "t" and "<C-\\><C-n><C-w>h" or "<C-w>h", mode_opts)
-        mode_opts.desc = mode == "t" and "Terminal: Move>Lower Window" or "Move>Lower Window"
+        mode_opts.desc = mode == "t" and "终端: 移动>下窗口" or "移动>下窗口"
         vim.keymap.set(mode, "<C-j>", mode == "t" and "<C-\\><C-n><C-w>j" or "<C-w>j", mode_opts)
-        mode_opts.desc = mode == "t" and "Terminal: Move>Upper Window" or "Move>Upper Window"
+        mode_opts.desc = mode == "t" and "终端: 移动>上窗口" or "移动>上窗口"
         vim.keymap.set(mode, "<C-k>", mode == "t" and "<C-\\><C-n><C-w>k" or "<C-w>k", mode_opts)
-        mode_opts.desc = mode == "t" and "Terminal: Move>Right Window" or "Move>Right Window"
+        mode_opts.desc = mode == "t" and "终端: 移动>右窗口" or "移动>右窗口"
         vim.keymap.set(mode, "<C-l>", mode == "t" and "<C-\\><C-n><C-w>l" or "<C-w>l", mode_opts)
     end
 
@@ -92,104 +92,40 @@ local function setup_keymaps()
         noremap = true,
         silent = true,
         expr = true,
-        desc = "Move Down (Wrap)"
+        desc = "向下移动（换行）"
     })
     vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", {
         noremap = true,
         silent = true,
         expr = true,
-        desc = "Move Up (Wrap)"
+        desc = "向上移动（换行）"
     })
 
-    -- Window management keymaps with which-key
-    local ok, wk = pcall(require, "which-key")
-    if not ok then
-        vim.notify("which-key not found, using minimal keymaps", vim.log.levels.WARN)
-        -- Fallback keymaps
-        vim.keymap.set("n", "<leader>wv", "<C-w>v", vim.tbl_extend("force", opts, {
-            desc = "Split Vertically"
-        }))
-        vim.keymap.set("n", "<leader>ws", "<C-w>s", vim.tbl_extend("force", opts, {
-            desc = "Split Horizontally"
-        }))
-        return
+    -- Window management keymaps
+    local mappings = {
+        { modes = { "n" }, lhs = "<leader>wv", rhs = "<C-w>v", desc = "垂直分割" },
+        { modes = { "n" }, lhs = "<leader>ws", rhs = "<C-w>s", desc = "水平分割" },
+        { modes = { "n" }, lhs = "<leader>wh", rhs = function() resize_window("h") end, desc = "向左调整" },
+        { modes = { "n" }, lhs = "<leader>wj", rhs = function() resize_window("j") end, desc = "向下调整" },
+        { modes = { "n" }, lhs = "<leader>wk", rhs = function() resize_window("k") end, desc = "向上调整" },
+        { modes = { "n" }, lhs = "<leader>wl", rhs = function() resize_window("l") end, desc = "向右调整" },
+        { modes = { "n" }, lhs = "<leader>w[", rhs = "<C-o>", desc = "上一个位置" },
+        { modes = { "n" }, lhs = "<leader>w]", rhs = "<C-i>", desc = "下一个位置" },
+        { modes = { "n" }, lhs = "<leader>wm", rhs = toggle_maximize_window, desc = "切换最大化" },
+    }
+
+    -- Set window management keymaps
+    for _, mapping in ipairs(mappings) do
+        vim.keymap.set(mapping.modes, mapping.lhs, mapping.rhs, { desc = mapping.desc, noremap = true, silent = true })
     end
 
-    -- Define window keymaps directly with which-key
-    wk.add({{
-        "<leader>w",
-        group = "Window",
-        icon = "🪟"
-    }, {
-        "<leader>wv",
-        "<C-w>v",
-        desc = "Split Vertically",
-        mode = "n",
-        icon = "🪓"
-    }, {
-        "<leader>ws",
-        "<C-w>s",
-        desc = "Split Horizontally",
-        mode = "n",
-        icon = "🪚"
-    }, {
-        "<leader>wh",
-        function()
-            resize_window("h")
-        end,
-        desc = "Resize Left",
-        mode = "n",
-        icon = "⬅️"
-    }, {
-        "<leader>wj",
-        function()
-            resize_window("j")
-        end,
-        desc = "Resize Down",
-        mode = "n",
-        icon = "⬇️"
-    }, {
-        "<leader>wk",
-        function()
-            resize_window("k")
-        end,
-        desc = "Resize Up",
-        mode = "n",
-        icon = "⬆️"
-    }, {
-        "<leader>wl",
-        function()
-            resize_window("l")
-        end,
-        desc = "Resize Right",
-        mode = "n",
-        icon = "➡️"
-    }, {
-        "<leader>w[",
-        "<C-o>",
-        desc = "Previous Location",
-        mode = "n",
-        icon = "⏮️"
-    }, {
-        "<leader>w]",
-        "<C-i>",
-        desc = "Next Location",
-        mode = "n",
-        icon = "⏭️"
-    }, {
-        "<leader>wm",
-        toggle_maximize_window,
-        desc = "Toggle Maximize",
-        mode = "n",
-        icon = "↔️"
-    }})
-    debug_log("Keymaps registered successfully with which-key")
+    debug_log("按键映射设置成功")
 end
 
 -- Initialize on VimEnter
 vim.api.nvim_create_autocmd("VimEnter", {
     callback = function()
-        debug_log("Initializing keymaps module")
+        debug_log("初始化按键映射模块")
         setup_keymaps()
     end,
     once = true

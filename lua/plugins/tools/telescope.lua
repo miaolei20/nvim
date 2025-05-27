@@ -14,7 +14,6 @@ return {
         "nvim-telescope/telescope-file-browser.nvim",
         "debugloop/telescope-undo.nvim",
         "nvim-telescope/telescope-ui-select.nvim",
-        { "folke/which-key.nvim", optional = true },
     },
     config = function()
         local telescope = require("telescope")
@@ -26,7 +25,6 @@ return {
         local state = require("telescope.actions.state")
         local themes = require("telescope.themes")
 
-        -- Set diagnostic signs to avoid sign-define deprecation
         vim.diagnostic.config({
             signs = {
                 text = {
@@ -38,7 +36,6 @@ return {
             },
         })
 
-        -- Theme picker function
         local function theme_picker()
             local theme_list = {
                 { name = "onedark", cmd = "colorscheme onedark" },
@@ -75,7 +72,6 @@ return {
             }):find()
         end
 
-        -- Telescope setup
         telescope.setup({
             defaults = {
                 layout_strategy = "horizontal",
@@ -195,7 +191,6 @@ return {
             },
         })
 
-        -- Load extensions with error handling
         local extensions = { "fzf", "file_browser", "undo", "ui-select" }
         for _, ext in ipairs(extensions) do
             local ok, err = pcall(telescope.load_extension, ext)
@@ -204,7 +199,6 @@ return {
             end
         end
 
-        -- Project files function
         local function project_files()
             local opts = {
                 show_untracked = true,
@@ -222,22 +216,15 @@ return {
             end
         end
 
-        -- Register keybindings with which-key
-        local ok, wk = pcall(require, "which-key")
-        if ok then
-            wk.add({
-                { "<leader>s", group = "Search", icon = "🔍" },
-                { "<leader>sf", project_files, desc = "Find Files", mode = "n", icon = "📁" },
-                { "<leader>sg", builtin.live_grep, desc = "Live Grep", mode = "n", icon = "🔎" },
-                { "<leader>sd", builtin.diagnostics, desc = "Diagnostics", mode = "n", icon = "🩺" },
-                { "<leader>sb", telescope.extensions.file_browser.file_browser, desc = "File Browser", mode = "n", icon = "📂" },
-                { "<leader>su", telescope.extensions.undo.undo, desc = "Undo History", mode = "n", icon = "🔄" },
-                { "<leader>sr", builtin.oldfiles, desc = "Recent Files", mode = "n", icon = "🕒" },
-                { "<leader>so", builtin.buffers, desc = "Open Buffers", mode = "n", icon = "📋" },
-                { "<leader>st", theme_picker, desc = "Select Theme", mode = "n", icon = "🎨" },
-            })
-        else
-            vim.notify("which-key not found, keybindings not registered", vim.log.levels.WARN)
-        end
+        -- Define your keybindings here manually if needed
+        vim.keymap.set("n", "<leader>sf", project_files, { desc = "Find Files" })
+        vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "Live Grep" })
+        vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "Diagnostics" })
+        vim.keymap.set("n", "<leader>sb", telescope.extensions.file_browser.file_browser, { desc = "File Browser" })
+        vim.keymap.set("n", "<leader>su", telescope.extensions.undo.undo, { desc = "Undo History" })
+        vim.keymap.set("n", "<leader>sr", builtin.oldfiles, { desc = "Recent Files" })
+        vim.keymap.set("n", "<leader>so", builtin.buffers, { desc = "Open Buffers" })
+        vim.keymap.set("n", "<leader>st", theme_picker, { desc = "Select Theme" })
     end,
 }
+

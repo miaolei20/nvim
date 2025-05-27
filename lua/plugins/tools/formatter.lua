@@ -2,7 +2,7 @@ return {
   {
     "stevearc/conform.nvim",
     event = { "BufWritePre" },
-    dependencies = { "folke/which-key.nvim", "WhoIsSethDaniel/mason-tool-installer.nvim" },
+    dependencies = { "WhoIsSethDaniel/mason-tool-installer.nvim" }, -- 移除 which-key.nvim
     opts = {
       formatters_by_ft = {
         c = { "clang_format" },
@@ -17,7 +17,7 @@ return {
       formatters = {
         clang_format = {
           command = "clang-format",
-          args = { "--style=Google" }, -- Customize: Google, LLVM, Mozilla, or .clang-format
+          args = { "--style=Google" }, -- 可改为: Google, LLVM, Mozilla 等
         },
         black = {
           command = "black",
@@ -42,16 +42,19 @@ return {
       },
     },
     config = function(_, opts)
-      require("conform").setup(opts)
-      local wk = require("which-key")
-      wk.add({
-        { "<leader>f", group = "Format", icon = "🧹" },
-        { "<leader>ff", function() require("conform").format({ async = true, lsp_fallback = true }) end, desc = "Format Buffer", mode = "n", icon = "📄" },
-        { "<leader>ft", function()
-          require("conform").format_on_save = not require("conform").format_on_save
-          vim.notify("Format on save: " .. (require("conform").format_on_save and "enabled" or "disabled"), vim.log.levels.INFO)
-        end, desc = "Toggle Format on Save", mode = "n", icon = "🔄" },
-      })
+      local conform = require("conform")
+      conform.setup(opts)
+
+      -- 保留原快捷键映射功能，不使用 which-key
+      vim.keymap.set("n", "<leader>ff", function()
+        conform.format({ async = true, lsp_fallback = true })
+      end, { desc = "Format Buffer" })
+
+      vim.keymap.set("n", "<leader>ft", function()
+        -- 开关格式化保存功能（注意：此处修改 opts 变量无效，需修改 conform 实例）
+        conform.format_on_save = not conform.format_on_save
+        vim.notify("Format on save: " .. (conform.format_on_save and "enabled" or "disabled"), vim.log.levels.INFO)
+      end, { desc = "Toggle Format on Save" })
     end,
   },
 }

@@ -6,15 +6,13 @@ return {
   config = function()
     local harpoon = require("harpoon")
     harpoon:setup()
-    local wk = require("which-key")
-    wk.add({
-      { "<leader>h", group = "Harpoon", icon = "󰛢" },
-      { "<leader>ha", function() harpoon:list():add() end, desc = "Add File", icon = "󰐕" },
-      { "<leader>h1", function() harpoon:list():select(1) end, desc = "Go to File 1", icon = "󰎤" },
-      { "<leader>h2", function() harpoon:list():select(2) end, desc = "Go to File 2", icon = "󰎧" },
-      { "<leader>h3", function() harpoon:list():select(3) end, desc = "Go to File 3", icon = "󰎪" },
-      { "<leader>h4", function() harpoon:list():select(4) end, desc = "Go to File 4", icon = "󰎭" },
-      { "<leader>hm", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, desc = "Toggle Menu", icon = "󰍜" },
-    })
+
+    -- 原快捷键功能保留，移除 which-key 显示依赖
+    vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "Harpoon: Add File" })
+    vim.keymap.set("n", "<leader>h1", function() harpoon:list():select(1) end, { desc = "Harpoon: Go to File 1" })
+    vim.keymap.set("n", "<leader>h2", function() harpoon:list():select(2) end, { desc = "Harpoon: Go to File 2" })
+    vim.keymap.set("n", "<leader>h3", function() harpoon:list():select(3) end, { desc = "Harpoon: Go to File 3" })
+    vim.keymap.set("n", "<leader>h4", function() harpoon:list():select(4) end, { desc = "Harpoon: Go to File 4" })
+    vim.keymap.set("n", "<leader>hm", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon: Toggle Menu" })
   end,
 }
