@@ -37,81 +37,80 @@ return {
         })
 
         local function theme_picker()
-    local themes_list = vim.fn.getcompletion("", "color") or {}
-    table.sort(themes_list)
+            local themes_list = vim.fn.getcompletion("", "color") or {}
+            table.sort(themes_list)
 
-    local original_theme = vim.g.colors_name or "default"
-    local config_path = vim.fn.stdpath("config") .. "/lua/theme_persist.lua"
+            local original_theme = vim.g.colors_name or "default"
+            local config_path = vim.fn.stdpath("config") .. "/lua/theme_persist.lua"
 
-    local function apply_theme(theme)
-        vim.cmd("colorscheme " .. theme)
-    end
+            local function apply_theme(theme)
+                vim.cmd("colorscheme " .. theme)
+            end
 
-    local function persist_theme(theme)
-        local ok = pcall(vim.fn.writefile, {
-            "-- Auto-generated theme",
-            "vim.cmd('colorscheme " .. theme .. "')"
-        }, config_path)
-        if ok then
-            vim.notify("Theme persisted: " .. theme, vim.log.levels.INFO)
-        else
-            vim.notify("Failed to persist theme", vim.log.levels.ERROR)
-        end
-    end
-
-    pickers.new(themes.get_dropdown({ previewer = false }), {
-        prompt_title = "Select Theme",
-        finder = finders.new_table({
-            results = themes_list,
-            entry_maker = function(entry)
-                return {
-                    value = entry,
-                    display = entry,
-                    ordinal = entry,
-                }
-            end,
-        }),
-        sorter = conf.generic_sorter({}),
-        attach_mappings = function(prompt_bufnr, map)
-            local previewed_theme = nil
-
-            local function preview()
-                local entry = state.get_selected_entry()
-                if entry and entry.value ~= previewed_theme then
-                    previewed_theme = entry.value
-                    apply_theme(entry.value)
+            local function persist_theme(theme)
+                local ok = pcall(vim.fn.writefile, {
+                    "-- Auto-generated theme",
+                    "vim.cmd('colorscheme " .. theme .. "')"
+                }, config_path)
+                if ok then
+                    vim.notify("Theme persisted: " .. theme, vim.log.levels.INFO)
+                else
+                    vim.notify("Failed to persist theme", vim.log.levels.ERROR)
                 end
             end
 
-            map("i", "<C-j>", function() actions.move_selection_next(prompt_bufnr); preview() end)
-            map("i", "<C-k>", function() actions.move_selection_previous(prompt_bufnr); preview() end)
+            pickers.new(themes.get_dropdown({ previewer = false }), {
+                prompt_title = "Select Theme",
+                finder = finders.new_table({
+                    results = themes_list,
+                    entry_maker = function(entry)
+                        return {
+                            value = entry,
+                            display = entry,
+                            ordinal = entry,
+                        }
+                    end,
+                }),
+                sorter = conf.generic_sorter({}),
+                attach_mappings = function(prompt_bufnr, map)
+                    local previewed_theme = nil
 
-            actions.select_default:replace(function()
-                local selection = state.get_selected_entry()
-                actions.close(prompt_bufnr)
-                if selection then
-                    apply_theme(selection.value)
-                    persist_theme(selection.value)
-                else
-                    apply_theme(original_theme)
-                end
-            end)
+                    local function preview()
+                        local entry = state.get_selected_entry()
+                        if entry and entry.value ~= previewed_theme then
+                            previewed_theme = entry.value
+                            apply_theme(entry.value)
+                        end
+                    end
 
-            map("i", "<Esc>", function()
-                actions.close(prompt_bufnr)
-                apply_theme(original_theme)
-            end)
+                    map("i", "<C-j>", function() actions.move_selection_next(prompt_bufnr); preview() end)
+                    map("i", "<C-k>", function() actions.move_selection_previous(prompt_bufnr); preview() end)
 
-            map("n", "<Esc>", function()
-                actions.close(prompt_bufnr)
-                apply_theme(original_theme)
-            end)
+                    actions.select_default:replace(function()
+                        local selection = state.get_selected_entry()
+                        actions.close(prompt_bufnr)
+                        if selection then
+                            apply_theme(selection.value)
+                            persist_theme(selection.value)
+                        else
+                            apply_theme(original_theme)
+                        end
+                    end)
 
-            return true
-        end,
-    }):find()
-end
+                    map("i", "<Esc>", function()
+                        actions.close(prompt_bufnr)
+                        apply_theme(original_theme)
+                    end)
 
+                    map("n", "<Esc>", function()
+                        actions.close(prompt_bufnr)
+                        apply_theme(original_theme)
+                    end)
+
+                    return true
+                end,
+            }):find()
+        end
 
         telescope.setup({
             defaults = {
@@ -266,6 +265,6 @@ end
         vim.keymap.set("n", "<leader>sr", builtin.oldfiles, { desc = "Recent Files" })
         vim.keymap.set("n", "<leader>so", builtin.buffers, { desc = "Open Buffers" })
         vim.keymap.set("n", "<leader>st", theme_picker, { desc = "Select Theme" })
+        vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "Search Keymaps" })
     end,
 }
-

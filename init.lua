@@ -56,7 +56,6 @@ require("lazy").setup({
         { import = "plugins.tools.lastplace" },
         { import = "plugins.tools.leetcode" },
         { import = "plugins.tools.differview"},
-        { import = "plugins.tools.whichkey"},
     },
     install = {
         colorscheme = {
