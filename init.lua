@@ -1,17 +1,17 @@
--- 全局设置
-vim.g.mapleader = " "         -- 设置 leader 键为空格
-vim.g.maplocalleader = "\\"   -- 设置本地 leader 键为反斜杠
+-- Global settings
+vim.g.mapleader = " "         -- Set leader key to space
+vim.g.maplocalleader = "\\"   -- Set local leader key to backslash
 vim.g.python3_host_prog = vim.fn.executable("/usr/bin/python3") and "/usr/bin/python3" or nil
 
--- 加载核心配置并处理错误
+-- Load core configs and handle errors
 for _, module in ipairs({ "config.options", "config.keymaps" }) do
     local ok, err = pcall(require, module)
     if not ok then
-        vim.notify(string.format("无法加载 %s: %s", module, err), vim.log.levels.WARN)
+        vim.notify(string.format("Failed to load %s: %s", module, err), vim.log.levels.WARN)
     end
 end
 
--- 安装 lazy.nvim
+-- Install lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
     local out = vim.fn.system({
@@ -19,14 +19,14 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
         "https://github.com/folke/lazy.nvim.git", lazypath
     })
     if vim.v.shell_error ~= 0 then
-        vim.notify("无法克隆 lazy.nvim:\n" .. out, vim.log.levels.ERROR)
-        vim.fn.input("按回车退出...")
+        vim.notify("Failed to clone lazy.nvim:\n" .. out, vim.log.levels.ERROR)
+        vim.fn.input("Press Enter to exit...")
         os.exit(1)
     end
 end
 vim.opt.rtp:prepend(lazypath)
 
--- 设置 lazy.nvim
+-- Setup lazy.nvim
 require("lazy").setup({
     spec = {
         { import = "plugins.UI.theme" },
@@ -44,7 +44,7 @@ require("lazy").setup({
         { import = "plugins.editor.avante"},
         { import = "plugins.lsp.mason" },
         { import = "plugins.lsp.lsp" },
-        { import = "plugins.tools.formatter" },
+        { import = "plugins.tools.formatter"},
         { import = "plugins.editor.lint" },
         { import = "plugins.tools.telescope" },
         { import = "plugins.tools.lastplace" },
@@ -59,7 +59,7 @@ require("lazy").setup({
     checker = {
         enabled = true,
         notify = false,
-        frequency = 259200, -- 每3天检查更新
+        frequency = 259200, -- Check for updates every 3 days
     },
     performance = {
         cache = { enabled = true },

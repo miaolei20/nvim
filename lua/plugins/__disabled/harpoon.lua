@@ -7,7 +7,6 @@ return {
     local harpoon = require("harpoon")
     harpoon:setup()
 
-    -- 原快捷键功能保留，移除 which-key 显示依赖
     vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "Harpoon: Add File" })
     vim.keymap.set("n", "<leader>h1", function() harpoon:list():select(1) end, { desc = "Harpoon: Go to File 1" })
     vim.keymap.set("n", "<leader>h2", function() harpoon:list():select(2) end, { desc = "Harpoon: Go to File 2" })
