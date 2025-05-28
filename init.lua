@@ -36,6 +36,7 @@ require("lazy").setup({
         { import = "plugins.UI.rainbow" },
         { import = "plugins.UI.aerial" },
         { import = "plugins.UI.indent" },
+        { import = "plugins.UI.ui"},
         { import = "plugins.editor.treesitter" },
         { import = "plugins.editor.treesitter-context" },
         { import = "plugins.editor.cmp" },
@@ -47,12 +48,15 @@ require("lazy").setup({
         { import = "plugins.lsp.mason" },
         { import = "plugins.lsp.lsp" },
         { import = "plugins.tools.formatter" },
+        { import = "plugins.tools.math"},
         { import = "plugins.editor.lint" },
         { import = "plugins.tools.telescope" },
         { import = "plugins.tools.harpoon" },
         { import = "plugins.tools.lazygit" },
         { import = "plugins.tools.lastplace" },
         { import = "plugins.tools.leetcode" },
+        { import = "plugins.tools.differview"},
+        { import = "plugins.tools.whichkey"},
     },
     install = {
         colorscheme = {
@@ -88,29 +92,5 @@ require("lazy").setup({
     }
 })
 
--- 读取保存的主题
-local selected_theme_file = vim.fn.stdpath("config") .. "/selected_theme.txt"
-local default_theme = "colorscheme onedark"
-if vim.fn.filereadable(selected_theme_file) == 1 then
-    local success, lines_or_err = pcall(vim.fn.readfile, selected_theme_file)
-    if not success then
-        vim.notify("读取主题文件失败: " .. tostring(lines_or_err), vim.log.levels.ERROR)
-        vim.cmd(default_theme)
-    else
-        local cmd = lines_or_err[1] or ""
-        -- 更新正则以支持包含连字符的主题名
-        if cmd:match("^colorscheme [%w%-]+$") then
-            local ok, apply_err = pcall(vim.cmd, cmd)
-            if not ok then
-                vim.notify("应用主题失败: " .. tostring(apply_err), vim.log.levels.ERROR)
-                vim.cmd(default_theme)
-            end
-        else
-            vim.notify("无效的主题命令: " .. cmd, vim.log.levels.WARN)
-            vim.cmd(default_theme)
-        end
-    end
-else
-    vim.cmd(default_theme)
-end
+pcall(dofile, vim.fn.stdpath("config") .. "/lua/theme_persist.lua")
 

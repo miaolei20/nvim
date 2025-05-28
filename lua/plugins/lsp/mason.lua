@@ -18,6 +18,7 @@ return {
   },
   {
     "williamboman/mason-lspconfig.nvim",
+    cmd = { "Mason", "MasonInstall", "MasonUninstall", "MasonUpdate" },
     dependencies = { "williamboman/mason.nvim" },
     opts = {
       ensure_installed = { "lua_ls", "clangd", "pyright", "bashls", "jsonls", "yamlls" },
@@ -26,13 +27,13 @@ return {
   },
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
+    cmd = { "MasonToolInstall", "MasonToolUninstall", "MasonToolUpdate" },
     dependencies = { "williamboman/mason.nvim" },
     opts = {
       ensure_installed = {
         "clang-format", -- C/C++ formatter
         "black", -- Python formatter
         "stylua", -- Lua formatter
-        "shfmt", -- Shell formatter
         "prettier", -- Multi-language formatter
         "cpplint", -- C/C++ linter
         "flake8", -- Python linter

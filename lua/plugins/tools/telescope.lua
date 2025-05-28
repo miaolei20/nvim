@@ -37,40 +37,81 @@ return {
         })
 
         local function theme_picker()
-            local theme_list = {
-                { name = "onedark", cmd = "colorscheme onedark" },
-                { name = "catppuccin (dark)", cmd = "colorscheme catppuccin" },
-                { name = "catppuccin (light)", cmd = "colorscheme catppuccin-latte" },
-                { name = "tokyonight", cmd = "colorscheme tokyonight" },
-                { name = "gruvbox", cmd = "colorscheme gruvbox" },
-            }
-            pickers.new(themes.get_dropdown({ previewer = false }), {
-                prompt_title = "Select Theme",
-                finder = finders.new_table({
-                    results = theme_list,
-                    entry_maker = function(entry)
-                        return {
-                            value = entry,
-                            display = entry.name,
-                            ordinal = entry.name,
-                        }
-                    end,
-                }),
-                sorter = conf.generic_sorter({}),
-                attach_mappings = function(prompt_bufnr)
-                    actions.select_default:replace(function()
-                        local selection = state.get_selected_entry()
-                        actions.close(prompt_bufnr)
-                        if selection then
-                            vim.cmd(selection.value.cmd)
-                            vim.g.selected_theme = selection.value.cmd
-                            vim.notify("Theme set: " .. selection.value.name, vim.log.levels.INFO)
-                        end
-                    end)
-                    return true
-                end,
-            }):find()
+    local themes_list = vim.fn.getcompletion("", "color") or {}
+    table.sort(themes_list)
+
+    local original_theme = vim.g.colors_name or "default"
+    local config_path = vim.fn.stdpath("config") .. "/lua/theme_persist.lua"
+
+    local function apply_theme(theme)
+        vim.cmd("colorscheme " .. theme)
+    end
+
+    local function persist_theme(theme)
+        local ok = pcall(vim.fn.writefile, {
+            "-- Auto-generated theme",
+            "vim.cmd('colorscheme " .. theme .. "')"
+        }, config_path)
+        if ok then
+            vim.notify("Theme persisted: " .. theme, vim.log.levels.INFO)
+        else
+            vim.notify("Failed to persist theme", vim.log.levels.ERROR)
         end
+    end
+
+    pickers.new(themes.get_dropdown({ previewer = false }), {
+        prompt_title = "Select Theme",
+        finder = finders.new_table({
+            results = themes_list,
+            entry_maker = function(entry)
+                return {
+                    value = entry,
+                    display = entry,
+                    ordinal = entry,
+                }
+            end,
+        }),
+        sorter = conf.generic_sorter({}),
+        attach_mappings = function(prompt_bufnr, map)
+            local previewed_theme = nil
+
+            local function preview()
+                local entry = state.get_selected_entry()
+                if entry and entry.value ~= previewed_theme then
+                    previewed_theme = entry.value
+                    apply_theme(entry.value)
+                end
+            end
+
+            map("i", "<C-j>", function() actions.move_selection_next(prompt_bufnr); preview() end)
+            map("i", "<C-k>", function() actions.move_selection_previous(prompt_bufnr); preview() end)
+
+            actions.select_default:replace(function()
+                local selection = state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                if selection then
+                    apply_theme(selection.value)
+                    persist_theme(selection.value)
+                else
+                    apply_theme(original_theme)
+                end
+            end)
+
+            map("i", "<Esc>", function()
+                actions.close(prompt_bufnr)
+                apply_theme(original_theme)
+            end)
+
+            map("n", "<Esc>", function()
+                actions.close(prompt_bufnr)
+                apply_theme(original_theme)
+            end)
+
+            return true
+        end,
+    }):find()
+end
+
 
         telescope.setup({
             defaults = {

@@ -9,7 +9,7 @@ return {
             enable_autocmd = false
         })
         require("nvim-treesitter.configs").setup({
-            ensure_installed = {"lua", "vim", "vimdoc", "c", "cpp", "markdown", "markdown_inline", "python"},
+            ensure_installed = {"lua",  "c", "cpp", "markdown", "markdown_inline", "python"},
             highlight = {
                 enable = true,
                 additional_vim_regex_highlighting = false
