@@ -42,6 +42,7 @@ require("lazy").setup({
         { import = "plugins.editor.comment" },
         { import = "plugins.editor.gitsigns" },
         { import = "plugins.editor.hlslens" },
+        { import = "plugins.editor.avante"},
         { import = "plugins.editor.visual-multi" },
         { import = "plugins.lsp.mason" },
         { import = "plugins.lsp.lsp" },
@@ -51,7 +52,6 @@ require("lazy").setup({
         { import = "plugins.tools.harpoon" },
         { import = "plugins.tools.lazygit" },
         { import = "plugins.tools.lastplace" },
-        { import = "plugins.tools.copilot" },
         { import = "plugins.tools.leetcode" },
     },
     install = {

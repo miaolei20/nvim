@@ -22,22 +22,45 @@ return {{
                 visible = false,
                 hide_dotfiles = true,
                 hide_gitignored = true
-            }
+            },
+            commands = {
+                avante_add_files = function(state)
+                    local node = state.tree:get_node()
+                    local filepath = node:get_id()
+                    local relative_path = require('avante.utils').relative_path(filepath)
+
+                    local sidebar = require('avante').get()
+                    local open = sidebar:is_open()
+
+                    if not open then
+                        require('avante.api').ask()
+                        sidebar = require('avante').get()
+                    end
+
+                    sidebar.file_selector:add_selected_file(relative_path)
+
+                    if not open then
+                        sidebar.file_selector:remove_selected_file('neo-tree filesystem [1]')
+                    end
+                end,
+            },
+            window = {
+                mappings = {
+                    ['oa'] = 'avante_add_files',
+                },
+            },
         }
     },
     config = function(_, opts)
-        -- Debug logging
         local function debug_log(msg)
             if vim.g.debug_neotree then
                 vim.notify("[Neo-tree] " .. msg, vim.log.levels.DEBUG)
             end
         end
 
-        -- Setup Neo-tree
         require("neo-tree").setup(opts)
         debug_log("Neo-tree setup complete")
 
-        -- Automatically open Neo-tree on startup (if configured)
         if opts.open_on_setup then
             vim.api.nvim_create_autocmd("VimEnter", {
                 callback = function()
@@ -50,7 +73,6 @@ return {{
             })
         end
 
-        -- Global keymaps
         local map = vim.keymap.set
         local opts_silent = { noremap = true, silent = true }
 
@@ -59,9 +81,6 @@ return {{
         map("n", "<leader>eg", "<cmd>Neotree git_status left<CR>", opts_silent)
         map("n", "<leader>eb", "<cmd>Neotree buffers left<CR>", opts_silent)
 
-        debug_log("Global explorer mappings registered")
-
-        -- Neo-tree buffer-local mappings
         vim.api.nvim_create_autocmd("FileType", {
             pattern = "neo-tree",
             callback = function(args)
@@ -94,4 +113,3 @@ return {{
         })
     end
 }}
-
