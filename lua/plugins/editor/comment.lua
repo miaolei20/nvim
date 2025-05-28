@@ -1,27 +1,27 @@
-return {{
-    "echasnovski/mini.comment",
-    event = {"BufReadPre", "BufNewFile"},
-    dependencies = {"JoosepAlviste/nvim-ts-context-commentstring"},
+return {
+    "numToStr/Comment.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = {
+        "JoosepAlviste/nvim-ts-context-commentstring"
+    },
     config = function()
-        -- 配置 nvim-ts-context-commentstring
-        require("ts_context_commentstring").setup({
-            enable_autocmd = false
-        })
+        require("ts_context_commentstring").setup({ enable_autocmd = false })
 
-        -- 配置 mini.comment
-        require("mini.comment").setup({
-            options = {
-                custom_commentstring = function()
-                    return require("ts_context_commentstring.internal").calculate_commentstring() or
-                               vim.bo.commentstring
+        require("Comment").setup({
+            pre_hook = function(ctx)
+                local U = require("Comment.utils")
+
+                -- ts-context-commentstring hook
+                if ctx.ctype == U.ctype.block then
+                    return require("ts_context_commentstring.internal").calculate_commentstring({
+                        key = "ts_context_commentstring",
+                        location = ctx.range and {
+                            ctx.range.srow,
+                            ctx.range.scol,
+                        } or nil,
+                    }) or vim.bo.commentstring
                 end
-            },
-            mappings = {
-                comment = "<C-_>",
-                comment_line = "<C-_>",
-                comment_visual = "<C-_>",
-                textobject = "<C-_>"
-            }
+            end
         })
-    end
-}}
+    end,
+}
